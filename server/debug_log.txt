@@ -358,3 +358,71 @@
 [AUTH 2025-12-31T07:24:28.824Z] Token found: eyJhbGciOi...
 [AUTH 2025-12-31T07:24:28.848Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
 [AUTH 2025-12-31T07:24:28.879Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:36:35.338Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:36:35.342Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:36:35.381Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:36:35.423Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:41:49.831Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2025-12-31T07:41:49.834Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:41:49.841Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:41:49.855Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:41:49.957Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2025-12-31T07:41:49.957Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:41:49.960Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:41:49.965Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:04.308Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2025-12-31T07:42:04.309Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:04.313Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:04.320Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:04.346Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2025-12-31T07:42:04.346Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:04.349Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:04.354Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:06.361Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:42:06.362Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:06.368Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:06.375Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:13.470Z] Checking Auth for: GET /api/admin/enrollments?source=invite
+[AUTH 2025-12-31T07:42:13.472Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:13.475Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:13.479Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:13.514Z] Checking Auth for: GET /api/admin/enrollments?source=invite
+[AUTH 2025-12-31T07:42:13.515Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:13.520Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:13.529Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:27.457Z] Checking Auth for: POST /api/admin/programs/6954c8a9336104839344908d/publish-offer-letters?force=true
+[AUTH 2025-12-31T07:42:27.482Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:27.495Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:27.504Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:42:42.170Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:42:42.171Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:42:42.175Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:42:42.179Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:43:08.608Z] Checking Auth for: POST /api/quiz
+[AUTH 2025-12-31T07:43:08.609Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:43:08.611Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:43:08.615Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:43:10.846Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:43:10.846Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:43:10.848Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:43:10.850Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:43:12.552Z] Checking Auth for: PATCH /api/quiz/6954d40c974ac132d6fd85fc/publish
+[AUTH 2025-12-31T07:43:12.553Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:43:12.557Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:43:12.562Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:43:12.584Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:43:12.585Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:43:12.586Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:43:12.588Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:45:06.044Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:45:06.046Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:45:06.073Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:45:06.126Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:45:11.989Z] Checking Auth for: PATCH /api/quiz/6954d40c974ac132d6fd85fc/unpublish
+[AUTH 2025-12-31T07:45:11.991Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:45:11.995Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:45:11.998Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2025-12-31T07:45:12.068Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2025-12-31T07:45:12.070Z] Token found: eyJhbGciOi...
+[AUTH 2025-12-31T07:45:12.072Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2025-12-31T07:45:12.077Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)

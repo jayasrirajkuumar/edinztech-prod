@@ -60,11 +60,7 @@ import AdminTemplateOfferLetter from '../pages/admin/templates/offer-letter';
 import AdminInvitePage from '../pages/admin/invite';
 import AdminEnrollments from '../pages/AdminEnrollments';
 
-// Outsider Quiz Pages
-import AdminOutsiderQuizzes from '../pages/AdminOutsiderQuizzes';
-import AdminOutsiderQuizForm from '../pages/AdminOutsiderQuizForm';
-import AdminOutsiderQuizResults from '../pages/AdminOutsiderQuizResults';
-import PublicOutsiderQuiz from '../pages/PublicOutsiderQuiz';
+// Outsider Quiz Pages - Removed
 
 export const router = createBrowserRouter([
     {
@@ -89,7 +85,6 @@ export const router = createBrowserRouter([
             { path: '/terms', element: <Terms /> },
             { path: '/privacy', element: <Privacy /> },
             { path: '/feedback/public', element: <PublicFeedback /> }, // Added
-            { path: '/quiz/public/:id', element: <PublicOutsiderQuiz /> }, // Added
             { path: '*', element: <div className="p-20 text-center text-xl">Page Not Found (Custom Catch-All)</div> },
         ],
     },
@@ -138,11 +133,6 @@ export const router = createBrowserRouter([
             { path: '/admin/offer-letters', element: <AdminTemplateOfferLetter /> },
             { path: '/admin/invite', element: <AdminInvitePage /> },
             { path: '/admin/enrollments', element: <AdminEnrollments /> },
-            // Outsider Quiz Routes
-            { path: '/admin/outsider-quizzes', element: <AdminOutsiderQuizzes /> },
-            { path: '/admin/outsider-quizzes/new', element: <AdminOutsiderQuizForm /> },
-            { path: '/admin/outsider-quizzes/:id/edit', element: <AdminOutsiderQuizForm /> },
-            { path: '/admin/outsider-quizzes/:id/results', element: <AdminOutsiderQuizResults /> },
         ],
     },
 ]);
