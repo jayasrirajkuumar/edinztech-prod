@@ -13,6 +13,7 @@ export default function DashboardCertificates() {
                 const { data } = await api.get('/certificates/me'); // Changed from /me/certificates as defined in controller logic step
                 // Filter out offer letters (show only actual certificates)
                 const filtered = data.filter(item =>
+                    item.certificateId &&
                     !item.certificateId.startsWith('OFFER-') &&
                     item.metadata?.type !== 'offer-letter'
                 );

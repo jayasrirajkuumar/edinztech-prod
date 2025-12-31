@@ -6,7 +6,8 @@ import { Input, TextArea } from '../ui/Input';
 import Select from '../ui/Select';
 import Button from '../ui/Button';
 import { Icons } from '../icons/index';
-import { createProgram, uploadProgramTemplate } from '../../lib/api';
+import { createProgram, uploadProgramTemplate, getWhatsAppTemplates, registerWhatsAppTemplate } from '../../lib/api';
+import Modal from '../ui/Modal';
 import { useNavigate } from 'react-router-dom';
 
 // Helper Component for Template Upload
@@ -124,13 +125,14 @@ const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
 const step1Schema = z.object({
     title: z.string().min(3, 'Title is required (min 3 chars)'),
     description: z.string().min(10, 'Description is required (min 10 chars)'),
-    type: z.enum(['Course', 'Internship', 'Workshop']),
+    type: z.enum(['Course', 'Internship', 'Workshop', 'Project']),
     code: z.string().optional(),
     startDate: z.string().min(1, 'Start Date is required'),
     endDate: z.string().min(1, 'End Date is required'),
     mode: z.enum(['Online', 'Offline', 'Hybrid']),
     startTime: z.string().optional(),
     endTime: z.string().optional(),
+    registrationDeadline: z.string().optional(), // Adding new field
 });
 
 const step2Schema = z.object({
@@ -148,15 +150,16 @@ const step2Schema = z.object({
 });
 
 const step3Schema = z.object({
-    // We will handle file validations manually or via simple check since react-hook-form + file inputs is tricky
-    // But we need to know if type implies offer letter
-}).optional();
+    templateType: z.string().optional(),
+});
 
 const step4Schema = z.object({
     whatsappMessage: z.string().optional(),
     whatsappGroupLink: z.string().optional().or(z.literal('')),
     emailSubject: z.string().optional(),
     emailBody: z.string().optional(),
+    // WhatsApp Config Schema (Loose validation as structure is complex)
+    whatsappConfig: z.any().optional()
 });
 
 // Combined Schema for final submission check if needed, but we rely on steps
@@ -167,8 +170,19 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
     const [currentStep, setCurrentStep] = useState(0); // 0: Basic, 1: Payment, 2: Templates, 3: Communication
     const [offerLetterFile, setOfferLetterFile] = useState(null);
     const [certificateFile, setCertificateFile] = useState(null);
+    const [waTemplates, setWaTemplates] = useState([]);
 
-    // Global Form
+    useEffect(() => {
+        const fetchTemplates = async () => {
+            try {
+                const data = await getWhatsAppTemplates();
+                setWaTemplates(data);
+            } catch (error) {
+                console.warn("Failed to fetch WA templates:", error);
+            }
+        };
+        fetchTemplates();
+    }, []);
     const {
         register,
         handleSubmit,
@@ -179,7 +193,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
         trigger,
         getValues
     } = useForm({
-        resolver: zodResolver(step1Schema.merge(step2Schema).merge(step4Schema).optional()),
+        resolver: zodResolver(step1Schema.merge(step2Schema).merge(step3Schema).merge(step4Schema)),
         mode: 'onChange',
         shouldUnregister: false,
         defaultValues: initialValues || {
@@ -192,6 +206,36 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
 
     const programType = watch('type');
     const paymentMode = watch('paymentMode');
+
+    // Sync Handler
+    // Template Registration Handler
+    const [isAddTemplateOpen, setIsAddTemplateOpen] = useState(false);
+    const [newTemplate, setNewTemplate] = useState({ name: '', bodyPreview: '' });
+
+    const handleAddTemplate = async (e) => {
+        e.preventDefault();
+        try {
+            // Basic extraction of {{1}} for variables
+            const matches = newTemplate.bodyPreview.match(/{{(\d+)}}/g);
+            const variables = matches ? [...new Set(matches.map(m => m.replace(/{{|}}/g, '')))] : [];
+
+            await registerWhatsAppTemplate({
+                name: newTemplate.name,
+                bodyPreview: newTemplate.bodyPreview,
+                variables
+            });
+
+            // Refresh
+            const data = await getWhatsAppTemplates();
+            setWaTemplates(data);
+            setIsAddTemplateOpen(false);
+            setNewTemplate({ name: '', bodyPreview: '' });
+            alert('Template added successfully!');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add template');
+        }
+    };
 
     // Steps Configuration
     const steps = [
@@ -209,6 +253,18 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
         // Validating per step manually to avoid stale resolver closure issues
         if (currentStep === 0) {
             isValid = await trigger(['title', 'description', 'type', 'startDate', 'endDate', 'mode', 'startTime', 'endTime']);
+
+            // Manual Date Logic Check
+            if (isValid) {
+                const sDate = getValues('startDate');
+                const eDate = getValues('endDate');
+                if (sDate && eDate) {
+                    if (new Date(eDate) < new Date(sDate)) {
+                        alert("Invalid Date Range: End Date cannot be before Start Date.");
+                        return; // Stop here
+                    }
+                }
+            }
         } else if (currentStep === 1) {
             isValid = await trigger(['paymentMode', 'fee']);
             // Manual check for Paid mode safety:
@@ -219,7 +275,8 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 }
             }
         } else if (currentStep === 2) {
-            if (programType === 'Internship' && !offerLetterFile && !isEditing) {
+            // Updated logic for Project Acceptance Letter
+            if ((programType === 'Internship' || programType === 'Project') && !offerLetterFile && !isEditing) {
                 // For editing, we might already have a template, so strictly enforcing file upload might block updates without changing file.
                 // Ideally we check if field is populated, but file input is uncontrolled.
                 // We'll relax this for edit or assume user knows.
@@ -257,6 +314,13 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 return;
             }
 
+            // CRITICAL: Validate End Date must be after Start Date
+            if (end < start) {
+                alert("Invalid Date Range: End Date cannot be before Start Date.");
+                setCurrentStep(0);
+                return;
+            }
+
             // 1. Prepare Data
             const payload = {
                 ...data,
@@ -266,6 +330,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 // Unnested schedule fields to match Schema
                 startTime: data.startTime,
                 endTime: data.endTime,
+                registrationDeadline: data.registrationDeadline ? new Date(data.registrationDeadline).toISOString() : null,
                 communication: {
                     whatsappGroupLink: data.whatsappGroupLink,
                     whatsappMessage: data.whatsappMessage,
@@ -273,6 +338,21 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                     emailBody: data.emailBody
                 }
             };
+
+            // Fix: Mongoose Map casting error if variableMapping is an array
+            const fixMapping = (config) => {
+                if (config && config.variableMapping) {
+                    if (Array.isArray(config.variableMapping)) {
+                        const map = {};
+                        config.variableMapping.forEach((val, idx) => {
+                            if (val) map[String(idx)] = val;
+                        });
+                        config.variableMapping = map;
+                    }
+                }
+            };
+            if (payload.whatsappConfig?.onEnrolled) fixMapping(payload.whatsappConfig.onEnrolled);
+            if (payload.whatsappConfig?.onCompletion) fixMapping(payload.whatsappConfig.onCompletion);
 
             // IF PARENT SUBMIT PROVIDED (Edit Mode or Custom Handler)
             // IF PARENT SUBMIT PROVIDED (Edit Mode or Custom Handler)
@@ -403,7 +483,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                                 render={({ field }) => (
                                     <Select
                                         label="Program Type"
-                                        options={['Course', 'Internship', 'Workshop']}
+                                        options={['Course', 'Internship', 'Workshop', 'Project']}
                                         error={errors.type?.message}
                                         {...field}
                                     />
@@ -434,6 +514,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Input type="date" label="Start Date" {...register('startDate')} error={errors.startDate?.message} />
                             <Input type="date" label="End Date" {...register('endDate')} error={errors.endDate?.message} />
+                            <Input type="date" label="Registration Deadline" {...register('registrationDeadline')} />
                             <Controller
                                 name="mode"
                                 control={control}
@@ -496,15 +577,14 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 {/* Step 3: Templates */}
                 {currentStep === 2 && (
                     <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
-                        {programType === 'Internship' && (
+                        {(programType === 'Internship' || programType === 'Project') && (
                             <TemplateUploader
-                                label="Offer Letter Template"
+                                label={programType === 'Internship' ? "Offer Letter Template" : "Acceptance Letter Template"}
                                 file={offerLetterFile}
                                 setFile={setOfferLetterFile}
                                 initialUrl={initialValues?.offerLetterTemplate}
                                 onRemove={() => {
                                     setOfferLetterFile(null);
-                                    // If needed, we could signal parent to clear exisiting, but state reset handles UI
                                 }}
                             />
                         )}
@@ -517,6 +597,31 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                                 initialUrl={initialValues?.certificateTemplate}
                                 onRemove={() => setCertificateFile(null)}
                             />
+
+                            {(programType === 'Internship' || programType === 'Project') && (
+                                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                                    <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                                        <Icons.Settings size={16} /> Document Branding
+                                    </h4>
+                                    <p className="text-sm text-gray-500 mb-4">
+                                        Select the underlying branding template for Offer/Acceptance Letters.
+                                        (Used if no custom file is uploaded)
+                                    </p>
+                                    <div className="space-y-1">
+                                        <label className="block text-sm font-medium text-gray-700">Template Branding</label>
+                                        <select
+                                            {...register('templateType')}
+                                            className="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2.5 border"
+                                        >
+                                            <option value="edinz">Edinz (Default)</option>
+                                            <option value="inspire">Inspire</option>
+                                            <option value="igreen">IGreen</option>
+                                            <option value="ats">ATS</option>
+                                        </select>
+                                        <p className="text-xs text-gray-500">Auto-selects background for generated PDFs.</p>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Live Preview Overlay */}
                             {(certificateFile || initialValues?.certificateTemplate) && (
@@ -765,17 +870,101 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 {
                     currentStep === 3 && (
                         <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-                            <Input
-                                label="WhatsApp Group Link"
-                                {...register('whatsappGroupLink')}
-                                placeholder="https://chat.whatsapp.com/..."
-                            />
-                            <TextArea
-                                label="Welcome WhatsApp Message"
-                                {...register('whatsappMessage')}
-                                placeholder="Hello {{name}}, welcome..."
-                                rows={3}
-                            />
+                            {/* WhatsApp Config Section */}
+                            <div className="bg-green-50/50 p-4 border border-green-100 rounded-lg">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Icons.MessageSquare size={18} className="text-green-600" />
+                                    <h4 className="font-medium text-green-900">WhatsApp Automation</h4>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {/* Enable Toggle */}
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="checkbox"
+                                            id="wa-enabled"
+                                            {...register('whatsappConfig.onEnrolled.enabled')}
+                                            className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                        />
+                                        <label htmlFor="wa-enabled" className="text-sm font-medium text-gray-700">
+                                            Send Message on Enrollment
+                                        </label>
+                                    </div>
+
+                                    {/* Show config if enabled */}
+                                    {watch('whatsappConfig.onEnrolled.enabled') && (
+                                        <div className="pl-6 space-y-4 animate-in fade-in slide-in-from-top-2">
+                                            {/* Template Selector */}
+                                            <div>
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <label className="block text-sm font-medium text-gray-700">Select Template</label>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsAddTemplateOpen(true)}
+                                                        className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                                                        title="Manually Add Approved Template"
+                                                    >
+                                                        <Icons.Plus size={14} /> Add Template
+                                                    </button>
+                                                </div>
+                                                <select
+                                                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                                                    {...register('whatsappConfig.onEnrolled.templateId')}
+                                                >
+                                                    <option value="">-- Select a Template --</option>
+                                                    {waTemplates.map(t => (
+                                                        <option key={t._id} value={t._id}>
+                                                            {t.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {waTemplates.length === 0 && (
+                                                    <p className="text-xs text-gray-500 mt-1">No templates found. Add one to get started.</p>
+                                                )}
+                                            </div>
+
+                                            {/* Variable Mapping */}
+                                            {watch('whatsappConfig.onEnrolled.templateId') && (() => {
+                                                const selectedId = watch('whatsappConfig.onEnrolled.templateId');
+                                                const template = waTemplates.find(t => t._id === selectedId);
+                                                if (!template || !template.variables || template.variables.length === 0) return null;
+
+                                                return (
+                                                    <div className="bg-white p-3 rounded border border-gray-200">
+                                                        <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Map Variables</h5>
+                                                        <div className="grid grid-cols-1 gap-2">
+                                                            {template.variables.map((v, idx) => (
+                                                                <div key={idx} className="flex items-center gap-2">
+                                                                    <span className="text-sm text-gray-600 w-24 flex-shrink-0">
+                                                                        {{
+                                                                            // Try to be smart about variable display
+                                                                            '1': '{{1}}', '2': '{{2}}'
+                                                                        }[v] || `{{${v}}}`}
+                                                                    </span>
+                                                                    <span className="text-gray-400">→</span>
+                                                                    <select
+                                                                        className="flex-1 rounded-md border-gray-300 text-sm focus:border-green-500 focus:ring-green-500"
+                                                                        {...register(`whatsappConfig.onEnrolled.variableMapping.${v}`)}
+                                                                    >
+                                                                        <option value="">-- Select Data Source --</option>
+                                                                        <option value="student.name">Student Name</option>
+                                                                        <option value="student.email">Student Email</option>
+                                                                        <option value="program.title">Program Title</option>
+                                                                        <option value="program.startDate">Start Date</option>
+                                                                        <option value="program.whatsappGroupLink">WhatsApp Group Link</option>
+                                                                    </select>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* WhatsApp Inputs Removed */}
                             <div className="border-t border-gray-100 my-4 pt-4">
                                 <h4 className="font-medium text-secondary mb-3">Email Template</h4>
                                 <Input
@@ -814,6 +1003,41 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 </div>
 
             </form >
+            {/* Add Template Modal */}
+            <Modal isOpen={isAddTemplateOpen} onClose={() => setIsAddTemplateOpen(false)} title="Add WhatsApp Template">
+                <form onSubmit={handleAddTemplate} className="space-y-4">
+                    <div className="bg-yellow-50 text-yellow-800 p-3 rounded text-sm mb-4">
+                        <strong>Important:</strong> Only add templates that are <b>APPROVED</b> in your 2desh Dashboard.
+                        <br />Variable syntax: <code>{'{{1}}'}</code>, <code>{'{{2}}'}</code>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Template Name</label>
+                        <input
+                            type="text"
+                            required
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            value={newTemplate.name}
+                            onChange={e => setNewTemplate({ ...newTemplate, name: e.target.value })}
+                            placeholder="e.g. dec_intern"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Template Body</label>
+                        <textarea
+                            required
+                            rows={3}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                            value={newTemplate.bodyPreview}
+                            onChange={e => setNewTemplate({ ...newTemplate, bodyPreview: e.target.value })}
+                            placeholder="Hello {{1}}, welcome to {{2}}..."
+                        />
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <Button type="button" variant="ghost" onClick={() => setIsAddTemplateOpen(false)}>Cancel</Button>
+                        <Button type="submit">Add Template</Button>
+                    </div>
+                </form>
+            </Modal>
         </div >
     );
 }

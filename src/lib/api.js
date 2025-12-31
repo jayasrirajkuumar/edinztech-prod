@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create Axios Instance
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://72.60.103.246:5000/api', // Fallback to production IP
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // Default to local for dev safety
     headers: {
         'Content-Type': 'application/json',
     },
@@ -69,16 +69,17 @@ export const uploadProgramTemplate = async (id, file) => {
     formData.append('template', file);
 
     // Explicitly let browser set Content-Type for multipart
-    const { data } = await api.post(`/programs/${id}/upload-template`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    const { data } = await api.post(`/programs/${id}/upload-template`, formData);
     return data;
 };
 
 export const updateProgram = async (id, programData) => {
     const { data } = await api.put(`/programs/${id}`, programData);
+    return data;
+};
+
+export const deleteProgram = async (id) => {
+    const { data } = await api.delete(`/programs/${id}`);
     return data;
 };
 
@@ -143,9 +144,7 @@ export const getStudentQuizzes = async () => {
 export const uploadQuizImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const { data } = await api.post('/quiz/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const { data } = await api.post('/quiz/upload', formData);
     return data;
 };
 
@@ -156,6 +155,11 @@ export const getQuizReports = async (id) => {
 
 export const getQuizAttempt = async (id) => {
     const { data } = await api.get(`/quiz/attempt/${id}`);
+    return data;
+};
+
+export const getQuiz = async (id) => {
+    const { data } = await api.get(`/quiz/detail/${id}`);
     return data;
 };
 
@@ -320,6 +324,11 @@ export const submitDefaultFeedback = async (feedbackData) => {
     return data;
 };
 
+export const submitPublicFeedback = async (feedbackData) => {
+    const { data } = await api.post('/feedback/public', feedbackData);
+    return data;
+};
+
 // Certificates
 export const publishCertificates = async (programId) => {
     const { data } = await api.post(`/admin/programs/${programId}/publish-certificates`);
@@ -333,6 +342,60 @@ export const publishOfferLetters = async (programId, force = false) => {
 
 export const regenerateCertificate = async (enrollmentId) => {
     const { data } = await api.post(`/certificates/regenerate/${enrollmentId}`);
+    return data;
+};
+
+// WhatsApp Templates
+export const getWhatsAppTemplates = async () => {
+    const { data } = await api.get('/admin/whatsapp/templates');
+    return data;
+};
+
+export const registerWhatsAppTemplate = async (templateData) => {
+    const { data } = await api.post('/admin/whatsapp/templates', templateData);
+    return data;
+};
+
+// Outsider Quiz APIs
+export const createOutsiderQuiz = async (quizData) => {
+    const { data } = await api.post('/outsider-quiz/admin', quizData);
+    return data;
+};
+
+export const uploadOutsiderQuizTemplate = async (id, file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const { data } = await api.post(`/outsider-quiz/admin/${id}/upload-template`, formData);
+    return data;
+};
+
+export const getOutsiderQuizzes = async () => {
+    const { data } = await api.get('/outsider-quiz/admin');
+    return data;
+};
+
+export const getOutsiderQuizAdmin = async (id) => {
+    const { data } = await api.get(`/outsider-quiz/admin/${id}`);
+    return data;
+};
+
+export const updateOutsiderQuiz = async (id, quizData) => {
+    const { data } = await api.put(`/outsider-quiz/admin/${id}`, quizData);
+    return data;
+};
+
+export const getOutsiderQuizResults = async (id) => {
+    const { data } = await api.get(`/outsider-quiz/admin/${id}/results`);
+    return data;
+};
+
+export const getPublicOutsiderQuiz = async (id) => {
+    const { data } = await api.get(`/outsider-quiz/public/${id}`);
+    return data;
+};
+
+export const submitPublicOutsiderQuiz = async (id, submissionData) => {
+    const { data } = await api.post(`/outsider-quiz/public/${id}/submit`, submissionData);
     return data;
 };
 

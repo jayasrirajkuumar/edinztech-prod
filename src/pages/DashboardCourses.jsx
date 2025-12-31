@@ -19,7 +19,16 @@ export default function DashboardCourses() {
                         ...e.program,
                         // Add enrollment specific fields if ProgramGrid supports them
                         status: e.status,
-                        progress: e.progressPercent
+                        // Calculate Progress
+                        progress: (() => {
+                            const start = new Date(e.program.startDate).getTime();
+                            const end = new Date(e.program.validUntil || e.program.endDate).getTime();
+                            const now = new Date().getTime();
+                            if (now < start) return 0;
+                            if (now > end) return 100;
+                            if (end === start) return 100;
+                            return Math.round(((now - start) / (end - start)) * 100);
+                        })()
                     }));
 
                 setCourses(myCourses);

@@ -4,7 +4,7 @@ import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
-import api, { publishCertificates, publishOfferLetters, exportPrograms, toggleProgramFeedback } from '../lib/api';
+import api, { publishCertificates, publishOfferLetters, exportPrograms, toggleProgramFeedback, deleteProgram } from '../lib/api';
 import AdminTable from '../components/AdminTable';
 import PublishResultsModal from '../components/PublishResultsModal';
 import { getProgramStatus, getRegistrationStatus } from '../lib/programUtils';
@@ -90,9 +90,9 @@ export default function AdminPrograms() {
             }
 
             if (filterOffer !== 'All') {
-                if (p.type !== 'Internship') return true; // Offer filter only for internships
-                if (filterOffer === 'Offer Issued' && p.derived.offerStatus !== 'Issued') return false;
-                if (filterOffer === 'Offer Not Issued' && p.derived.offerStatus === 'Issued') return false;
+                if (p.type !== 'Internship' && p.type !== 'Project') return true; // Offer/Acceptance filter
+                if (filterOffer === 'Issued' && p.derived.offerStatus !== 'Issued') return false;
+                if (filterOffer === 'Not Issued' && p.derived.offerStatus === 'Issued') return false;
             }
 
             return true;
@@ -130,7 +130,7 @@ export default function AdminPrograms() {
     };
 
     const handlePublishOfferLetter = async (programId, title) => {
-        if (!window.confirm(`Are you sure you want to publish Offer Letters for "${title}"?`)) return;
+        if (!window.confirm(`Are you sure you want to publish Offer/Acceptance Letters for "${title}"?`)) return;
 
         const force = window.confirm("Do you want to REGENERATE existing offer letters? (Click Cancel to skip existing)");
 
@@ -162,12 +162,31 @@ export default function AdminPrograms() {
         }
     };
 
+    const handleDelete = async (id, title) => {
+        if (!window.confirm(`Are you sure you want to delete the program "${title}"? This action cannot be undone.`)) return;
+
+        try {
+            await deleteProgram(id);
+            setPrograms(programs.filter(p => (p._id || p.id) !== id));
+            alert("Program deleted successfully");
+        } catch (err) {
+            console.error("Failed to delete program", err);
+            alert("Failed to delete program: " + (err.response?.data?.message || err.message));
+        }
+    };
+
     if (isLoading && !programs.length) {
         return (
             <div className="space-y-6 animate-in fade-in duration-500">
                 <div className="flex justify-between items-center contents-start">
                     <h1 className="text-2xl font-bold text-secondary">All Programs</h1>
                     <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.origin}/feedback/public`);
+                            alert("Public Feedback Link copied to clipboard!");
+                        }} className="gap-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
+                            <Icons.Link size={18} /> Feedback Link
+                        </Button>
                         <Button variant="outline" onClick={handleExport} className="gap-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                             <Icons.Download size={18} /> Export
                         </Button>
@@ -204,6 +223,12 @@ export default function AdminPrograms() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <h1 className="text-2xl font-bold text-secondary">All Programs</h1>
                 <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/feedback/public`);
+                        alert("Public Feedback Link copied to clipboard!");
+                    }} className="gap-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
+                        <Icons.Link size={18} /> Feedback Link
+                    </Button>
                     <Button variant="outline" onClick={handleExport} className="gap-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                         <Icons.Download size={18} /> Export
                     </Button>
@@ -236,6 +261,7 @@ export default function AdminPrograms() {
                         <option value="Course">Courses</option>
                         <option value="Internship">Internships</option>
                         <option value="Workshop">Workshops</option>
+                        <option value="Project">Projects</option>
                     </select>
                     <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 rounded-lg border border-gray-200 text-sm">
                         <option value="All">All Statuses</option>
@@ -255,14 +281,14 @@ export default function AdminPrograms() {
                     </select>
                     {/* Only show/enable Offer filter if Internship is selected or mixed? Keep always visible for clarity. */}
                     <select value={filterOffer} onChange={(e) => setFilterOffer(e.target.value)} className="px-3 py-2 rounded-lg border border-gray-200 text-sm">
-                        <option value="All">Offers (Int.)</option>
-                        <option value="Offer Issued">Issued</option>
-                        <option value="Offer Not Issued">Not Issued</option>
+                        <option value="All">Letters (Offer/Acc)</option>
+                        <option value="Issued">Issued</option>
+                        <option value="Not Issued">Not Issued</option>
                     </select>
                 </div>
             </div>
 
-            <AdminTable headers={['Program Name', 'Status', 'Type', 'Enrolled', 'Cert Status', 'Offer Status', 'Actions']}>
+            <AdminTable headers={['Program Name', 'Status', 'Type', 'Enrolled', 'Cert Status', 'Offer Status', 'Template', 'Actions']}>
                 {filteredPrograms.map(program => {
                     // Helpers for badges
                     const statusColors = {
@@ -315,6 +341,13 @@ export default function AdminPrograms() {
                                 <div className="mt-1">
                                     {regBadges[program.derived.regStatus]}
                                 </div>
+                                {program.registrationDeadline && new Date(program.registrationDeadline) > new Date() && (
+                                    <div className="mt-1">
+                                        <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200 block w-fit font-medium">
+                                            Ext. Open: {new Date(program.registrationDeadline).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
                             </td>
                             <td className="px-6 py-4">
                                 <span className="text-sm text-text-light">{program.type}</span>
@@ -327,14 +360,27 @@ export default function AdminPrograms() {
                                 {certStatusBadge}
                             </td>
 
-                            {/* Offer Letter Status Column (Internship Only) */}
+                            {/* Offer/Acceptance Letter Status Column */}
                             <td className="px-6 py-4">
-                                {program.type === 'Internship' ? (
+                                {['Internship', 'Project'].includes(program.type) ? (
                                     program.derived.offerStatus === 'Issued' ? (
-                                        <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">Issued</span>
+                                        <span className={`text-xs font-medium px-2 py-1 rounded-full border ${program.type === 'Project' ? 'text-blue-600 bg-blue-50 border-blue-100' : 'text-green-600 bg-green-50 border-green-100'}`}>
+                                            Issued
+                                        </span>
                                     ) : (
                                         <span className="text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-full border border-gray-200">Not Issued</span>
                                     )
+                                ) : (
+                                    <span className="text-gray-300">-</span>
+                                )}
+                            </td>
+
+                            {/* Template Column */}
+                            <td className="px-6 py-4">
+                                {['Internship', 'Project'].includes(program.type) && program.templateType ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border-gray-300 border uppercase">
+                                        {program.templateType}
+                                    </span>
                                 ) : (
                                     <span className="text-gray-300">-</span>
                                 )}
@@ -348,7 +394,11 @@ export default function AdminPrograms() {
                                         </button>
                                     </Link>
 
-                                    <button className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-red-700 bg-red-50 border border-red-200 hover:bg-red-100" title="Delete Program">
+                                    <button
+                                        onClick={() => handleDelete(program._id || program.id, program.title)}
+                                        className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-red-700 bg-red-50 border border-red-200 hover:bg-red-100"
+                                        title="Delete Program"
+                                    >
                                         <Icons.Trash size={14} /> Delete
                                     </button>
 
@@ -373,15 +423,15 @@ export default function AdminPrograms() {
                                         {program.isFeedbackEnabled ? <Icons.MessageCircle size={14} /> : <Icons.MessageSquare size={14} />} Feedback
                                     </button>
 
-                                    {/* Offer Letter Action (Internship Only) */}
-                                    {program.type === 'Internship' && (
+                                    {/* Offer/Acceptance Letter Action */}
+                                    {['Internship', 'Project'].includes(program.type) && (
                                         <button
                                             onClick={() => !isOfferActionDisabled && handlePublishOfferLetter(program._id || program.id, program.title)}
                                             className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors ${isOfferActionDisabled ? 'text-gray-300 border-gray-100 cursor-not-allowed bg-gray-50' : 'text-purple-700 bg-purple-50 border-purple-200 hover:bg-purple-100'}`}
-                                            title={isExpired ? "Program Expired" : "Publish Offer Letters"}
+                                            title={isExpired ? "Program Expired" : `Publish ${program.type === 'Project' ? 'Acceptance' : 'Offer'} Letters`}
                                             disabled={isOfferActionDisabled}
                                         >
-                                            <Icons.FileText size={14} /> Offer
+                                            <Icons.FileText size={14} /> {program.type === 'Project' ? 'Accept' : 'Offer'}
                                         </button>
                                     )}
                                 </div>

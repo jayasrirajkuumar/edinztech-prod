@@ -20,11 +20,30 @@ export const getRegistrationStatus = (program) => {
     const now = new Date();
     const startDate = new Date(program.startDate);
 
-    // Assumption: Registration closes on start date
-    // We can also check if a specific registrationEndDate exists in future schema updates
-    const registrationEndDate = program.registrationEndDate ? new Date(program.registrationEndDate) : startDate;
+    // Priority: Explicit Deadline > ValidUntil > EndDate
+    const registrationEndDate = program.registrationDeadline
+        ? new Date(program.registrationDeadline)
+        : (program.endDate ? new Date(program.endDate) : startDate);
+
+    // Check for Extended Status
+    // Extended if: deadline exists AND deadline > endDate (original end) AND now > endDate AND now <= deadline
+    if (program.registrationDeadline && program.endDate) {
+        const originalEnd = new Date(program.endDate);
+        if (new Date(program.registrationDeadline) > originalEnd && now > originalEnd && now <= new Date(program.registrationDeadline)) {
+            return 'Extended';
+        }
+    }
 
     if (now > registrationEndDate) {
+        // EDGE CASE FIX: If the program is "Upcoming" (Start Date in future) AND 
+        // the calculated deadline (likely EndDate) is in the past (which implies EndDate < StartDate, i.e., invalid data),
+        // and NO explicit Registration Deadline was set, we should probably treat it as OPEN to avoid "Upcoming but Closed" UI glitches due to bad data.
+
+        // Only apply this safety net if NO explicit registrationDeadline was provided
+        if (!program.registrationDeadline && startDate > now && registrationEndDate < startDate) {
+            return 'Open';
+        }
+
         return 'Closed';
     }
 

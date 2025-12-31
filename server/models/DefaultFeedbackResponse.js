@@ -11,13 +11,13 @@ const defaultFeedbackResponseSchema = mongoose.Schema({
         ref: 'User',
         required: true
     },
-    inspireId: { type: String, required: true },
+    inspireId: { type: String, default: 'N/A' },
     name: { type: String, required: true },
-    organization: { type: String, required: true },
+    organization: { type: String },
     email: { type: String, required: true },
-    mobile: { type: String, required: true },
-    place: { type: String, required: true },
-    state: { type: String, required: true },
+    mobile: { type: String },
+    place: { type: String },
+    state: { type: String },
     feedback: { type: String, required: true },
 
     submittedAt: {

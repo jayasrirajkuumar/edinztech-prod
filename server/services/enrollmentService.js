@@ -64,35 +64,33 @@ const createOrUpdateEnrollment = async ({ userId, programId, source = 'razorpay'
         if (user) finalUserCode = user.userCode;
     }
 
-    let enrollment = await Enrollment.findOne({ user: userId, program: programId });
-
     const now = new Date();
     const validUntil = computeValidUntil(program, now);
 
-    if (enrollment) {
-        // Reactivate if expired or update payment info
-        enrollment.status = 'active';
-        enrollment.validUntil = validUntil;
-        enrollment.source = source;
-        if (paymentId) enrollment.paymentId = paymentId;
-        // Update denormalized fields if missing or changed
-        if (finalUserCode) enrollment.userCode = finalUserCode;
-        if (typeToSave) enrollment.programType = typeToSave;
+    // Atomic Upsert to prevent race conditions
+    const updateFields = {
+        status: 'active',
+        validUntil: validUntil,
+        source: source,
+        userCode: finalUserCode,
+        programType: typeToSave
+    };
 
-        await enrollment.save();
-    } else {
-        enrollment = await Enrollment.create({
-            user: userId,
-            program: programId,
-            status: 'active',
-            validUntil,
-            source,
-            paymentId,
-            progressPercent: 0,
-            userCode: finalUserCode,
-            programType: typeToSave
-        });
+    if (paymentId) {
+        updateFields.paymentId = paymentId;
     }
+
+    const enrollment = await Enrollment.findOneAndUpdate(
+        { user: userId, program: programId },
+        {
+            $set: updateFields,
+            $setOnInsert: {
+                enrolledAt: now,
+                progressPercent: 0
+            }
+        },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
     return enrollment;
 };

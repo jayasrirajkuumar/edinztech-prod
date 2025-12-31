@@ -7,6 +7,7 @@ export default function AdminEnrollments() {
     const [enrollments, setEnrollments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterType, setFilterType] = useState('All');
+    const [filterProgram, setFilterProgram] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
 
     const [selectedStudent, setSelectedStudent] = useState(null); // For credentials modal
@@ -146,6 +147,18 @@ export default function AdminEnrollments() {
                     <option value="Workshop">Workshop</option>
                 </select>
 
+                <select
+                    className="p-2 border rounded max-w-[200px]"
+                    value={filterProgram}
+                    onChange={(e) => setFilterProgram(e.target.value)}
+                >
+                    <option value="All">All Programs</option>
+                    {/* Unique Programs */}
+                    {[...new Set(enrollments.map(e => e.programName))].filter(Boolean).sort().map(name => (
+                        <option key={name} value={name}>{name}</option>
+                    ))}
+                </select>
+
                 <input
                     type="text"
                     placeholder="Search student or program..."
@@ -179,82 +192,84 @@ export default function AdminEnrollments() {
                         ) : enrollments.length === 0 ? (
                             <tr><td colSpan="9" className="text-center py-4">No enrollments found.</td></tr>
                         ) : (
-                            enrollments.map((enrollment, index) => {
-                                if (index === 0) console.log('DEBUG FRONTEND:', enrollment);
-                                return (
-                                    <tr key={enrollment._id}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {enrollment.userCode || 'N/A'}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                            {enrollment.studentName}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            <div>{enrollment.email}</div>
-                                            <div className="text-xs">{enrollment.phone}</div>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
-                                            {enrollment.programName}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            enrollments
+                                .filter(e => filterProgram === 'All' || e.programName === filterProgram)
+                                .map((enrollment, index) => {
+                                    if (index === 0) console.log('DEBUG FRONTEND:', enrollment);
+                                    return (
+                                        <tr key={enrollment._id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                {enrollment.userCode || 'N/A'}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                                {enrollment.studentName}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                <div>{enrollment.email}</div>
+                                                <div className="text-xs">{enrollment.phone}</div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                {enrollment.programName}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                             ${enrollment.programType === 'Internship' ? 'bg-purple-100 text-purple-800' :
-                                                    enrollment.programType === 'Workshop' ? 'bg-orange-100 text-orange-800' :
-                                                        'bg-blue-100 text-blue-800'}`}>
-                                                {enrollment.programType}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {enrollment.amount}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <span className="capitalize">{enrollment.status}</span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${enrollment.certificateStatus === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                {enrollment.certificateStatus === 'PUBLISHED' ? 'Published' : 'Yet to Publish'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                                            {enrollment.certificateStatus === 'PUBLISHED' ? (
-                                                <span
-                                                    className="cursor-pointer hover:bg-gray-100 px-1 rounded"
-                                                    onClick={() => navigator.clipboard.writeText(enrollment.certificateId)}
-                                                    title="Click to copy"
-                                                >
-                                                    {enrollment.certificateId}
+                                                        enrollment.programType === 'Workshop' ? 'bg-orange-100 text-orange-800' :
+                                                            'bg-blue-100 text-blue-800'}`}>
+                                                    {enrollment.programType}
                                                 </span>
-                                            ) : '-'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(enrollment.enrolledAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                                            <button
-                                                onClick={() => handleViewCredentials(enrollment)}
-                                                className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded"
-                                            >
-                                                View Credentials
-                                            </button>
-                                            <button
-                                                onClick={() => handleEditStudent(enrollment)}
-                                                className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded"
-                                            >
-                                                Edit
-                                            </button>
-                                            {enrollment.certificateStatus === 'PUBLISHED' && (
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {enrollment.amount}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className="capitalize">{enrollment.status}</span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${enrollment.certificateStatus === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                    {enrollment.certificateStatus === 'PUBLISHED' ? 'Published' : 'Yet to Publish'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                                                {enrollment.certificateStatus === 'PUBLISHED' ? (
+                                                    <span
+                                                        className="cursor-pointer hover:bg-gray-100 px-1 rounded"
+                                                        onClick={() => navigator.clipboard.writeText(enrollment.certificateId)}
+                                                        title="Click to copy"
+                                                    >
+                                                        {enrollment.certificateId}
+                                                    </span>
+                                                ) : '-'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
                                                 <button
-                                                    onClick={() => handleResendCertificate(enrollment._id)}
-                                                    className="text-purple-600 hover:text-purple-900 bg-purple-50 px-3 py-1 rounded"
-                                                    title="Re-Generate PDF & Resend Email"
+                                                    onClick={() => handleViewCredentials(enrollment)}
+                                                    className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded"
                                                 >
-                                                    Re-Send
+                                                    View Credentials
                                                 </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                );
-                            })
+                                                <button
+                                                    onClick={() => handleEditStudent(enrollment)}
+                                                    className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded"
+                                                >
+                                                    Edit
+                                                </button>
+                                                {enrollment.certificateStatus === 'PUBLISHED' && (
+                                                    <button
+                                                        onClick={() => handleResendCertificate(enrollment._id)}
+                                                        className="text-purple-600 hover:text-purple-900 bg-purple-50 px-3 py-1 rounded"
+                                                        title="Re-Generate PDF & Resend Email"
+                                                    >
+                                                        Re-Send
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                         )}
                     </tbody>
                 </table>

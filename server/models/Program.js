@@ -7,7 +7,7 @@ const programSchema = mongoose.Schema({
     type: {
         type: String,
         required: true,
-        enum: ['Course', 'Internship', 'Workshop']
+        enum: ['Course', 'Internship', 'Workshop', 'Project']
     },
     mode: {
         type: String,
@@ -17,7 +17,9 @@ const programSchema = mongoose.Schema({
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     startTime: { type: String },
+    startTime: { type: String },
     endTime: { type: String },
+    registrationDeadline: { type: Date }, // Last Date to Register
 
     // Payment
     paymentMode: { type: String, enum: ['Paid', 'Free', 'Invite Only'], default: 'Paid' },
@@ -28,6 +30,11 @@ const programSchema = mongoose.Schema({
     image: { type: String }, // Implementation uses 'image' generally
     offerLetterTemplate: { type: String },
     certificateTemplate: { type: String },
+    templateType: {
+        type: String,
+        enum: ['edinz', 'inspire', 'igreen', 'ats'],
+        default: 'edinz'
+    },
 
     // Certificate Configuration (For Auto-Generation)
     certificateConfig: {
@@ -66,11 +73,35 @@ const programSchema = mongoose.Schema({
         }
     },
 
-    // Communication
-    whatsappGroupLink: { type: String },
-    whatsappMessage: { type: String },
+    // Communication (Email)
     emailSubject: { type: String },
     emailBody: { type: String },
+
+    // Legacy WhatsApp (Deprecated)
+    whatsappGroupLink: { type: String },
+    whatsappMessage: { type: String },
+
+    // New WhatsApp Configuration (Template Based)
+    whatsappConfig: {
+        onEnrolled: {
+            enabled: { type: Boolean, default: false },
+            templateId: { type: mongoose.Schema.Types.ObjectId, ref: 'WhatsAppTemplate' },
+            variableMapping: {
+                type: Map,
+                of: String, // Map "1" -> "student.name"
+                default: {}
+            }
+        },
+        onCompletion: {
+            enabled: { type: Boolean, default: false },
+            templateId: { type: mongoose.Schema.Types.ObjectId, ref: 'WhatsAppTemplate' },
+            variableMapping: {
+                type: Map,
+                of: String,
+                default: {}
+            }
+        }
+    },
 
     isArchived: { type: Boolean, default: false },
     isFeedbackEnabled: { type: Boolean, default: false } // Default Feedback Form Toggle

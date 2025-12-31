@@ -55,6 +55,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
 
                     <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-2">Assessment</div>
                     <SidebarItem to="/admin/quizzes" icon={Icons.Quiz}>Quizzes</SidebarItem>
+                    <SidebarItem to="/admin/outsider-quizzes" icon={Icons.GraduationCap}>Outsider Quizzes</SidebarItem>
                     <SidebarItem to="/admin/feedbacks" icon={Icons.MessageSquare}>Feedbacks</SidebarItem>
                     <SidebarItem to="/admin/certificates" icon={Icons.Certificate}>Certificates</SidebarItem>
 

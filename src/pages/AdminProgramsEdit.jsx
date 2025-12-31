@@ -55,9 +55,12 @@ export default function AdminProgramsEdit() {
         fee: program.fee ? String(program.fee) : '',
         startDate: program.startDate ? new Date(program.startDate).toISOString().split('T')[0] : '',
         endDate: program.endDate ? new Date(program.endDate).toISOString().split('T')[0] : '',
+        registrationDeadline: program.registrationDeadline ? new Date(program.registrationDeadline).toISOString().split('T')[0] : '',
         durationDays: program.durationDays,
         offerLetterTemplate: program.offerLetterTemplate,
         certificateTemplate: program.certificateTemplate,
+        code: program.code, // CRITICAL: Preserve code to prevent auto-gen collision
+        templateType: program.templateType || 'edinz', // Add templateType default
     };
 
     return (

@@ -60,6 +60,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
 
     try {
         const isOfferLetter = type === 'offer-letter';
+        const isAcceptance = type === 'acceptance-letter';
 
         // 1. Resolve Template Path
         let templatePath = null;
@@ -90,18 +91,33 @@ async function processCertificate({ studentData, courseData, certificateId, call
 
         // B. Fallback to Local Defaults (Only if no user template found)
         if (!templatePath) {
-            if (isOfferLetter) {
-                // Priority: DOCX (Native Output)
-                if (fs.existsSync(path.join(__dirname, 'templates', 'offer-letter.png'))) {
-                    templatePath = path.join(__dirname, 'templates', 'offer-letter.png');
-                    isDocx = false;
-                } else if (fs.existsSync(path.join(__dirname, 'templates', 'offer-letter.docx'))) {
-                    templatePath = path.join(__dirname, 'templates', 'offer-letter.docx');
-                    isDocx = true;
+            const templatesDir = path.join(__dirname, 'templates');
+
+            // Explicit Template Mapping based on templateId (Only for Offer/Acceptance Letters)
+            if ((isOfferLetter || isAcceptance) && templateId) {
+                if (templateId === 'ats') {
+                    templatePath = path.join(templatesDir, 'ats.png');
+                } else if (templateId === 'inspire') {
+                    templatePath = path.join(templatesDir, 'inspire.png');
+                } else if (templateId === 'igreen') {
+                    templatePath = path.join(templatesDir, 'igreen.png');
+                } else if (templateId === 'edinz') {
+                    templatePath = path.join(templatesDir, 'edinz.png');
+                }
+            }
+
+            // Fallbacks for Offer/Acceptance specific defaults
+            else if (isOfferLetter || isAcceptance) {
+                if (fs.existsSync(path.join(templatesDir, 'offer-letter.png'))) {
+                    templatePath = path.join(templatesDir, 'offer-letter.png');
+                } else {
+                    templatePath = path.join(templatesDir, 'edinz.png');
                 }
             } else {
-                templatePath = path.join(__dirname, 'templates', 'default.jpg');
+                // Standard Certificate Default
+                templatePath = path.join(templatesDir, 'default.jpg');
             }
+            console.log(`[Template] Selected Local Template: ${templatePath}`);
         }
 
         console.log(`[Template] Using: ${templatePath} (Docx: ${isDocx})`);
@@ -256,7 +272,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
                 templateBase64 = `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
             }
 
-            if (isOfferLetter) {
+            if (isOfferLetter || type === 'acceptance-letter') {
                 // HYBRID APPROACH: HTML Text Overlay on Background Image
                 const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -369,21 +385,23 @@ async function processCertificate({ studentData, courseData, certificateId, call
                                 </div>
                             </div>
 
-                            <div class="title">Internship Offer Letter</div>
+                            <div class="title">${isAcceptance ? 'Project Acceptance Letter' : 'Internship Offer Letter'}</div>
 
                             <div class="salutation">
                                 Dear <b>${studentData.name}</b>,
                             </div>
 
                             <div class="body-text">
-                                We <b>Inspire Softech Solutions</b> are very pleased to offer you an AICTE – INSPIRE internship on 
-                                <b>"${courseData.title.toUpperCase()}"</b> in our organization. Please find the following confirmation that specifies about your internship.
+                                ${isAcceptance
+                        ? `We <b>Inspire Softech Solutions</b> are pleased to accept your academic project titled <b>"${courseData.title.toUpperCase()}"</b>. Looking forward to your contribution.`
+                        : `We <b>Inspire Softech Solutions</b> are very pleased to offer you an AICTE – INSPIRE internship on <b>"${courseData.title.toUpperCase()}"</b> in our organization. Please find the following confirmation that specifies about your internship.`
+                    }
                             </div>
 
                             <table class="details-table">
                                 <tr>
-                                    <td>Position Title:</td>
-                                    <td>Technical Intern</td>
+                                    <td>${isAcceptance ? 'Project Title:' : 'Position Title:'}</td>
+                                    <td>${isAcceptance ? courseData.title : 'Technical Intern'}</td>
                                 </tr>
                                 <tr>
                                     <td>Start Date:</td>
@@ -398,8 +416,6 @@ async function processCertificate({ studentData, courseData, certificateId, call
                             <div class="closing">
                                 Wish you all the best.<br><br>
                             </div>
-
-
 
                         </div>
                     </body>
@@ -557,7 +573,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
             await page.pdf({
                 path: filePath,
                 format: 'A4',
-                landscape: !isOfferLetter && !isDocx,
+                landscape: !isOfferLetter && !isAcceptance && !isDocx, // Portrait for offer/acceptance
                 printBackground: true,
                 margin: isDocx ? { top: '2cm', bottom: '2cm', left: '2cm', right: '2cm' } : undefined
             });
@@ -569,12 +585,16 @@ async function processCertificate({ studentData, courseData, certificateId, call
         const mailOptions = {
             from: process.env.EMAIL_FROM || '"EdinzTech Cert" <noreply@edinztech.com>',
             to: studentData.email,
-            subject: isOfferLetter ? `Your Internship Offer Letter: ${courseData.title}` : `Your Certificate: ${courseData.title}`,
-            text: isOfferLetter
-                ? `Dear ${studentData.name},\n\nWe are pleased to share your Internship Offer Letter.\n\nPlease find the document attached.\n\nBest Regards,\nEdinzTech Team`
-                : `Congratulations ${studentData.name}!\n\nPlease find your certificate attached.\n\nBest Regards,\nEdinzTech Team`,
+            subject: isAcceptance
+                ? `Project Acceptance: ${courseData.title}`
+                : isOfferLetter ? `Your Internship Offer Letter: ${courseData.title}` : `Your Certificate: ${courseData.title}`,
+            text: isAcceptance
+                ? `Dear ${studentData.name},\n\nWe are pleased to accept your project application. Please find your Acceptance Letter attached.\n\nBest Regards,\nEdinzTech Team`
+                : isOfferLetter
+                    ? `Dear ${studentData.name},\n\nWe are pleased to share your Internship Offer Letter.\n\nPlease find the document attached.\n\nBest Regards,\nEdinzTech Team`
+                    : `Congratulations ${studentData.name}!\n\nPlease find your certificate attached.\n\nBest Regards,\nEdinzTech Team`,
             attachments: [{
-                filename: `${isOfferLetter ? 'Offer_Letter' : 'Certificate'}_${studentData.name.replace(/\s/g, '_')}.pdf`,
+                filename: `${isAcceptance ? 'Acceptance_Letter' : (isOfferLetter ? 'Offer_Letter' : 'Certificate')}_${studentData.name.replace(/\s/g, '_')}.pdf`,
                 path: filePath
             }]
         };

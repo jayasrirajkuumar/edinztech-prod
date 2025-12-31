@@ -81,7 +81,7 @@ const getProgramById = asyncHandler(async (req, res) => {
 // @route   POST /api/admin/programs
 // @access  Private/Admin
 const createProgram = asyncHandler(async (req, res) => {
-    const { title, description, type, code, startDate, endDate, fee, mode } = req.body;
+    const { title, description, type, code, startDate, endDate, fee, mode, registrationDeadline } = req.body;
 
     // Check if code exists
     if (code) {

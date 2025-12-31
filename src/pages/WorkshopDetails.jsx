@@ -112,8 +112,12 @@ export default function WorkshopDetails() {
                         </div>
                     </div>
 
-                    <Button onClick={handleEnroll} disabled={processing} className="w-full py-4 text-lg shadow-lg shadow-orange-100">
-                        {processing ? 'Processing...' : 'Enroll Now'}
+                    <Button
+                        onClick={handleEnroll}
+                        disabled={processing || (new Date() > new Date(program.registrationDeadline || program.validUntil || program.endDate))}
+                        className="w-full py-4 text-lg shadow-lg shadow-orange-100 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {processing ? 'Processing...' : (new Date() > new Date(program.registrationDeadline || program.validUntil || program.endDate) ? 'Registration Closed' : 'Enroll Now')}
                     </Button>
                     <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>

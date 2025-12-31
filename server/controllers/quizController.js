@@ -49,14 +49,24 @@ const getAllQuizzes = asyncHandler(async (req, res) => {
     res.json(quizzes);
 });
 
+const fs = require('fs');
+const path = require('path');
+
 // @desc    Get Student Quizzes (All Enrolled)
 // @route   GET /api/quiz/my-quizzes
 // @access  Private
 const getStudentQuizzes = asyncHandler(async (req, res) => {
+    const logPath = path.join(__dirname, '..', 'debug_log.txt');
+    const log = (msg) => fs.appendFileSync(logPath, `[${new Date().toISOString()}] ${msg}\n`);
+
+    log(`Request received from User ID: ${req.user._id}`);
+
     // 1. Find user enrollments
     const Enrollment = require('../models/Enrollment');
     const enrollments = await Enrollment.find({ user: req.user._id, status: 'active' });
     const programIds = enrollments.map(e => e.program);
+
+    log(`Found ${enrollments.length} active enrollments. Programs: ${programIds.join(', ')}`);
 
     // 2. Find published quizzes for these programs
     const quizzes = await Quiz.find({
@@ -66,6 +76,9 @@ const getStudentQuizzes = asyncHandler(async (req, res) => {
         .populate('program', 'title') // Include program title
         .sort({ startTime: 1 });
 
+    log(`Found ${quizzes.length} Published quizzes.`);
+    quizzes.forEach(q => log(` - Quiz: ${q.title} (${q._id})`));
+
     res.json(quizzes);
 });
 
@@ -73,7 +86,7 @@ const getStudentQuizzes = asyncHandler(async (req, res) => {
 // @route   PATCH /api/quiz/:id
 // @access  Admin
 const updateQuiz = asyncHandler(async (req, res) => {
-    const { title, description, passingScore, questions, startTime, endTime } = req.body;
+    const { title, description, passingScore, questions, startTime, endTime, programId, program } = req.body;
     const quiz = await Quiz.findById(req.params.id);
 
     if (!quiz) {
@@ -87,6 +100,10 @@ const updateQuiz = asyncHandler(async (req, res) => {
     quiz.questions = questions || quiz.questions;
     quiz.startTime = startTime || quiz.startTime;
     quiz.endTime = endTime || quiz.endTime;
+    // Allow updating program
+    if (programId || program) {
+        quiz.program = programId || program;
+    }
 
     const updatedQuiz = await quiz.save();
     res.json(updatedQuiz);
@@ -119,6 +136,16 @@ const publishQuiz = asyncHandler(async (req, res) => {
     if (quiz.questions.length === 0) {
         res.status(400);
         throw new Error('Cannot publish a quiz with no questions');
+    }
+
+    if (!quiz.startTime) {
+        res.status(400);
+        throw new Error('Cannot publish: Start Time is missing');
+    }
+
+    if (new Date(quiz.startTime) > new Date()) {
+        res.status(400);
+        throw new Error(`Cannot publish: Start Time is in the future (${new Date(quiz.startTime).toLocaleString()}). Quiz must remain Draft until then.`);
     }
 
     quiz.status = 'Published';
@@ -226,6 +253,18 @@ const getQuizReports = asyncHandler(async (req, res) => {
     res.json(attempts);
 });
 
+// @desc    Get Single Quiz (Admin/Edit)
+// @route   GET /api/quiz/detail/:id
+// @access  Admin
+const getQuizById = asyncHandler(async (req, res) => {
+    const quiz = await Quiz.findById(req.params.id).populate('program', 'title');
+    if (!quiz) {
+        res.status(404);
+        throw new Error('Quiz not found');
+    }
+    res.json(quiz);
+});
+
 // @desc    Get Single Quiz Attempt (Admin/Student?)
 // @route   GET /api/quiz/attempt/:id
 // @access  Private
@@ -259,5 +298,6 @@ module.exports = {
     unpublishQuiz,
     uploadQuizImage,
     getQuizReports,
-    getQuizAttempt
+    getQuizAttempt,
+    getQuizById
 };

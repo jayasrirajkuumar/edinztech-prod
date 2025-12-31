@@ -1,158 +1,158 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form'; // Not strictly needed unless editing
 import { Link } from 'react-router-dom';
-import { Icons } from '../components/icons';
+import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
-import { getAdminFeedbacks, deleteFeedback, publishFeedback, unpublishFeedback, exportFeedback } from '../lib/api';
+import AdminTable from '../components/AdminTable';
+import api from '../lib/api';
 
 export default function AdminFeedbacks() {
-    console.log("AdminFeedbacks component loaded");
     const [feedbacks, setFeedbacks] = useState([]);
-    const [loading, setLoading] = useState(true);
-
+    const [programs, setPrograms] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState('All');
+    const [selectedProgram, setSelectedProgram] = useState('');
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            fetchFeedbacks();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchTerm, filterStatus]);
+        fetchPrograms();
+    }, []);
+
+    useEffect(() => {
+        fetchFeedbacks();
+    }, [searchTerm, selectedProgram]);
+
+    const fetchPrograms = async () => {
+        try {
+            const { data } = await api.get('/programs');
+            setPrograms(data);
+        } catch (error) {
+            console.error("Failed to fetch programs", error);
+        }
+    };
 
     const fetchFeedbacks = async () => {
         try {
-            setLoading(true);
-            const params = {};
-            if (searchTerm) params.keyword = searchTerm;
-            if (filterStatus !== 'All') params.status = filterStatus;
+            setIsLoading(true);
+            const params = { keyword: searchTerm };
+            if (selectedProgram) params.programId = selectedProgram;
 
-            const data = await getAdminFeedbacks(params);
+            const { data } = await api.get('/feedback/admin/default', { params });
             setFeedbacks(data);
         } catch (error) {
             console.error("Failed to fetch feedbacks", error);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure? This will delete all collected responses too.")) return;
+    const handleExport = async () => {
         try {
-            await deleteFeedback(id);
-            setFeedbacks(feedbacks.filter(f => f._id !== id));
-        } catch (error) {
-            alert("Failed to delete feedback");
-        }
-    };
+            const params = {};
+            if (selectedProgram) params.programId = selectedProgram;
 
-    const handlePublishToggle = async (feedback) => {
-        try {
-            if (feedback.status === 'Published') {
-                await unpublishFeedback(feedback._id);
-            } else {
-                await publishFeedback(feedback._id);
-            }
-            fetchFeedbacks();
-        } catch (error) {
-            alert("Action failed");
-        }
-    };
-
-    const handleExport = async (id) => {
-        try {
-            const response = await exportFeedback(id);
+            const response = await api.get('/feedback/admin/default/export', {
+                params,
+                responseType: 'blob'
+            });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `feedback-${id}.csv`);
+            link.setAttribute('download', 'student-feedbacks.csv');
             document.body.appendChild(link);
             link.click();
             link.remove();
         } catch (error) {
             console.error("Export failed", error);
-            alert("Failed to export responses");
+            alert("Failed to export");
         }
+    };
+
+    const copyPublicLink = () => {
+        navigator.clipboard.writeText(`${window.location.origin}/feedback/public`);
+        alert("Public Feedback Link copied to clipboard!");
     };
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                    <Icons.MessageSquare className="text-secondary bg-purple-50 p-1.5 rounded-lg w-10 h-10" />
-                    <div>
-                        <h1 className="text-2xl font-bold text-secondary">Feedback Surveys</h1>
-                        <p className="text-sm text-gray-500">Manage program feedback and surveys.</p>
-                    </div>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-secondary">Student Feedbacks</h1>
+                    <p className="text-gray-500 text-sm">View responses from the Public Feedback form.</p>
                 </div>
-                <Link to="/admin/feedbacks/new">
-                    <Button className="flex items-center gap-2">
-                        <Icons.Plus size={18} />
-                        Create Feedback
+
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={copyPublicLink} className="gap-2 bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+                        <Icons.Link size={18} /> Copy Public Link
                     </Button>
-                </Link>
+                    <Button onClick={handleExport} className="gap-2">
+                        <Icons.Download size={18} /> Export CSV
+                    </Button>
+                </div>
             </div>
 
-            {loading ? (
-                <div className="flex justify-center p-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            {/* Filters */}
+            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+                <div className="relative flex-grow">
+                    <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search by name, email, or feedback content..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    />
                 </div>
-            ) : feedbacks.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                    <Icons.MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-                    <h3 className="text-lg font-medium text-gray-900">No surveys found</h3>
-                    <p className="text-gray-500 mb-4">Create your first feedback survey.</p>
+                <div className="w-full md:w-64">
+                    <select
+                        value={selectedProgram}
+                        onChange={(e) => setSelectedProgram(e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    >
+                        <option value="">All Programs</option>
+                        {programs.map(p => (
+                            <option key={p._id} value={p._id}>{p.title} ({p.type})</option>
+                        ))}
+                    </select>
                 </div>
-            ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50 border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Title</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Program</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {feedbacks.map(fb => (
-                                <tr key={fb._id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-gray-900">{fb.title}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500">{fb.programId?.title}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${fb.status === 'Published' ? 'bg-green-50 text-success' : 'bg-gray-100 text-gray-500'}`}>
-                                            {fb.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button
-                                                onClick={() => handleExport(fb._id)}
-                                                className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
-                                                title="Export Responses"
-                                            >
-                                                <Icons.Download size={18} />
-                                            </button>
-                                            <button
-                                                onClick={() => handlePublishToggle(fb)}
-                                                className={`p-2 transition-colors ${fb.status === 'Published' ? 'text-green-600' : 'text-gray-400 hover:text-green-600'}`}
-                                                title={fb.status === 'Published' ? 'Unpublish' : 'Publish'}
-                                            >
-                                                {fb.status === 'Published' ? <Icons.CheckCircle size={18} /> : <Icons.Upload size={18} />}
-                                            </button>
-                                            <Link to={`/admin/feedbacks/${fb._id}/edit`} className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
-                                                <Icons.Edit size={18} />
-                                            </Link>
-                                            <button onClick={() => handleDelete(fb._id)} className="p-2 text-gray-400 hover:text-danger transition-colors">
-                                                <Icons.Trash size={18} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+            </div>
+
+            {/* Table */}
+            <AdminTable headers={['Student', 'Program', 'Feedback', 'Date', 'Type']}>
+                {feedbacks.length > 0 ? (
+                    feedbacks.map((fb) => (
+                        <tr key={fb._id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4">
+                                <div className="font-medium text-gray-900">{fb.name}</div>
+                                <div className="text-xs text-gray-500">{fb.email}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="text-sm text-gray-700 max-w-[200px] truncate" title={fb.programId?.title}>
+                                    {fb.programId?.title || 'Unknown Program'}
+                                </div>
+                            </td>
+                            <td className="px-6 py-4">
+                                <div className="text-sm text-gray-600 max-w-[300px] truncate" title={fb.feedback}>
+                                    {fb.feedback}
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-500">
+                                {new Date(fb.submittedAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                    {fb.inspireId === 'Public' ? 'Public' : 'Student'}
+                                </span>
+                            </td>
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                            No feedbacks found.
+                        </td>
+                    </tr>
+                )}
+            </AdminTable>
         </div>
     );
 }

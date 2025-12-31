@@ -344,6 +344,65 @@ const getPendingDefaultFeedbacks = asyncHandler(async (req, res) => {
     res.json(pending);
 });
 
+// @desc    Submit Public Feedback (Email Verification)
+// @route   POST /api/feedback/public
+// @access  Public
+const submitPublicFeedback = asyncHandler(async (req, res) => {
+    const { programId, name, email, feedback, rating } = req.body;
+
+    if (!email || !programId || !feedback) {
+        res.status(400);
+        throw new Error('Please provide email, program, and feedback');
+    }
+
+    // 1. Verify User exists by Email
+    const User = require('../models/User'); // Lazy load
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(404);
+        throw new Error('No account found with this email. Please enroll first.');
+    }
+
+    // 2. Verify Enrollment
+    const enrollment = await Enrollment.findOne({
+        user: user._id,
+        program: programId,
+        status: 'active'
+    });
+
+    if (!enrollment) {
+        res.status(403);
+        throw new Error('You are not enrolled in this program.');
+    }
+
+    // 3. Check Duplicate Feedback
+    const DefaultFeedbackResponse = require('../models/DefaultFeedbackResponse'); // Lazy load
+    const existing = await DefaultFeedbackResponse.findOne({
+        programId,
+        userId: user._id
+    });
+
+    if (existing) {
+        res.status(400);
+        throw new Error('You have already submitted feedback for this program.');
+    }
+
+    // 4. Create Feedback
+    const response = await DefaultFeedbackResponse.create({
+        programId,
+        userId: user._id,
+        name: name || user.name,
+        email: user.email,
+        feedback,
+        inspireId: enrollment.userCode || 'Public',
+        // Optional fields
+        submittedAt: new Date()
+    });
+
+    res.status(201).json({ success: true, message: 'Feedback submitted successfully' });
+});
+
 // @desc    Submit Default Feedback
 // @route   POST /api/feedback/me/default
 // @access  Private
@@ -351,10 +410,11 @@ const submitDefaultFeedback = asyncHandler(async (req, res) => {
     const { programId, inspireId, name, organization, email, mobile, place, state, feedback } = req.body;
 
     const program = await mongoose.model('Program').findById(programId);
-    if (!program || !program.isFeedbackEnabled) {
-        res.status(400);
-        throw new Error('Default feedback not enabled for this program');
+    if (!program) {
+        res.status(404);
+        throw new Error('Program not found');
     }
+    // Skipped isFeedbackEnabled check as per user request to simplify
 
     // Check enrollment
     const enrollment = await Enrollment.findOne({
@@ -388,6 +448,72 @@ const submitDefaultFeedback = asyncHandler(async (req, res) => {
     res.status(201).json(response);
 });
 
+// @desc    Get All Default/Public Feedbacks (Admin Dashboard)
+// @route   GET /api/feedback/admin/default
+// @access  Admin
+const getAllDefaultFeedbacks = asyncHandler(async (req, res) => {
+    const { keyword, programId } = req.query;
+
+    console.log('GET Feedbacks Request:', { keyword, programId });
+
+    let query = {};
+    if (programId && programId !== '' && programId !== 'undefined') {
+        query.programId = programId;
+    }
+    if (keyword) {
+        query.$or = [
+            { name: { $regex: keyword, $options: 'i' } },
+            { email: { $regex: keyword, $options: 'i' } },
+            { feedback: { $regex: keyword, $options: 'i' } }
+        ];
+    }
+
+    console.log('Feedback Query:', JSON.stringify(query));
+
+    const DefaultFeedbackResponse = require('../models/DefaultFeedbackResponse'); // Lazy load
+    const feedbacks = await DefaultFeedbackResponse.find(query)
+        .populate('programId', 'title')
+        .sort({ submittedAt: -1 });
+
+    console.log('Feedbacks found:', feedbacks.length);
+
+    res.json(feedbacks);
+});
+
+// @desc    Export All Default Feedbacks (CSV)
+// @route   GET /api/feedback/admin/default/export
+// @access  Admin
+const exportAllDefaultFeedbacks = asyncHandler(async (req, res) => {
+    const { programId } = req.query;
+    let query = {};
+    if (programId) {
+        query.programId = programId;
+    }
+
+    const DefaultFeedbackResponse = require('../models/DefaultFeedbackResponse'); // Lazy load
+    const feedbacks = await DefaultFeedbackResponse.find(query)
+        .populate('programId', 'title')
+        .sort({ submittedAt: -1 });
+
+    let csv = `Submitted At,Program,Name,Email,Feedback,Inspire Code\n`;
+
+    feedbacks.forEach(f => {
+        const row = [
+            f.submittedAt ? f.submittedAt.toISOString() : '',
+            `"${f.programId?.title || 'Unknown'}"`,
+            `"${f.name}"`,
+            `"${f.email}"`,
+            `"${f.feedback.replace(/"/g, '""')}"`,
+            `"${f.inspireId}"`
+        ];
+        csv += row.join(',') + '\n';
+    });
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('student-feedbacks.csv');
+    res.send(csv);
+});
+
 module.exports = {
     createFeedback,
     getAdminFeedbacks,
@@ -401,5 +527,8 @@ module.exports = {
     submitFeedback,
     exportFeedbackResponses,
     getPendingDefaultFeedbacks,
-    submitDefaultFeedback
+    submitDefaultFeedback,
+    submitPublicFeedback,
+    getAllDefaultFeedbacks, // Added
+    exportAllDefaultFeedbacks // Added
 };

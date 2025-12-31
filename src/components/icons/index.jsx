@@ -43,10 +43,17 @@ import {
     Presentation, // Added
     GraduationCap, // Added
     FolderKanban, // Added
+    Link, // Added
+    XCircle, // Added
+    Code, // Added
+    ArrowRight, // Added
+    RefreshCcw, // Added
 } from 'lucide-react';
 
 export const Icons = {
     // Navigation & General
+    Sync: (props) => <RefreshCcw className="text-primary" {...props} />, // Added for Sync
+    ArrowRight: (props) => <ArrowRight className="text-secondary" {...props} />, // Added
     History: (props) => <History className="text-secondary" {...props} />, // Added
     Rocket: (props) => <Rocket className="text-primary" {...props} />,
     ShieldCheck: (props) => <ShieldCheck className="text-secondary" {...props} />,
@@ -113,4 +120,6 @@ export const Icons = {
     ArrowLeft: (props) => <ArrowLeft className="text-secondary" {...props} />, // Added
     GraduationCap: (props) => <GraduationCap className="text-secondary" {...props} />, // Added
     Presentation: (props) => <Presentation className="text-secondary" {...props} />, // Added
+    Link: (props) => <Link className="text-secondary" {...props} />, // Added
+    Power: (props) => <LogOut className="text-secondary" {...props} />, // Reusing LogOut for now or importing specific
 };

@@ -98,7 +98,7 @@ const publishCertificates = asyncHandler(async (req, res) => {
                     id: program._id
                 },
                 certificateId: certificateId,
-                templateId: program.certificateTemplate || 'default',
+                templateId: program.templateType || program.certificateTemplate || 'default',
                 templateUrl: program.certificateTemplate,
                 qrCode: qrCodeImage,
                 callbackUrl: CALLBACK_URL,
@@ -387,7 +387,7 @@ const verifyCertificate = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const publishOfferLetters = asyncHandler(async (req, res) => {
     const programId = req.params.id;
-    const CERT_SERVICE_URL = process.env.CERT_SERVICE_URL || 'http://72.60.103.246:5002/api/generate';
+    const CERT_SERVICE_URL = process.env.CERT_SERVICE_URL || 'http://localhost:5002/api/generate';
     const CALLBACK_URL = process.env.CALLBACK_BASE_URL
         ? `${process.env.CALLBACK_BASE_URL}/api/webhooks/certificate-status`
         : `http://127.0.0.1:${process.env.PORT || 5000}/api/webhooks/certificate-status`;
@@ -425,14 +425,19 @@ const publishOfferLetters = asyncHandler(async (req, res) => {
         const exists = await Certificate.findOne({
             user: user._id,
             program: programId,
-            certificateId: { $regex: /^OFFER-/ }
+            certificateId: { $regex: /^(OFFER|ACCEPT)-/ }
         });
 
         console.log(`[DEBUG] Processing ${user.email} | Exists: ${!!exists} | Status: ${exists?.status} | Force: ${req.query.force}`);
 
         // REPROCESS CONDITION:
         if (!exists || exists.status === 'failed' || exists.status === 'pending' || req.query.force === 'true') {
-            const certificateId = `OFFER-${program.code || 'PROG'}-${user._id.toString().slice(-4)}-${Date.now().toString().slice(-4)}`;
+            // Determine Type and Prefix based on Program Type
+            const isProject = (program.type || '').toLowerCase() === 'project';
+            const prefix = isProject ? 'ACCEPT-' : 'OFFER-';
+            const letterType = isProject ? 'acceptance-letter' : 'offer-letter';
+
+            const certificateId = `${prefix}${program.code || 'PROG'}-${user._id.toString().slice(-4)}-${Date.now().toString().slice(-4)}`;
 
             let certDoc;
             if (!exists) {
@@ -441,7 +446,7 @@ const publishOfferLetters = asyncHandler(async (req, res) => {
                     program: programId,
                     certificateId: certificateId,
                     status: 'pending',
-                    metadata: { type: 'offer-letter' },
+                    metadata: { type: letterType },
                     courseName: program.title,
                     verification: { status: 'valid', source: 'new' }
                 });
@@ -461,7 +466,7 @@ const publishOfferLetters = asyncHandler(async (req, res) => {
 
             try {
                 await axios.post(CERT_SERVICE_URL, {
-                    type: 'offer-letter', // Specify type
+                    type: letterType, // 'offer-letter' or 'acceptance-letter'
                     studentData: {
                         name: user.name,
                         email: user.email,
@@ -482,8 +487,8 @@ const publishOfferLetters = asyncHandler(async (req, res) => {
                     },
                     certificateId: certDoc.certificateId,
                     callbackUrl: CALLBACK_URL,
-                    templateId: 'offer-letter',
-                    templateUrl: program.offerLetterTemplate
+                    templateId: program.templateType || letterType,
+                    templateUrl: program.offerLetterTemplate // Reusing this field for both
                 });
                 triggeredCount++;
             } catch (err) {
@@ -573,7 +578,7 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
                 id: program._id
             },
             certificateId: certificateId,
-            templateId: program.certificateTemplate || 'default',
+            templateId: program.templateType || program.certificateTemplate || 'default',
             templateUrl: program.certificateTemplate,
             qrCode: qrCodeImage,
             callbackUrl: 'http://ignore.me',

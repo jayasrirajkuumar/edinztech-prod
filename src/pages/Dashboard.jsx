@@ -68,6 +68,41 @@ export default function Dashboard() {
                                                     Status: <span className="capitalize font-medium text-green-600">{prog.enrollmentStatus}</span> •
                                                     Valid until: {new Date(prog.validUntil).toLocaleDateString()}
                                                 </p>
+
+                                                {/* Progress Bar */}
+                                                <div className="mt-4 w-full md:w-96">
+                                                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                                        <span>Start: {new Date(prog.startDate).toLocaleDateString()}</span>
+                                                        <span>End: {new Date(prog.validUntil).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                                        <div
+                                                            className="bg-primary h-2.5 rounded-full transition-all duration-1000"
+                                                            style={{
+                                                                width: `${(() => {
+                                                                    const start = new Date(prog.startDate).getTime();
+                                                                    const end = new Date(prog.validUntil).getTime();
+                                                                    const now = new Date().getTime();
+                                                                    if (now < start) return 0;
+                                                                    if (now > end) return 100;
+                                                                    if (end === start) return 100;
+                                                                    return Math.round(((now - start) / (end - start)) * 100);
+                                                                })()}%`
+                                                            }}
+                                                        ></div>
+                                                    </div>
+                                                    <div className="text-right text-xs text-primary font-medium mt-1">
+                                                        {(() => {
+                                                            const start = new Date(prog.startDate).getTime();
+                                                            const end = new Date(prog.validUntil).getTime();
+                                                            const now = new Date().getTime();
+                                                            if (now < start) return 'Starting Soon';
+                                                            if (now > end) return 'Completed';
+                                                            if (end === start) return '100%';
+                                                            return `${Math.round(((now - start) / (end - start)) * 100)}% Complete`;
+                                                        })()}
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 

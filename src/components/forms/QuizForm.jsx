@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,7 +34,7 @@ const quizSchema = z.object({
     description: z.string().optional(),
     programId: z.string().min(1, 'Program is required'),
     passingScore: z.coerce.number().min(1).max(100),
-    startTime: z.string().optional(),
+    startTime: z.string().min(1, 'Start time is required'),
     endTime: z.string().optional(),
     questions: z.array(questionSchema).min(1, 'At least one question is required'),
 });
@@ -53,7 +55,8 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                 type: q.type || 'mcq',
                 marks: q.marks || 1,
                 image: q.image || '',
-                correctAnswer: q.correctAnswer || ''
+                correctAnswer: q.correctAnswer || '',
+                correctOption: q.correctOption !== undefined && q.correctOption !== null ? String(q.correctOption) : '0'
             }))
         } : {
             title: '',
@@ -93,6 +96,89 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const processData = (data) => {
+            const newQuestions = [];
+            let errorCount = 0;
+
+            data.forEach((row, index) => {
+                // Normalize keys to support slight variations or trim spaces
+                // But standard template expects: Question, Answer, Option 1...
+
+                // Basic Validation
+                if (!row.Question || !row["Option 1"] || !row["Option 2"]) {
+                    errorCount++;
+                    return;
+                }
+
+                // Determine Correct Option Index
+                const options = [
+                    row["Option 1"],
+                    row["Option 2"],
+                    row["Option 3"] || "",
+                    row["Option 4"] || ""
+                ];
+
+                let correctOption = 0;
+                if (row["Answer"]) {
+                    const ansMap = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+                    const upperAns = row["Answer"].toString().trim().toUpperCase();
+                    if (ansMap.hasOwnProperty(upperAns)) {
+                        correctOption = ansMap[upperAns];
+                    }
+                }
+
+                newQuestions.push({
+                    question: row.Question,
+                    type: 'mcq', // CSV currently supports only MCQ based on template
+                    marks: parseInt(row.Marks) || 2,
+                    options: options,
+                    correctOption: correctOption.toString(), // Store as string for Radio Input matching
+                    image: ''
+                });
+            });
+
+            if (newQuestions.length > 0) {
+                append(newQuestions);
+                alert(`Successfully imported ${newQuestions.length} questions!`);
+            }
+
+            if (errorCount > 0) {
+                alert(`Skipped ${errorCount} rows due to missing data.`);
+            }
+        };
+
+        const fileExt = file.name.split('.').pop().toLowerCase();
+
+        if (fileExt === 'csv') {
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => processData(results.data),
+                error: (err) => alert("Failed to parse CSV: " + err.message)
+            });
+        } else if (fileExt === 'xlsx' || fileExt === 'xls') {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const bstr = evt.target.result;
+                const wb = XLSX.read(bstr, { type: 'binary' });
+                const wsname = wb.SheetNames[0];
+                const ws = wb.Sheets[wsname];
+                const data = XLSX.utils.sheet_to_json(ws);
+                processData(data);
+            };
+            reader.readAsBinaryString(file);
+        } else {
+            alert("Unsupported file type. Please upload CSV or Excel.");
+        }
+
+        // Reset input
+        e.target.value = null;
     };
 
     return (
@@ -151,11 +237,26 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
 
             {/* Questions Builder */}
             <div className="space-y-6">
-                <div className="flex justify-between items-center border-b pb-2">
-                    <h4 className="text-lg font-bold text-secondary">Questions ({fields.length})</h4>
-                    <Button type="button" variant="outline" size="sm" onClick={() => append({ question: '', type: 'mcq', marks: 1, options: ['', '', '', ''], correctOption: 0 })}>
-                        <Icons.Plus size={16} className="mr-1" /> Add Question
-                    </Button>
+                <div className="flex flex-col gap-2 border-b pb-2">
+                    <div className="flex justify-between items-center">
+                        <h4 className="text-lg font-bold text-secondary">Questions ({fields.length})</h4>
+                        <div className="flex gap-2">
+                            <label className="cursor-pointer inline-flex items-center px-3 py-2 border border-blue-500 border-dashed text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100">
+                                <Icons.Upload size={16} className="mr-2" />
+                                Import CSV/Excel
+                                <input type="file" className="hidden" accept=".csv, .xlsx, .xls" onChange={handleFileUpload} />
+                            </label>
+                            <Button type="button" variant="outline" size="sm" onClick={() => append({ question: '', type: 'mcq', marks: 1, options: ['', '', '', ''], correctOption: 0 })}>
+                                <Icons.Plus size={16} className="mr-1" /> Add Question
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="bg-blue-50 p-2 rounded text-xs text-blue-800 border border-blue-100">
+                        <p className="font-semibold">CSV/Excel Format Required:</p>
+                        <code className="block mt-1 bg-white p-1 rounded border border-blue-200">
+                            Question, Answer (A/B/C/D), Option 1, Option 2, Option 3, Option 4, Marks
+                        </code>
+                    </div>
                 </div>
 
                 {errors.questions && <p className="text-red-500 text-sm">{errors.questions.message}</p>}
@@ -250,7 +351,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                                             <div className="pt-2">
                                                 <input
                                                     type="radio"
-                                                    value={optIndex}
+                                                    value={optIndex.toString()}
                                                     {...register(`questions.${index}.correctOption`)}
                                                     className="w-4 h-4 text-primary focus:ring-primary"
                                                 />

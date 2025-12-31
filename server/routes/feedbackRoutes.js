@@ -13,7 +13,10 @@ const {
     submitFeedback,
     exportFeedbackResponses,
     getPendingDefaultFeedbacks, // Added
-    submitDefaultFeedback // Added
+    submitDefaultFeedback, // Added
+    submitPublicFeedback,
+    getAllDefaultFeedbacks, // Added
+    exportAllDefaultFeedbacks // Added
 } = require('../controllers/feedbackController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 
@@ -24,7 +27,12 @@ router.post('/me/default', protect, submitDefaultFeedback); // Added
 router.get('/me/:id', protect, getFeedbackForSubmission);
 router.post('/me/:id', protect, submitFeedback);
 
+// Public Routes
+router.post('/public', submitPublicFeedback);
+
 // Admin Routes
+router.get('/admin/default', protect, admin, getAllDefaultFeedbacks); // Added
+router.get('/admin/default/export', protect, admin, exportAllDefaultFeedbacks); // Added
 router.post('/admin', protect, admin, createFeedback);
 router.get('/admin', protect, admin, getAdminFeedbacks);
 router.get('/admin/:id', protect, admin, getFeedbackById);

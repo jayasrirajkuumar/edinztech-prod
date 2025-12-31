@@ -17,7 +17,7 @@ const enrollmentSchema = mongoose.Schema({
     },
     programType: {
         type: String,
-        enum: ['Course', 'Internship', 'Workshop']
+        enum: ['Course', 'Internship', 'Workshop', 'Project']
     },
     status: {
         type: String,
@@ -56,7 +56,6 @@ const enrollmentSchema = mongoose.Schema({
     },
     certificateId: {
         type: String,
-        default: null,
         unique: true,
         sparse: true // Allow multiple nulls
     },

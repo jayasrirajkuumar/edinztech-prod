@@ -21,7 +21,16 @@ export default function DashboardInternships() {
                         enrollmentStatus: e.status, // rename to avoid conflict with derived status
                         status: e.status, // Keep for legacy
                         derivedStatus: getProgramStatus(e.program), // 'Upcoming', 'Ongoing', 'Completed'
-                        progress: e.progressPercent
+                        progress: (() => {
+                            const start = new Date(e.program?.startDate).getTime();
+                            const end = new Date(e.program?.validUntil || e.program?.endDate).getTime();
+                            const now = new Date().getTime();
+                            if (isNaN(start) || isNaN(end)) return 0;
+                            if (now < start) return 0;
+                            if (now > end) return 100;
+                            if (end === start) return 100;
+                            return Math.round(((now - start) / (end - start)) * 100);
+                        })()
                     }));
                 setInternships(myInternships);
             } catch (err) {

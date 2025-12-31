@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Program = require('../models/Program');
 const { createOrUpdateEnrollment } = require('../services/enrollmentService');
 const { sendEmail } = require('../services/emailService');
+const whatsappService = require('../services/whatsappService');
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -18,6 +19,9 @@ const { encrypt, decrypt, generateUserCode } = require('../utils/encryption');
 
 // ... (imports)
 
+// @desc    Create Razorpay Order (Guest/DB-Driven)
+// @route   POST /api/payments/create-order
+// @access  Public
 // @desc    Create Razorpay Order (Guest/DB-Driven)
 // @route   POST /api/payments/create-order
 // @access  Public
@@ -38,6 +42,28 @@ const createOrder = asyncHandler(async (req, res) => {
             res.status(404);
             throw new Error('Program not found');
         }
+
+        // --- DUPLICATE CHECK START ---
+        // 1. Check if user already exists
+        const existingUser = await User.findOne({ email: email });
+
+        if (existingUser) {
+            // 2. Check if already enrolled
+            // Note: Use flexible query to catch active enrollments
+            const existingEnrollment = await require('../models/Enrollment').findOne({
+                user: existingUser._id,
+                program: programId,
+                status: 'active'
+            });
+
+            if (existingEnrollment) {
+                console.log(`[CreateOrder] Blocked duplicate for ${email} in ${programId}`);
+                res.status(400);
+                // Exact message requested by user
+                throw new Error('This email ID is already registered for this particular program. You can\'t buy the course. Try to login.');
+            }
+        }
+        // --- DUPLICATE CHECK END ---
 
         if (program.paymentMode !== 'Paid') {
             res.status(400);
@@ -83,7 +109,9 @@ JSON: ${JSON.stringify(error, Object.getOwnPropertyNames(error))}
 `;
         fs.appendFileSync(path.join(__dirname, '../error.log'), logMsg);
         console.error(error);
-        res.status(500);
+
+        // Ensure 400 passes through to frontend
+        if (res.statusCode === 200) res.status(500);
         throw error;
     }
 });
@@ -100,6 +128,19 @@ const enrollFree = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Program not found');
     }
+
+    // --- DUPLICATE CHECK START ---
+    const existingEnrollment = await require('../models/Enrollment').findOne({
+        user: userId,
+        program: programId,
+        status: 'active'
+    });
+
+    if (existingEnrollment) {
+        res.status(400);
+        throw new Error('You are already enrolled in this program.');
+    }
+    // --- DUPLICATE CHECK END ---
 
     if (program.fee > 0 && program.paymentMode !== 'Free') {
         res.status(400);
@@ -201,25 +242,36 @@ const handleWebhook = asyncHandler(async (req, res) => {
                     autoPassword = crypto.randomBytes(8).toString('hex'); // Stronger password
 
                     const userCode = generateUserCode();
-
-                    user = await User.create({
-                        name: userName,
-                        email: userEmail,
-                        phone: userPhone,
-                        year,
-                        department,
-                        registerNumber,
-                        institutionName,
-                        state,
-                        city,
-                        pincode,
-                        password: autoPassword,
-                        encryptedPassword: encrypt(autoPassword),
-                        userCode: userCode,
-                        role: 'student',
-                        isActive: true
-                    });
-                    console.log(`[Webhook] Created new user: ${userEmail} (${userCode})`);
+                    try {
+                        user = await User.create({
+                            name: userName,
+                            email: userEmail,
+                            phone: userPhone,
+                            year,
+                            department,
+                            registerNumber,
+                            institutionName,
+                            state,
+                            city,
+                            pincode,
+                            password: autoPassword,
+                            encryptedPassword: encrypt(autoPassword),
+                            userCode: userCode,
+                            role: 'student',
+                            isActive: true
+                        });
+                        console.log(`[Webhook] Created new user: ${userEmail} (${userCode})`);
+                    } catch (err) {
+                        if (err.code === 11000) {
+                            console.log(`[Webhook] User race condition caught for ${userEmail}`);
+                            // Start with selecting encryptedPassword so we can send it in email if needed
+                            user = await User.findOne({ email: userEmail }).select('+encryptedPassword');
+                            if (!user) throw err;
+                            isNewUser = false;
+                        } else {
+                            throw err; // Re-throw other errors
+                        }
+                    }
                 } else {
                     console.log(`[Webhook] Found existing user: ${userEmail}`);
                     // Backfill userCode if missing (Migration for old users)
@@ -234,16 +286,25 @@ const handleWebhook = asyncHandler(async (req, res) => {
                 const existingPayment = await Payment.findOne({ razorpayPaymentId: paymentId });
 
                 if (!existingPayment) {
-                    const newPayment = await Payment.create({
-                        razorpayOrderId: order_id,
-                        razorpayPaymentId: paymentId,
-                        user: user._id,
-                        program: programId,
-                        programType: programType,
-                        amount: amount / 100,
-                        status: 'captured'
-                    });
-                    console.log(`[Webhook] Recorded payment: ${newPayment._id}`);
+                    try {
+                        const newPayment = await Payment.create({
+                            razorpayOrderId: order_id,
+                            razorpayPaymentId: paymentId,
+                            user: user._id,
+                            program: programId,
+                            programType: programType,
+                            amount: amount / 100,
+                            status: 'captured'
+                        });
+                        console.log(`[Webhook] Recorded payment: ${newPayment._id}`);
+                    } catch (err) {
+                        if (err.code === 11000) {
+                            console.log(`[Webhook] Payment race condition caught for ${paymentId}`);
+                            // Proceed as if existing
+                        } else {
+                            throw err;
+                        }
+                    }
 
                     // 3. Enroll User (Explicit Logic)
                     const enrollment = await require('../models/Enrollment').findOneAndUpdate(
@@ -281,6 +342,16 @@ const handleWebhook = asyncHandler(async (req, res) => {
                             subject: 'Enrollment Confirmed - EdinzTech',
                             html: `Hi ${user.name},<br><br>Your payment was successful and you have been enrolled in the ${programType}.`
                         });
+                    }
+
+                    // 5. WhatsApp Notification (Non-blocking / Safe)
+                    try {
+                        const fullProgram = await Program.findById(programId);
+                        if (fullProgram) {
+                            await whatsappService.sendTemplate(user, fullProgram, 'onEnrolled');
+                        }
+                    } catch (waError) {
+                        console.error("[Webhook] WhatsApp trigger failed:", waError.message);
                     }
                 } else {
                     logToFile(`[Webhook] Skipped duplicate payment: ${paymentId}`);
@@ -328,7 +399,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
             // Use the same logic as webhook to enroll
             // Check if user exists (Idempotent creation)
-            let user = await User.findOne({ email });
+            let user = await User.findOne({ email }).select('+encryptedPassword');
             let isNewUser = false;
             let autoPassword = '';
 
@@ -337,23 +408,35 @@ const verifyPayment = asyncHandler(async (req, res) => {
                 autoPassword = crypto.randomBytes(8).toString('hex');
                 const userCode = generateUserCode();
 
-                user = await User.create({
-                    name: name || 'Student',
-                    email,
-                    phone,
-                    year,
-                    department,
-                    registerNumber,
-                    institutionName,
-                    state,
-                    city,
-                    pincode,
-                    password: autoPassword,
-                    encryptedPassword: encrypt(autoPassword),
-                    userCode,
-                    role: 'student',
-                    isActive: true
-                });
+                try {
+                    user = await User.create({
+                        name: name || 'Student',
+                        email,
+                        phone,
+                        year,
+                        department,
+                        registerNumber,
+                        institutionName,
+                        state,
+                        city,
+                        pincode,
+                        password: autoPassword,
+                        encryptedPassword: encrypt(autoPassword),
+                        userCode,
+                        role: 'student',
+                        isActive: true
+                    });
+                } catch (err) {
+                    if (err.code === 11000) {
+                        // Race condition: User created by webhook just now
+                        console.log(`[Verify] User race condition caught for ${email}`);
+                        user = await User.findOne({ email }).select('+encryptedPassword');
+                        if (!user) throw err; // Should not happen
+                        isNewUser = false; // It exists now
+                    } else {
+                        throw err;
+                    }
+                }
             }
 
             // Create Payment Record (Idempotency Check)
@@ -362,16 +445,28 @@ const verifyPayment = asyncHandler(async (req, res) => {
             let paymentId = existingPayment ? existingPayment._id : null;
 
             if (!existingPayment) {
-                const newPayment = await Payment.create({
-                    razorpayOrderId: razorpay_order_id,
-                    razorpayPaymentId: razorpay_payment_id,
-                    user: user._id,
-                    program: programId,
-                    programType: programType,
-                    amount: amount / 100,
-                    status: 'captured' // Assumed if verified
-                });
-                paymentId = newPayment._id;
+                try {
+                    const newPayment = await Payment.create({
+                        razorpayOrderId: razorpay_order_id,
+                        razorpayPaymentId: razorpay_payment_id,
+                        user: user._id,
+                        program: programId,
+                        programType: programType,
+                        amount: amount / 100,
+                        status: 'captured' // Assumed if verified
+                    });
+                    paymentId = newPayment._id;
+                } catch (err) {
+                    if (err.code === 11000) {
+                        // Race condition: Payment created by webhook
+                        console.log(`[Verify] Payment race condition caught for ${razorpay_payment_id}`);
+                        const racedPayment = await Payment.findOne({ razorpayPaymentId: razorpay_payment_id });
+                        if (racedPayment) paymentId = racedPayment._id;
+                        else throw err;
+                    } else {
+                        throw err;
+                    }
+                }
             }
 
             // Enroll (Idempotent: uses findOneAndUpdate upsert)
@@ -412,6 +507,23 @@ const verifyPayment = asyncHandler(async (req, res) => {
                     <b>Password:</b> ${decryptedPassword}<br><br>
                     <a href="${process.env.FRONTEND_URL}/login">Login Here</a>`
                 }).catch(err => console.error("Email fail", err));
+            }
+
+            // WhatsApp Notification
+            try {
+                const fullProgram = await Program.findById(programId);
+                if (fullProgram) {
+                    const waConfig = fullProgram.whatsappConfig?.onEnrolled;
+                    console.log(`[Verify] 🟢 Attempting WhatsApp Trigger for Prog: ${programId}`);
+                    console.log(`[Verify] WA Config Enabled: ${waConfig?.enabled}, TemplateId: ${waConfig?.templateId}`);
+
+                    const waResult = await whatsappService.sendTemplate(user, fullProgram, 'onEnrolled');
+                    console.log(`[Verify] WA Result: ${waResult}`);
+                } else {
+                    console.log(`[Verify] 🔴 Program not found for WhatsApp trigger`);
+                }
+            } catch (waError) {
+                console.error("[Verify] WhatsApp trigger failed:", waError.message);
             }
 
             res.json({ status: 'success', message: 'Payment verified and enrolled.' });

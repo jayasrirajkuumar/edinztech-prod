@@ -23,7 +23,9 @@ import AdminLogin from '../pages/AdminLogin'; // Added
 import Projects from '../pages/Projects';
 import Success from '../pages/Success';
 import Terms from '../pages/Terms';
+
 import Privacy from '../pages/Privacy';
+import PublicFeedback from '../pages/PublicFeedback'; // Added
 
 // Auth Components
 import ProtectedRoute from '../components/auth/ProtectedRoute';
@@ -49,6 +51,7 @@ import AdminProgramsNew from '../pages/AdminProgramsNew';
 import AdminProgramsEdit from '../pages/AdminProgramsEdit';
 import AdminQuizzes from '../pages/AdminQuizzes';
 import AdminQuizzesNew from '../pages/AdminQuizzesNew';
+import AdminQuizEdit from '../pages/AdminQuizEdit'; // Added
 import AdminFeedbacks from '../pages/AdminFeedbacks';
 import AdminFeedbacksNew from '../pages/AdminFeedbacksNew';
 import AdminFeedbacksEdit from '../pages/AdminFeedbacksEdit';
@@ -56,6 +59,12 @@ import AdminTemplateCertificate from '../pages/admin/templates/certificate';
 import AdminTemplateOfferLetter from '../pages/admin/templates/offer-letter';
 import AdminInvitePage from '../pages/admin/invite';
 import AdminEnrollments from '../pages/AdminEnrollments';
+
+// Outsider Quiz Pages
+import AdminOutsiderQuizzes from '../pages/AdminOutsiderQuizzes';
+import AdminOutsiderQuizForm from '../pages/AdminOutsiderQuizForm';
+import AdminOutsiderQuizResults from '../pages/AdminOutsiderQuizResults';
+import PublicOutsiderQuiz from '../pages/PublicOutsiderQuiz';
 
 export const router = createBrowserRouter([
     {
@@ -79,6 +88,8 @@ export const router = createBrowserRouter([
             { path: '/certificate/view/:code', element: <CertificateView /> }, // New public route for viewing/printing
             { path: '/terms', element: <Terms /> },
             { path: '/privacy', element: <Privacy /> },
+            { path: '/feedback/public', element: <PublicFeedback /> }, // Added
+            { path: '/quiz/public/:id', element: <PublicOutsiderQuiz /> }, // Added
             { path: '*', element: <div className="p-20 text-center text-xl">Page Not Found (Custom Catch-All)</div> },
         ],
     },
@@ -117,6 +128,7 @@ export const router = createBrowserRouter([
             { path: '/admin/programs/:id/edit', element: <AdminProgramsEdit /> }, // Edit route
             { path: '/admin/quizzes', element: <AdminQuizzes /> },
             { path: '/admin/quizzes/new', element: <AdminQuizzesNew /> },
+            { path: '/admin/quizzes/:id/edit', element: <AdminQuizEdit /> }, // Added
             { path: '/admin/quizzes/:id/reports', element: <AdminQuizReports /> },
             { path: '/admin/quizzes/attempt/:id', element: <AdminQuizAttemptDetail /> }, // Re-adding missing route
             { path: 'feedbacks', element: <AdminFeedbacks /> },
@@ -126,6 +138,11 @@ export const router = createBrowserRouter([
             { path: '/admin/offer-letters', element: <AdminTemplateOfferLetter /> },
             { path: '/admin/invite', element: <AdminInvitePage /> },
             { path: '/admin/enrollments', element: <AdminEnrollments /> },
+            // Outsider Quiz Routes
+            { path: '/admin/outsider-quizzes', element: <AdminOutsiderQuizzes /> },
+            { path: '/admin/outsider-quizzes/new', element: <AdminOutsiderQuizForm /> },
+            { path: '/admin/outsider-quizzes/:id/edit', element: <AdminOutsiderQuizForm /> },
+            { path: '/admin/outsider-quizzes/:id/results', element: <AdminOutsiderQuizResults /> },
         ],
     },
 ]);

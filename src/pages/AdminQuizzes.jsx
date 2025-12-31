@@ -54,13 +54,14 @@ export default function AdminQuizzes() {
                 await publishQuiz(quiz._id);
             }
             // Update local state
-            setQuizzes(quizzes.map(q => q._id === quiz._id
-                ? { ...q, status: q.status === 'Published' ? 'Draft' : 'Published' }
-                : q
-            ));
+            // Refresh entire list to ensure DB consistency status
+            await fetchQuizzes();
+            // Optional: alert user
+            // alert(`Quiz ${quiz.status === 'Published' ? 'Unpublished' : 'Published'} successfully`);
         } catch (error) {
             console.error("Failed to toggle publish status", error);
-            alert("Failed to update quiz status");
+            const msg = error.response?.data?.message || "Failed to update quiz status";
+            alert(msg);
         }
     };
 
@@ -138,6 +139,13 @@ export default function AdminQuizzes() {
                                                 title="View Reports"
                                             >
                                                 <Icons.FileText size={18} />
+                                            </Link>
+                                            <Link
+                                                to={`/admin/quizzes/${quiz._id}/edit`}
+                                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors"
+                                                title="Edit Quiz"
+                                            >
+                                                <Icons.Edit size={18} />
                                             </Link>
                                             <button
                                                 onClick={() => handleDelete(quiz._id)}

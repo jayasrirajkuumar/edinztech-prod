@@ -112,20 +112,12 @@ export default function InternshipDetails() {
                         </div>
                     </div>
 
-                    import {getRegistrationStatus} from '../lib/programUtils';
-
-                    // ... inside component ...
-                    const regStatus = program ? getRegistrationStatus(program) : 'Closed';
-                    const isRegistrationClosed = regStatus === 'Closed';
-
-                    // ... existing render logic ...
-
                     <Button
                         onClick={handleEnroll}
-                        disabled={processing || isRegistrationClosed}
-                        className={`w-full py-4 text-lg shadow-lg ${isRegistrationClosed ? 'bg-gray-400 cursor-not-allowed shadow-none hover:bg-gray-400' : 'shadow-orange-100'}`}
+                        disabled={processing || (new Date() > new Date(program.registrationDeadline || program.validUntil || program.endDate))}
+                        className="w-full py-4 text-lg shadow-lg shadow-orange-100 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        {processing ? 'Processing...' : (isRegistrationClosed ? 'Registration Closed' : 'Enroll Now')}
+                        {processing ? 'Processing...' : (new Date() > new Date(program.registrationDeadline || program.validUntil || program.endDate) ? 'Registration Closed' : 'Enroll Now')}
                     </Button>
                     <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>

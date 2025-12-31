@@ -40,6 +40,7 @@ app.use(express.json({
     }
 }));
 app.use('/api/webhooks', require('./routes/webhookRoutes')); // Added webhook route handler
+app.use('/api/outsider-quiz', require('./routes/outsiderQuizRoutes')); // Added Outsider Quiz Routes
 app.use(cors()); // Allow frontend to connect
 app.use(helmet({
     crossOriginResourcePolicy: false, // Allow loading images from uploads

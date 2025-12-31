@@ -1,6 +1,7 @@
 const eventBus = require('./eventBus');
 // const certificateService = require('../services/certificateGenerator');
 const emailService = require('../services/emailService');
+const whatsappService = require('../services/whatsappService');
 // const Certificate = require('../models/Certificate'); // Disabled
 const Enrollment = require('../models/Enrollment');
 const { v4: uuidv4 } = require('uuid');
@@ -17,14 +18,20 @@ eventBus.on('USER_ENROLLED', async ({ user, program, enrollment }) => {
         <p>Your journey starts now!</p>
         ${program.whatsappGroupLink ? `<p>Join our WhatsApp Group: <a href="${program.whatsappGroupLink}">Click Here</a></p>` : ''}
     `;
-    await emailService.sendEmail({ to: user.email, subject, html });
-
-    // 2. Mock WhatsApp (Log only)
-    if (program.whatsappMessage) {
-        console.log(`[WhatsApp Mock] Sending to ${user.phone}: ${program.whatsappMessage.replace('{{name}}', user.name)}`);
+    // 2. WhatsApp Trigger
+    // New Template Flow (Priority)
+    if (program.whatsappConfig?.onEnrolled?.enabled) {
+        whatsappService.sendTemplate(user, program, 'onEnrolled');
     }
-
-    // 3. Internship Offer Letter logic (if applicable)
+    // Legacy Manual Flow (Fallback - for existing programs not yet migrated)
+    else if (program.whatsappMessage) {
+        console.log(`[WhatsApp Legacy] Sending to ${user.phone}: ${program.whatsappMessage.replace('{{name}}', user.name)}`);
+    }
+    // Legacy Manual Flow (Fallback - for existing programs not yet migrated)
+    // Legacy Manual Flow (Fallback - for existing programs not yet migrated)
+    else if (program.whatsappMessage) {
+        console.log(`[WhatsApp Legacy] Sending to ${user.phone}: ${program.whatsappMessage.replace('{{name}}', user.name)}`);
+    }
     if (program.type === 'Internship') {
         console.log("Generating Offer Letter... (Mock Implementation)");
         // Logic similar to certificateService but for Offer Letter
