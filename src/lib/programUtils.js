@@ -36,11 +36,11 @@ export const getRegistrationStatus = (program) => {
 
     if (now > registrationEndDate) {
         // EDGE CASE FIX: If the program is "Upcoming" (Start Date in future) AND 
-        // the calculated deadline (likely EndDate) is in the past (which implies EndDate < StartDate, i.e., invalid data),
-        // and NO explicit Registration Deadline was set, we should probably treat it as OPEN to avoid "Upcoming but Closed" UI glitches due to bad data.
+        // the calculated deadline (likely EndDate or Explicit Deadline) is in the past (which implies EndDate/Deadline < StartDate, i.e., invalid data),
+        // we should probably treat it as OPEN to avoid "Upcoming but Closed" UI glitches due to bad data.
 
-        // Only apply this safety net if NO explicit registrationDeadline was provided
-        if (!program.registrationDeadline && startDate > now && registrationEndDate < startDate) {
+        // Only apply this safety net for future programs
+        if (startDate > now && registrationEndDate < startDate) {
             return 'Open';
         }
 

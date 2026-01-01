@@ -231,6 +231,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                         label="End Time"
                         type="datetime-local"
                         {...register('endTime')}
+                        min={watch('startTime')}
                     />
                 </div>
             </div>

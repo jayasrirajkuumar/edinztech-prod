@@ -13,3 +13,13 @@
 [2025-12-30T02:26:38.995Z] QR Generated.
 [2025-12-30T02:26:38.998Z] Calling Service at: http://localhost:5002/api/generate
 [2025-12-30T02:26:50.393Z] Service Call Success.
+[2026-01-01T06:26:55.327Z] Starting regeneration for Enrollment: 69553ae018e296d1b9a41d3e
+[2026-01-01T06:26:55.330Z] Certificate ID: CERT-EDZ-2025-COU-608-2025-521043
+[2026-01-01T06:26:55.403Z] QR Generated.
+[2026-01-01T06:26:55.405Z] Calling Service at: http://localhost:5002/api/generate
+[2026-01-01T06:27:03.573Z] Service Call Success.
+[2026-01-01T06:28:04.726Z] Starting regeneration for Enrollment: 6954c8d9139bfca4fb2ae976
+[2026-01-01T06:28:04.727Z] Certificate ID: CERT-EDZ-2025-COU-625-2026-837590
+[2026-01-01T06:28:04.736Z] QR Generated.
+[2026-01-01T06:28:04.737Z] Calling Service at: http://localhost:5002/api/generate
+[2026-01-01T06:28:10.363Z] Service Call Success.

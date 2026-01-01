@@ -127,11 +127,21 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Institution Name</label>
-                            <input {...register("institutionName")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" placeholder="University" />
+                            <input
+                                {...register("institutionName", { required: "Institution Name is required" })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                placeholder="University"
+                            />
+                            {errors.institutionName && <p className="text-red-500 text-xs mt-1">{errors.institutionName.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Register No</label>
-                            <input {...register("registerNumber")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" placeholder="Roll No" />
+                            <input
+                                {...register("registerNumber", { required: "Register Number is required" })}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                placeholder="Roll No"
+                            />
+                            {errors.registerNumber && <p className="text-red-500 text-xs mt-1">{errors.registerNumber.message}</p>}
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

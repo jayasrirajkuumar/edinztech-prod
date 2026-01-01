@@ -38,7 +38,7 @@ app.use('/files', express.static(path.join(__dirname, 'temp')));
 
 app.post('/api/generate', async (req, res) => {
     console.log('[Certificate Service] Received request');
-    const { studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode } = req.body;
+    const { studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode, date } = req.body;
 
     if (!studentData || !certificateId || !callbackUrl) {
         return res.status(400).json({ message: 'Missing required fields' });
@@ -46,7 +46,7 @@ app.post('/api/generate', async (req, res) => {
 
     // SYNCHRONOUS PROCESSING (Atomic Requirement)
     try {
-        await processCertificate({ studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode });
+        await processCertificate({ studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode, date });
         res.status(200).json({ success: true, message: 'Certificate Generated & Sent' });
     } catch (error) {
         console.error("Generation Failed:", error);
@@ -54,7 +54,7 @@ app.post('/api/generate', async (req, res) => {
     }
 });
 
-async function processCertificate({ studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode }) {
+async function processCertificate({ studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode, date }) {
     console.log(`[Processing] ${type || 'Certificate'}: ${certificateId} for ${studentData.name}`);
     let filePath = path.join(tempDir, `${certificateId}.pdf`);
 
@@ -201,15 +201,20 @@ async function processCertificate({ studentData, courseData, certificateId, call
                 delimiters: { start: '[%', end: '%]' }
             });
 
-            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            // Handle date with precedence: passed date > current date
+            // Note: If passed date is DD-MM-YYYY, we stick to it. If not passed, we use Long format.
+            let letterDate = date;
+            if (!letterDate) {
+                letterDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            }
+
+            const companyName = "Inspire Softech Solutions";
 
             const formatDate = (dateStr) => {
                 if (!dateStr) return '';
                 const d = new Date(dateStr);
                 return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
             };
-
-            const companyName = "Inspire Softech Solutions";
 
             doc.render({
                 // Student Details
@@ -234,7 +239,8 @@ async function processCertificate({ studentData, courseData, certificateId, call
                 End_Date: formatDate(courseData.endDate), // Potential Template Alias
 
                 // Meta
-                today: today,
+                today: letterDate, // Use the resolved date
+                date: letterDate,
                 companyName: companyName, // Dynamic Company Name
                 Company_Name: companyName,
 
@@ -274,7 +280,11 @@ async function processCertificate({ studentData, courseData, certificateId, call
 
             if (isOfferLetter || type === 'acceptance-letter') {
                 // HYBRID APPROACH: HTML Text Overlay on Background Image
-                const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                // Determine Date: Use passed date if available, else formatted Today
+                let today = date;
+                if (!today) {
+                    today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
 
                 // Content based on the "Clean Template" text
                 htmlContent = `
@@ -427,7 +437,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
                 // A4 Landscape is approx 1123px x 794px (at 96 DPI) or just use % for flexibility
 
                 const NAME_POSITION = {
-                    top: '38%',     // Moved UP from 42%
+                    top: '35%',     // Moved UP to avoid line overlap (was 38%)
                     left: '10%',
                     width: '80%',
                     fontSize: '40px', // slightly smaller might help too if name is long, but pos is key

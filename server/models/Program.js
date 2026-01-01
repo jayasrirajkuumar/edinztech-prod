@@ -103,6 +103,9 @@ const programSchema = mongoose.Schema({
         }
     },
 
+    // Additional Welcome Content
+    welcomeEmailContent: { type: String, default: '' },
+
     isArchived: { type: Boolean, default: false },
     isFeedbackEnabled: { type: Boolean, default: false } // Default Feedback Form Toggle
 }, {

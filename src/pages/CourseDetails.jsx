@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProgram, createPaymentOrder, enrollFree } from '../lib/api';
+import { isRegistrationOpen } from '../lib/programUtils';
 import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -139,11 +140,19 @@ export default function CourseDetails() {
 
                     <Button
                         onClick={handleEnroll}
-                        disabled={processing || (new Date() > new Date(program.registrationDeadline || program.validUntil || program.endDate))}
+                        disabled={processing || !isRegistrationOpen(program)}
                         className="w-full py-4 text-lg shadow-lg shadow-orange-100 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                        {processing ? 'Processing...' : (new Date() > new Date(program.registrationDeadline || program.validUntil || program.endDate) ? 'Registration Closed' : 'Enroll Now')}
+                        {processing ? 'Processing...' : (!isRegistrationOpen(program) ? 'Registration Closed' : 'Enroll Now')}
                     </Button>
+
+                    {program.registrationDeadline && new Date(program.registrationDeadline) > new Date() && (
+                        <div className="mt-3 text-center animate-pulse">
+                            <span className="text-sm font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">
+                                This program is extended registration till {new Date(program.registrationDeadline).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </span>
+                        </div>
+                    )}
                     <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>
             </div>

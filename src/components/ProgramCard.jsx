@@ -23,13 +23,17 @@ export default function ProgramCard({ program, showStatus = false }) {
     // Priority: Completed > Registration Closed > Closing Soon > Upcoming/Ongoing default
     let badge = null;
 
+    const now = new Date();
+    const isExtended = program.registrationDeadline && new Date(program.registrationDeadline) > now && lifecycleStatus === 'Ongoing';
+
     if (showStatus) {
         if (lifecycleStatus === 'Completed') {
             badge = <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Completed</span>;
         } else if (regStatus === 'Closed') {
             badge = <span className="bg-red-50 text-red-600 text-xs font-bold px-2 py-1 rounded">reg. closed</span>;
-        } else if (regStatus === 'Extended') {
-            badge = <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-1 rounded border border-purple-200">Extended</span>;
+        } else if (regStatus === 'Extended' || isExtended) {
+            const extDate = new Date(program.registrationDeadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+            badge = <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-1 rounded border border-purple-200">Extended till {extDate}</span>;
         } else if (regStatus === 'Closing Soon') {
             badge = <span className="bg-orange-50 text-orange-600 text-xs font-bold px-2 py-1 rounded">Closing Soon</span>;
         } else if (lifecycleStatus === 'Ongoing') {

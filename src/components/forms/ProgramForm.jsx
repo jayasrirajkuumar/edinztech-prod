@@ -158,6 +158,7 @@ const step4Schema = z.object({
     whatsappGroupLink: z.string().optional().or(z.literal('')),
     emailSubject: z.string().optional(),
     emailBody: z.string().optional(),
+    welcomeEmailContent: z.string().optional(), // New field
     // WhatsApp Config Schema (Loose validation as structure is complex)
     whatsappConfig: z.any().optional()
 });
@@ -513,7 +514,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Input type="date" label="Start Date" {...register('startDate')} error={errors.startDate?.message} />
-                            <Input type="date" label="End Date" {...register('endDate')} error={errors.endDate?.message} />
+                            <Input type="date" label="End Date" {...register('endDate')} error={errors.endDate?.message} min={watch('startDate')} />
                             <Input type="date" label="Registration Deadline" {...register('registrationDeadline')} />
                             <Controller
                                 name="mode"
@@ -966,17 +967,14 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
 
                             {/* WhatsApp Inputs Removed */}
                             <div className="border-t border-gray-100 my-4 pt-4">
-                                <h4 className="font-medium text-secondary mb-3">Email Template</h4>
-                                <Input
-                                    label="Email Subject"
-                                    {...register('emailSubject')}
-                                />
+                                <h4 className="font-medium text-secondary mb-3">Welcome Email Content</h4>
+                                <p className="text-xs text-gray-500 mb-2">This content will be appended to the enrollment confirmation email.</p>
                                 <TextArea
-                                    label="Email Body"
-                                    {...register('emailBody')}
-                                    placeholder="Dear {{name}}..."
-                                    rows={4}
-                                    className="mt-4"
+                                    label="Message Body"
+                                    {...register('welcomeEmailContent')}
+                                    placeholder="Enter any additional welcome message, instructions, or links here..."
+                                    rows={6}
+                                    className="mt-2"
                                 />
                             </div>
                         </div>

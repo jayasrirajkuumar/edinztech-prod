@@ -461,12 +461,26 @@ const publishOfferLetters = asyncHandler(async (req, res) => {
             enrollment.offerLetterStatus = 'ISSUED';
             await enrollment.save();
 
+            // Format Program Start Date for the Letter
+            let formattedStartDate = new Date().toLocaleDateString('en-GB'); // Fallback to today
+            if (program.startDate) {
+                const d = new Date(program.startDate);
+                if (!isNaN(d.getTime())) {
+                    const day = d.getDate().toString().padStart(2, '0');
+                    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                    const year = d.getFullYear();
+                    formattedStartDate = `${day}-${month}-${year}`;
+                }
+            }
+
             // Call Microservice
             console.log(`[DEBUG] Triggering Service with Callback: ${CALLBACK_URL}`);
 
             try {
                 await axios.post(CERT_SERVICE_URL, {
                     type: letterType, // 'offer-letter' or 'acceptance-letter'
+                    date: formattedStartDate, // Explicit date for letter
+                    issueDate: formattedStartDate, // Alias
                     studentData: {
                         name: user.name,
                         email: user.email,
