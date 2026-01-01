@@ -127,31 +127,52 @@ export default function Dashboard() {
                                                         <span>Start: {new Date(prog.startDate).toLocaleDateString()}</span>
                                                         <span>End: {new Date(prog.validUntil).toLocaleDateString()}</span>
                                                     </div>
-                                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                                        <div
-                                                            className="bg-primary h-2.5 rounded-full transition-all duration-1000"
-                                                            style={{
-                                                                width: `${(() => {
-                                                                    const start = new Date(prog.startDate).getTime();
-                                                                    const end = new Date(prog.validUntil).getTime();
-                                                                    const now = new Date().getTime();
-                                                                    if (now < start) return 0;
-                                                                    if (now > end) return 100;
-                                                                    if (end === start) return 100;
-                                                                    return Math.round(((now - start) / (end - start)) * 100);
-                                                                })()}%`
-                                                            }}
-                                                        ></div>
-                                                    </div>
-                                                    <div className="text-right text-xs text-primary font-medium mt-1">
+                                                    <div className="mt-4">
+                                                        <div className="flex justify-between items-center text-sm mb-1">
+                                                            <span className="text-gray-500">Start: {prog.startTime ? new Date(prog.startTime).toLocaleDateString() : 'N/A'}</span>
+                                                            <span className="text-gray-500">End: {prog.endTime ? new Date(prog.endTime).toLocaleDateString() : 'N/A'}</span>
+                                                        </div>
+
                                                         {(() => {
-                                                            const start = new Date(prog.startDate).getTime();
-                                                            const end = new Date(prog.validUntil).getTime();
+                                                            const start = prog.startTime ? new Date(prog.startTime).getTime() : 0;
+                                                            const end = prog.endTime ? new Date(prog.endTime).getTime() : 0;
                                                             const now = new Date().getTime();
-                                                            if (now < start) return 'Starting Soon';
-                                                            if (now > end) return 'Completed';
-                                                            if (end === start) return '100%';
-                                                            return `${Math.round(((now - start) / (end - start)) * 100)}% Complete`;
+                                                            let percentage = 0;
+                                                            let colorClass = 'bg-yellow-500'; // Ongoing
+                                                            let statusText = 'Ongoing';
+
+                                                            if (!prog.startTime || !prog.endTime) {
+                                                                return <span className="text-xs text-gray-400">Timeline not available</span>;
+                                                            }
+
+                                                            if (now < start) {
+                                                                percentage = 0;
+                                                                colorClass = 'bg-green-500'; // Yet to Start
+                                                                statusText = 'Yet to Start';
+                                                            } else if (now > end || prog.enrollmentStatus === 'completed') {
+                                                                percentage = 100;
+                                                                colorClass = 'bg-red-500'; // Completed
+                                                                statusText = 'Completed';
+                                                            } else {
+                                                                percentage = Math.round(((now - start) / (end - start)) * 100);
+                                                                if (percentage < 0) percentage = 0;
+                                                                if (percentage > 100) percentage = 100;
+                                                                statusText = `${percentage}% Complete`;
+                                                            }
+
+                                                            return (
+                                                                <>
+                                                                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                                                        <div
+                                                                            className={`${colorClass} h-2.5 rounded-full transition-all duration-500`}
+                                                                            style={{ width: `${percentage}%` }}
+                                                                        ></div>
+                                                                    </div>
+                                                                    <p className={`text-right text-xs mt-1 font-medium ${colorClass.replace('bg-', 'text-')}`}>
+                                                                        {statusText}
+                                                                    </p>
+                                                                </>
+                                                            );
                                                         })()}
                                                     </div>
                                                 </div>

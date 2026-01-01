@@ -370,7 +370,12 @@ export const createOutsiderQuiz = async (quizData) => {
 export const uploadOutsiderQuizTemplate = async (id, file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const { data } = await api.post(`/outsider-quiz/admin/${id}/upload-template`, formData);
+    // Explicitly unset Content-Type so browser sets it with boundary
+    const { data } = await api.post(`/outsider-quiz/admin/${id}/upload-template`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
     return data;
 };
 
@@ -401,6 +406,11 @@ export const getPublicOutsiderQuiz = async (id) => {
 
 export const submitPublicOutsiderQuiz = async (id, submissionData) => {
     const { data } = await api.post(`/outsider-quiz/public/${id}/submit`, submissionData);
+    return data;
+};
+
+export const duplicateOutsiderQuiz = async (id) => {
+    const { data } = await api.post(`/outsider-quiz/admin/${id}/duplicate`);
     return data;
 };
 

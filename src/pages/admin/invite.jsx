@@ -24,9 +24,9 @@ export default function AdminInvitePage() {
     };
 
     const filteredStudents = invitedStudents.filter(student =>
-        student.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.program?.title?.toLowerCase().includes(searchTerm.toLowerCase())
+        student.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.programName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -80,16 +80,16 @@ export default function AdminInvitePage() {
                                 filteredStudents.map((enrollment) => (
                                     <tr key={enrollment._id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-3 font-medium text-gray-900">
-                                            {enrollment.user?.name || <span className="text-gray-400 italic">Unknown</span>}
+                                            {enrollment.studentName || <span className="text-gray-400 italic">Unknown</span>}
                                         </td>
-                                        <td className="px-6 py-3 text-gray-500">{enrollment.user?.email || '-'}</td>
+                                        <td className="px-6 py-3 text-gray-500">{enrollment.email || '-'}</td>
                                         <td className="px-6 py-3">
                                             <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs font-medium border border-blue-100">
-                                                {enrollment.program?.title || 'Unknown Program'}
+                                                {enrollment.programName || 'Unknown Program'}
                                             </span>
                                         </td>
                                         <td className="px-6 py-3 text-gray-500">
-                                            {enrollment.createdAt ? new Date(enrollment.createdAt).toLocaleDateString() : '-'}
+                                            {enrollment.enrolledAt ? new Date(enrollment.enrolledAt).toLocaleDateString() : '-'}
                                         </td>
                                         <td className="px-6 py-3">
                                             <span className="bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit">

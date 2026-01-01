@@ -65,10 +65,14 @@ export default function PublicOutsiderQuiz() {
             }));
 
             const payload = {
-                studentName: userDetails.name,
-                email: userDetails.email,
-                phone: userDetails.phone,
-                college: userDetails.college,
+                userDetails: {
+                    name: userDetails.name,
+                    email: userDetails.email,
+                    phone: userDetails.phone,
+                    phone: userDetails.phone,
+                    college: userDetails.college,
+                    education: userDetails.education
+                },
                 answers: formattedAnswers
             };
 
@@ -155,6 +159,16 @@ export default function PublicOutsiderQuiz() {
                                 {errors.college && <p className="text-red-500 text-xs mt-1">{errors.college.message}</p>}
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Study of Education</label>
+                                <input
+                                    {...register("education", { required: "Education details are required" })}
+                                    className="mt-1 w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    placeholder="e.g. B.Tech CS, MBA, Grade 12"
+                                />
+                                {errors.education && <p className="text-red-500 text-xs mt-1">{errors.education.message}</p>}
+                            </div>
+
                             <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors mt-4">
                                 Start Quiz
                             </button>
@@ -168,7 +182,7 @@ export default function PublicOutsiderQuiz() {
                             <div key={q._id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                                 <h3 className="text-lg font-medium text-gray-900 mb-4">
                                     <span className="text-blue-600 mr-2">{index + 1}.</span>
-                                    {q.questionText}
+                                    {q.question || q.questionText}
                                 </h3>
                                 <div className="space-y-2">
                                     {q.options.map(option => (

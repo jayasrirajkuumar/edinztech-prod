@@ -47,7 +47,11 @@ import {
     XCircle, // Added
     Code, // Added
     ArrowRight, // Added
+
     RefreshCcw, // Added
+    Globe, // Added
+    Power, // Added
+    Copy, // Added
 } from 'lucide-react';
 
 export const Icons = {
@@ -121,5 +125,7 @@ export const Icons = {
     GraduationCap: (props) => <GraduationCap className="text-secondary" {...props} />, // Added
     Presentation: (props) => <Presentation className="text-secondary" {...props} />, // Added
     Link: (props) => <Link className="text-secondary" {...props} />, // Added
-    Power: (props) => <LogOut className="text-secondary" {...props} />, // Reusing LogOut for now or importing specific
+    Power: (props) => <Power className="text-secondary" {...props} />, // Added
+    Globe: (props) => <Globe className="text-secondary" {...props} />, // Added
+    Copy: (props) => <Copy className="text-secondary" {...props} />, // Added
 };

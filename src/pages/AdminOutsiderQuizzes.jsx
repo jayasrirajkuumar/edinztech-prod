@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import AdminTable from '../components/AdminTable';
-import { getOutsiderQuizzes, updateOutsiderQuiz } from '../lib/api';
+import { getOutsiderQuizzes, updateOutsiderQuiz, duplicateOutsiderQuiz } from '../lib/api';
 
 export default function AdminOutsiderQuizzes() {
     const [quizzes, setQuizzes] = useState([]);
@@ -25,7 +25,18 @@ export default function AdminOutsiderQuizzes() {
         }
     };
 
-    const copyLink = (id) => {
+    const handleDuplicate = async (id) => {
+        if (!window.confirm("Duplicate this quiz?")) return;
+        try {
+            await duplicateOutsiderQuiz(id);
+            const data = await getOutsiderQuizzes();
+            setQuizzes(data);
+        } catch (error) {
+            console.error("Failed to duplicate", error);
+        }
+    };
+
+    const copyToClipboard = (id) => {
         const url = `${window.location.origin}/quiz/public/${id}`;
         navigator.clipboard.writeText(url);
         alert('Public Quiz Link copied to clipboard!');
@@ -33,10 +44,13 @@ export default function AdminOutsiderQuizzes() {
 
     const toggleStatus = async (quiz) => {
         try {
-            await updateOutsiderQuiz(quiz._id, { isActive: !quiz.isActive });
+            const newStatus = quiz.status === 'Published' ? 'Draft' : 'Published';
+            await updateOutsiderQuiz(quiz._id, { status: newStatus });
             fetchQuizzes(); // Refresh
         } catch (error) {
-            alert('Failed to update status');
+            console.error(error);
+            const msg = error.response?.data?.message || error.message || 'Failed to update status';
+            alert(`Error: ${msg}`);
         }
     };
 
@@ -66,8 +80,8 @@ export default function AdminOutsiderQuizzes() {
                                 {quiz.questions?.length || 0}
                             </td>
                             <td className="px-6 py-4">
-                                <span className={`px-2 py-1 rounded text-xs font-semibold ${quiz.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                    {quiz.isActive ? 'Active' : 'Inactive'}
+                                <span className={`px-2 py-1 rounded text-xs font-semibold ${quiz.status === 'Published' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {quiz.status === 'Published' ? 'Active' : 'Draft'}
                                 </span>
                             </td>
                             <td className="px-6 py-4 text-gray-500 text-xs">
@@ -79,25 +93,27 @@ export default function AdminOutsiderQuizzes() {
                             <td className="px-6 py-4">
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => copyLink(quiz._id)}
+                                        onClick={() => copyToClipboard(quiz._id)}
                                         className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                                         title="Copy Public Link"
                                     >
                                         <Icons.Link size={18} />
                                     </button>
-                                    <Link to={`/admin/outsider-quizzes/${quiz._id}/results`} className="text-green-600 hover:text-green-800" title="View Results">
-                                        <Icons.BarChart size={18} />
+                                    <Link to={`/admin/outsider-quizzes/${quiz._id}/results`} className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded text-sm font-medium" title="View Results">
+                                        <Icons.BarChart size={16} /> Leads
                                     </Link>
-                                    <Link to={`/admin/outsider-quizzes/${quiz._id}/edit`} className="text-gray-600 hover:text-gray-800" title="Edit">
+                                    <button onClick={() => handleDuplicate(quiz._id)} className="p-2 text-gray-500 hover:text-green-600 hover:bg-gray-100 rounded-lg" title="Duplicate">
+                                        <Icons.Copy size={18} />
+                                    </button>
+                                    <Link to={`/admin/outsider-quizzes/${quiz._id}/edit`} className="p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-lg" title="Edit">
                                         <Icons.Edit size={18} />
                                     </Link>
                                     <button
                                         onClick={() => toggleStatus(quiz)}
-                                        className={`${quiz.isActive ? 'text-red-500' : 'text-green-500'}`}
-                                        title={quiz.isActive ? 'Deactivate' : 'Activate'}
+                                        className={`${quiz.status === 'Published' ? 'text-red-500' : 'text-green-500'}`}
+                                        title={quiz.status === 'Published' ? 'Deactivate' : 'Activate'}
                                     >
                                         <Icons.Power size={18} />
-                                        {/* Assuming Power icon exists or use generic */}
                                     </button>
                                 </div>
                             </td>

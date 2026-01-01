@@ -1,22 +1,40 @@
 const mongoose = require('mongoose');
 
-const questionSchema = new mongoose.Schema({
-    questionText: { type: String, required: true },
-    options: [String], // Array of strings for options
-    correctAnswer: { type: String, required: true }, // The correct option string
-    marks: { type: Number, default: 1 }
+const questionSchema = mongoose.Schema({
+    question: { type: String }, // Relaxed
+    type: {
+        type: String,
+        enum: ['mcq', 'text'],
+        default: 'mcq'
+    },
+    image: { type: String },
+    marks: { type: Number, default: 1 },
+    options: [{ type: String }],
+    correctOption: {
+        type: Number // Relaxed
+    },
+    correctAnswer: {
+        type: String // Relaxed
+    }
 });
 
-const outsiderQuizSchema = new mongoose.Schema({
+const outsiderQuizSchema = mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
+    passingScore: { type: Number, default: 60 },
     questions: [questionSchema],
-    timeLimit: { type: Number, default: 0 }, // In minutes, 0 = no limit
-    certificateTemplate: { type: String }, // Path or URL to the certificate template image
-    isActive: { type: Boolean, default: true },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    status: {
+        type: String,
+        enum: ['Draft', 'Published'],
+        default: 'Draft'
+    },
+    startTime: { type: Date },
+    endTime: { type: Date },
+    enableCertificates: { type: Boolean, default: false },
+    certificateTemplate: { type: String } // Path to uploaded template
 }, {
     timestamps: true
 });
 
-module.exports = mongoose.model('OutsiderQuiz', outsiderQuizSchema);
+const OutsiderQuiz = mongoose.model('OutsiderQuiz', outsiderQuizSchema);
+module.exports = OutsiderQuiz;

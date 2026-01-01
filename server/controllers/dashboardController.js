@@ -9,15 +9,10 @@ const FeedbackTemplate = require('../models/FeedbackTemplate');
 const getDashboard = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
-    // 1. Get Active Enrollments
+    // 1. Get All Enrollments (Active & Completed)
     const enrollments = await Enrollment.find({
         user: userId,
-        status: 'active',
-        $or: [
-            { validUntil: { $gte: new Date() } },
-            { validUntil: null },
-            { validUntil: { $exists: false } }
-        ]
+        // Removed status: 'active' to include completed programs
     }).populate('program', 'title type isFeedbackEnabled');
 
     // 2. Compute Program Data
@@ -39,12 +34,6 @@ const getDashboard = asyncHandler(async (req, res) => {
         }).select('title description type');
 
         // Check for Default Feedback
-        // We need to check if program has it enabled, and if user hasn't submitted yet.
-        // But enrollment.program only has title/type populated above. We need isFeedbackEnabled.
-        // Let's assume we update populate above, or fetch it here.
-        // Optimization: Update the populate call above.
-
-        // Also check submission status
         const DefaultFeedbackResponse = require('../models/DefaultFeedbackResponse');
         const defaultSubmitted = await DefaultFeedbackResponse.findOne({
             programId: enrollment.program._id,
@@ -53,19 +42,10 @@ const getDashboard = asyncHandler(async (req, res) => {
 
         if (enrollment.program.isFeedbackEnabled && !defaultSubmitted) {
             feedbacks.unshift({
-                _id: 'default', // Special ID to handle in frontend? Or use programId? 
-                // Frontend Dashboard.jsx uses Link to `/dashboard/feedbacks/${f._id}`.
-                // If I put 'default', the link becomes `/dashboard/feedbacks/default`.
-                // Does the frontend route handle that?
-                // DashboardFeedbacks.jsx handles it via Modal.
-                // But Dashboard.jsx links to a page.
-                // Does `/dashboard/feedbacks/default` exist?
-                // No.
-                // So I should probably point it to the feedbacks TAB or handle it.
-                // But simplified: Just show it here so user knows.
+                _id: 'default',
                 title: 'Course Completion Feedback',
                 description: 'Required for certificate',
-                isDefault: true // Marker
+                isDefault: true
             });
         }
 
@@ -75,6 +55,8 @@ const getDashboard = asyncHandler(async (req, res) => {
             type: enrollment.programType || enrollment.program.type,
             enrollmentStatus: enrollment.status,
             validUntil: enrollment.validUntil,
+            startTime: enrollment.enrolledAt, // Mapped for frontend progress bar
+            endTime: enrollment.validUntil,   // Mapped for frontend progress bar
             quizzes,
             feedbacks
         };

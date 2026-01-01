@@ -58,6 +58,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/outsider-quiz', require('./routes/outsiderQuizRoutes'));
 // app.use('/api/me', meRoutes); // This line is removed as per the instruction's implied change
 
 // Static Folder for Uploads

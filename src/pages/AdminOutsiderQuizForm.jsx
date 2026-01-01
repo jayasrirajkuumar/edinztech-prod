@@ -177,12 +177,13 @@ export default function AdminOutsiderQuizForm() {
             const data = await getOutsiderQuizAdmin(id);
             if (data.certificateTemplate) setCurrentTemplateUrl(data.certificateTemplate);
 
-            // Map correctAnswer string to correctOptionIndex
+            // Map backend schema to form state
             const questionsWithIndex = data.questions.map(q => {
-                const index = q.options.findIndex(opt => opt === q.correctAnswer);
                 return {
-                    ...q,
-                    correctOptionIndex: index !== -1 ? index.toString() : '0' // Default to 0 if not found
+                    questionText: q.question, // Backend 'question' -> Form 'questionText'
+                    options: q.options,
+                    marks: q.marks,
+                    correctOptionIndex: q.correctOption !== undefined ? q.correctOption.toString() : '0'
                 };
             });
 
@@ -257,10 +258,11 @@ export default function AdminOutsiderQuizForm() {
         try {
             // Transform questions back to backend format
             const formattedQuestions = data.questions.map(q => ({
-                questionText: q.questionText,
+                question: q.questionText,
                 options: q.options,
                 marks: q.marks,
-                correctAnswer: q.options[Number(q.correctOptionIndex)] || q.options[0]
+                type: 'mcq',
+                correctOption: Number(q.correctOptionIndex)
             }));
 
             const payload = { ...data, questions: formattedQuestions };
@@ -325,14 +327,26 @@ export default function AdminOutsiderQuizForm() {
                                 className="mt-1 w-full p-2 border rounded-md"
                             />
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Certificate Template Image</label>
-                            <SimpleFileUploader
-                                file={templateFile}
-                                setFile={setTemplateFile}
-                                currentUrl={currentTemplateUrl}
-                            />
-                            <p className="text-xs text-gray-500 mt-1">Upload an image (JPG/PNG) used as the certificate background.</p>
+                        <div className="flex flex-col gap-4">
+
+                            <div className="flex items-center gap-2 mt-4 ml-1">
+                                <input
+                                    type="checkbox"
+                                    id="enableCertificates"
+                                    {...register("enableCertificates")}
+                                    className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                />
+                                <label htmlFor="enableCertificates" className="text-sm font-medium text-gray-700">Enable Automatic Certificate Generation</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Certificate Template Image</label>
+                                <SimpleFileUploader
+                                    file={templateFile}
+                                    setFile={setTemplateFile}
+                                    currentUrl={currentTemplateUrl}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Upload an image (JPG/PNG) used as the certificate background.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
