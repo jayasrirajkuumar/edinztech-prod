@@ -4,6 +4,7 @@ const Program = require('../models/Program');
 const Certificate = require('../models/Certificate');
 const Quiz = require('../models/Quiz');
 const FeedbackTemplate = require('../models/FeedbackTemplate');
+const User = require('../models/User');
 
 // @desc    Get user's enrollments
 // @route   GET /api/me/enrollments
@@ -71,7 +72,11 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
         user: {
             _id: user._id,
             name: user.name,
-            email: user.email
+            email: user.email,
+            phone: user.phone,
+            institutionName: user.institutionName,
+            registerNumber: user.registerNumber,
+            role: user.role
         },
         programs: validPrograms,
         stats: {
@@ -119,8 +124,39 @@ const getProgramProgress = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc    Update user profile
+// @route   PUT /api/me/profile
+// @access  Private
+const updateMyProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        user.name = req.body.name || user.name;
+        user.phone = req.body.phone || user.phone;
+        user.institutionName = req.body.institutionName || user.institutionName;
+        user.registerNumber = req.body.registerNumber || user.registerNumber;
+
+        const updatedUser = await user.save();
+
+        res.json({
+            _id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+            institutionName: updatedUser.institutionName,
+            registerNumber: updatedUser.registerNumber,
+            role: updatedUser.role,
+            token: req.user.token // Return existing token if needed, or frontend keeps it
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+});
+
 module.exports = {
     getMyEnrollments,
     getDashboardOverview,
-    getProgramProgress
+    getProgramProgress,
+    updateMyProfile
 };

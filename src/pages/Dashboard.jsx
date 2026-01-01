@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getDashboardOverview } from '../lib/api';
+import { getDashboardOverview, updateMyProfile } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { Icons } from '../components/icons';
 import Card from '../components/ui/Card';
@@ -22,6 +22,56 @@ export default function Dashboard() {
         loadDashboard();
     }, []);
 
+    const handleEditClick = () => {
+        if (data && data.user) {
+            setFormData({
+                name: data.user.name || '',
+                phone: data.user.phone || '',
+                institutionName: data.user.institutionName || '',
+                registerNumber: data.user.registerNumber || ''
+            });
+            setIsEditing(true);
+            setErrorMessage('');
+        }
+    };
+
+    const handleCancelClick = () => {
+        setIsEditing(false);
+        setErrorMessage('');
+    };
+
+    const handleFormChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSaveProfile = async (e) => {
+        e.preventDefault();
+        setUpdateLoading(true);
+        setErrorMessage('');
+
+        try {
+            const updatedUser = await updateMyProfile(formData);
+            // Update local state
+            setData(prev => ({
+                ...prev,
+                user: {
+                    ...prev.user,
+                    name: updatedUser.name,
+                    phone: updatedUser.phone,
+                    institutionName: updatedUser.institutionName,
+                    registerNumber: updatedUser.registerNumber
+                }
+            }));
+            setIsEditing(false);
+        } catch (error) {
+            console.error("Failed to update profile", error);
+            setErrorMessage(error.response?.data?.message || 'Failed to update profile');
+        } finally {
+            setUpdateLoading(false);
+        }
+    };
+
     if (loading) return <div className="p-8 text-center">Loading dashboard...</div>;
 
     if (!data || !data.programs || data.programs.length === 0) {
@@ -39,10 +89,12 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="p-8 max-w-6xl mx-auto">
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">My Dashboard</h1>
-                <p className="text-gray-600">Welcome back, {data.user.name}</p>
+        <div className="p-8 max-w-6xl mx-auto relative">
+            <header className="mb-8 flex justify-between items-end">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-800">My Dashboard</h1>
+                    <p className="text-gray-600">Welcome back, {data.user.name}</p>
+                </div>
             </header>
 
             <div className="space-y-12">
@@ -198,6 +250,8 @@ export default function Dashboard() {
                     </div>
                 )}
             </div>
+
+
         </div>
     );
 }

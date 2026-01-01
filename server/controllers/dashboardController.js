@@ -84,6 +84,9 @@ const getDashboard = asyncHandler(async (req, res) => {
         user: {
             name: req.user.name,
             email: req.user.email,
+            phone: req.user.phone,
+            institutionName: req.user.institutionName,
+            registerNumber: req.user.registerNumber,
             id: req.user._id
         },
         programs: dashboardData.filter(p => p !== null)

@@ -866,3 +866,347 @@
 [AUTH 2026-01-01T06:28:04.711Z] Token found: eyJhbGciOi...
 [AUTH 2026-01-01T06:28:04.714Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
 [AUTH 2026-01-01T06:28:04.717Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T06:43:01.320Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-01-01T06:43:01.325Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T06:43:01.334Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T06:43:01.337Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T06:43:01.387Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-01-01T06:43:01.389Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T06:43:01.392Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T06:43:01.395Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T07:22:06.103Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-01-01T07:22:06.104Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:22:06.118Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T07:22:06.146Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T07:22:06.267Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-01-01T07:22:06.268Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:22:06.272Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T07:22:06.277Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T07:22:51.373Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T07:22:51.374Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:22:51.376Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T07:22:51.384Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T07:22:51.449Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T07:22:51.449Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:22:51.452Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T07:22:51.456Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T07:24:01.073Z] Checking Auth for: POST /api/admin/credentials
+[AUTH 2026-01-01T07:24:01.073Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:24:01.075Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T07:24:01.077Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T07:27:05.279Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:27:05.280Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:27:05.286Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:27:05.293Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:27:05.390Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:27:05.391Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:27:05.395Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:27:05.405Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:28:48.165Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:28:48.166Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:28:48.168Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:28:48.172Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:30:06.582Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:30:06.584Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:30:06.591Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:30:06.607Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:30:06.666Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:30:06.667Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:30:06.671Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:30:06.677Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:30:16.949Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T07:30:16.950Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:30:16.953Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:30:16.956Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:34:53.029Z] Checking Auth for: GET /api/me/enrollments
+[AUTH 2026-01-01T07:34:53.030Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:34:53.032Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:34:53.036Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:34:53.056Z] Checking Auth for: GET /api/me/enrollments
+[AUTH 2026-01-01T07:34:53.057Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:34:53.059Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:34:53.062Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:35:04.245Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:35:04.246Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:35:04.250Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:35:04.253Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:35:04.283Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:35:04.284Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:35:04.286Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:35:04.289Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:38:14.299Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:38:14.301Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:38:14.304Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:38:14.311Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:38:14.357Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:38:14.358Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:38:14.360Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:38:14.364Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:38:25.067Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:38:25.068Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:38:25.071Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:38:25.075Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:38:25.100Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:38:25.100Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:38:25.102Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:38:25.106Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:41:06.782Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:41:06.783Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:41:06.785Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:41:06.789Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:41:06.825Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:41:06.826Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:41:06.828Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:41:06.831Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:26.427Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:43:26.428Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:26.430Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:26.435Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:26.452Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:43:26.454Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:26.456Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:26.461Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:26.974Z] Checking Auth for: GET /api/me/quizzes
+[AUTH 2026-01-01T07:43:26.975Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:26.977Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:26.980Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:26.999Z] Checking Auth for: GET /api/me/quizzes
+[AUTH 2026-01-01T07:43:27.000Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:27.002Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:27.006Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:28.006Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:43:28.007Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:28.009Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:28.015Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:28.030Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:43:28.031Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:28.033Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:28.038Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:28.505Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:43:28.506Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:28.507Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:28.511Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:28.524Z] Checking Auth for: GET /api/certificates/me
+[AUTH 2026-01-01T07:43:28.525Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:28.528Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:28.531Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:35.799Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:43:35.802Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:35.804Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:35.808Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:43:35.833Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:43:35.834Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:43:35.836Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:43:35.839Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:45:11.914Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:45:11.921Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:45:11.929Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:45:11.945Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:45:12.051Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:45:12.053Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:45:12.057Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:45:12.065Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:45:16.664Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:45:16.666Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:45:16.670Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:45:16.676Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:45:16.713Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:45:16.713Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:45:16.716Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:45:16.723Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:15.552Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:52:15.558Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:15.606Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:15.678Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:15.784Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:52:15.785Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:15.790Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:15.795Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:19.056Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:52:19.057Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:19.061Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:19.070Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:25.399Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T07:52:25.400Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:25.402Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:25.404Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:26.432Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:52:26.435Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:26.440Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:26.445Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:26.494Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:52:26.495Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:26.499Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:26.503Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T07:52:28.220Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T07:52:28.221Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T07:52:28.224Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T07:52:28.228Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:46.151Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T08:04:46.154Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:46.165Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:46.184Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:47.164Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:04:47.165Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:47.169Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:47.177Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:47.381Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:04:47.385Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:47.395Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:47.414Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:48.699Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:04:48.700Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:48.702Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:48.705Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:51.659Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T08:04:51.660Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:51.661Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:51.665Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:52.212Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:04:52.213Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:52.215Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:52.220Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:52.251Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:04:52.252Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:52.255Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:52.259Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:04:53.883Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:04:53.884Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:04:53.886Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:04:53.888Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:07:51.436Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:07:51.437Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:07:51.443Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:07:51.457Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:07:53.974Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T08:07:53.974Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:07:53.976Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:07:53.980Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:07:54.837Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:07:54.841Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:07:54.846Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:07:54.861Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:07:54.918Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:07:54.919Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:07:54.921Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:07:54.926Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:07:56.011Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:07:56.011Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:07:56.014Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:07:56.019Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:17.580Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:08:17.581Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:17.585Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:17.591Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:17.628Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:08:17.629Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:17.631Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:17.636Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:19.780Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:08:19.781Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:19.783Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:19.788Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:23.323Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T08:08:23.323Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:23.326Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:23.329Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:23.906Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:08:23.908Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:23.912Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:23.917Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:23.981Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:08:23.990Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:23.995Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:24.004Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:08:25.522Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:08:25.524Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:08:25.529Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:08:25.535Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:20.611Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:11:20.612Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:20.621Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:20.649Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:20.733Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:11:20.735Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:20.738Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:20.747Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:22.778Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:11:22.778Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:22.780Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:22.782Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:28.259Z] Checking Auth for: PUT /api/me/profile
+[AUTH 2026-01-01T08:11:28.259Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:28.261Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:28.265Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:28.875Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:11:28.876Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:28.881Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:28.885Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:28.927Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:11:28.929Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:28.938Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:28.946Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:30.759Z] Checking Auth for: GET /api/me/dashboard
+[AUTH 2026-01-01T08:11:30.760Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:30.762Z] Token decoded ID: 694260b79e53c925801ebefc
+[AUTH 2026-01-01T08:11:30.766Z] User Authenticated: assuvarcloud@gmail.com (694260b79e53c925801ebefc)
+[AUTH 2026-01-01T08:11:48.484Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-01-01T08:11:48.485Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:48.488Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:11:48.491Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:11:48.523Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-01-01T08:11:48.524Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:48.526Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:11:48.528Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:11:51.215Z] Checking Auth for: GET /api/admin/enrollments?source=invite
+[AUTH 2026-01-01T08:11:51.216Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:51.218Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:11:51.225Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:11:51.252Z] Checking Auth for: GET /api/admin/enrollments?source=invite
+[AUTH 2026-01-01T08:11:51.254Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:51.258Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:11:51.262Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:11:52.442Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T08:11:52.442Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:52.444Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:11:52.448Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:11:52.494Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T08:11:52.495Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:11:52.497Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:11:52.499Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:12:03.994Z] Checking Auth for: GET /api/feedback/admin/default?keyword=
+[AUTH 2026-01-01T08:12:03.995Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:12:03.997Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:12:04.006Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:12:04.046Z] Checking Auth for: GET /api/feedback/admin/default?keyword=
+[AUTH 2026-01-01T08:12:04.047Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:12:04.049Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:12:04.051Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:12:16.094Z] Checking Auth for: POST /api/admin/programs/6954c8a9336104839344908d/publish-offer-letters?force=true
+[AUTH 2026-01-01T08:12:16.095Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:12:16.098Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:12:16.102Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:12:17.956Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T08:12:17.957Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:12:17.960Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:12:17.966Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:12:18.037Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T08:12:18.038Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:12:18.042Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:12:18.047Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:12:30.963Z] Checking Auth for: POST /api/admin/programs/6954c8a9336104839344908d/publish-certificates
+[AUTH 2026-01-01T08:12:30.964Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:12:30.966Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:12:30.971Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:13:11.327Z] Checking Auth for: POST /api/certificates/regenerate/6954c8d9139bfca4fb2ae976
+[AUTH 2026-01-01T08:13:11.328Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:13:11.330Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:13:11.334Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:13:37.538Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T08:13:37.539Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:13:37.541Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:13:37.545Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-01T08:13:37.590Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-01T08:13:37.592Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-01T08:13:37.595Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-01T08:13:37.600Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)

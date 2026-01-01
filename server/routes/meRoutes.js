@@ -3,7 +3,7 @@ const router = express.Router();
 const { protect } = require('../middlewares/authMiddleware');
 const { getDashboard } = require('../controllers/dashboardController');
 
-const { getMyEnrollments, getProgramProgress } = require('../controllers/meController');
+const { getMyEnrollments, getProgramProgress, updateMyProfile } = require('../controllers/meController');
 const { getMyQuizzes, getMyQuiz, submitQuizAttempt } = require('../controllers/meQuizController');
 const { getMyFeedbacks, getMyFeedback } = require('../controllers/meFeedbackController');
 
@@ -12,6 +12,7 @@ router.use(protect); // All /me routes are protected
 
 // Dashboard
 router.get('/dashboard', getDashboard);
+router.put('/profile', updateMyProfile);
 
 // Quizzes
 router.get('/quizzes', getMyQuizzes);

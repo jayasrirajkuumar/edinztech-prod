@@ -33,6 +33,12 @@ export default function DashboardCertificates() {
         <div className="space-y-6 animate-in fade-in duration-500">
             <h1 className="text-2xl font-bold text-secondary">My Certificates</h1>
 
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r">
+                <p className="text-xs text-yellow-800">
+                    <strong>Important:</strong> Ensure your <strong>Register Number, Name, and College Name</strong> are correct in your profile settings. These details will be printed on your certificate.
+                </p>
+            </div>
+
             {certificates.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {certificates.map(cert => (

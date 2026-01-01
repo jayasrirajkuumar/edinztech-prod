@@ -169,6 +169,11 @@ export const getMyEnrollments = async () => {
     return data;
 };
 
+export const updateMyProfile = async (profileData) => {
+    const { data } = await api.put('/me/profile', profileData);
+    return data;
+};
+
 export const getDashboardOverview = async () => {
     const { data } = await api.get('/me/dashboard');
     return data;
