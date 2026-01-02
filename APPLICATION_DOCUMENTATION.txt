@@ -1,0 +1,1410 @@
+EDINZTECH LOCAL LMS - COMPREHENSIVE DOCUMENTATION
+===================================================
+Version: 6.0 (The "Bible" Edition - 1200+ Lines)
+Last Updated: 2026-01-01
+Scope: Localhost Deployment (Windows)
+Target Audience: System Architect, Lead Developer, DevOps
+
+--------------------------------------------------------------------------------
+PART I: ADMINISTRATIVE WORKFLOW & USER GUIDE
+--------------------------------------------------------------------------------
+
+1. ACCESS & LOGIN
+=================
+
+1.1 URLs & Portals
+------------------
+The application is accessible via a web browser at the following local addresses:
+*   **Student Portal**: `http://localhost:5173/`
+*   **Admin Portal**: `http://localhost:5173/admin/login`
+*   **System API**: `http://localhost:5000/api` (Backend)
+
+1.2 Admin Authentication
+------------------------
+*   **Route**: `/admin/login`
+*   **Credentials**: There is no public registration for Admins. Admin accounts must be seeded directly in the MongoDB `users` collection with `role: "admin"`.
+*   **Session**: Uses JSON Web Tokens (JWT).
+    *   **Expiry**: Defaults to 30 days.
+    *   **Storage**: Browser `localStorage` key `userInfo`.
+    *   **Security**: If token is deleted from localStorage, the user is logged out immediately.
+
+2. ADMIN DASHBOARD (`/admin/dashboard`)
+=======================================
+
+2.1 Overview Cards
+------------------
+The top row displays real-time statistics calculated from the database. Note that these numbers are live and fetched on page load.
+*   **Total Students**: Count of unique user documents with `role: "student"`.
+*   **Total Programs**: All programs (Active + Expired).
+*   **Certificates Issued**: Count of Enrollments where `certificateStatus` is "PUBLISHED".
+*   **Pending Verifications**: Count of pending feedback/quiz items (if applicable).
+
+2.2 Navigation Menu (Sidebar)
+-----------------------------
+*   **Dashboard**: Overview stats.
+*   **Programs**: Manage Courses, Internships, Workshops.
+*   **Students**: Manage Enrollments, Invities, Offer Letters.
+*   **Quizzes**: Manage Internal Quizzes.
+*   **Outsider Quizzes**: Public quiz forms.
+*   **Feedbacks**: Feedback forms and responses.
+*   **Certificates**: Master list of issued certificates (Audit View).
+*   **Logout**: Clears local storage and redirects to login.
+
+3. PROGRAM MANAGEMENT (`/admin/programs`)
+=========================================
+
+3.1 Program List View
+---------------------
+Displays a tabular list of all educational programs.
+*   **Columns**:
+    *   **Title**: Program Name.
+    *   **Type**: Course / Internship / Workshop / Project.
+    *   **Mode**: Online / Offline / Hybrid.
+    *   **Dates**: Start Date - End Date.
+        *   *Display Format*: Locale Date String (e.g., 01/01/2026).
+    *   **Status**: Calculated Badge (See 3.1.2).
+    *   **Actions**: Edit, Delete, Publish Cert, Publish Offer.
+
+3.1.1 Filters (Client-Side)
+---------------------------
+Implemented using React `useMemo` for instant filtering without server re-fetches.
+*   **Search Box**:
+    *   Matches text against `program.title` (Case Insensitive).
+*   **Type Filter**:
+    *   Options: `All`, `Course`, `Internship`, `Workshop`, `Project`.
+*   **Status Filter**:
+    *   `Upcoming`: `startDate > CurrentDate`
+    *   `Ongoing`: `startDate <= CurrentDate <= endDate`
+    *   `Expired`: `endDate < CurrentDate`
+*   **Registration Status**:
+    *   `Open`: `registrationDeadline >= CurrentDate` OR (No Deadline AND Not Expired)
+    *   `Closed`: `registrationDeadline < CurrentDate`
+
+3.1.2 Status Logic (Badges)
+---------------------------
+*   **Upcoming** (Yellow): Program hasn't started.
+*   **Ongoing** (Green): Currently active.
+*   **Completed** (Gray): End date passed.
+
+3.2 Create / Edit Program Form
+------------------------------
+Access via "Create New Program" button.
+*   **Form Logic**: Multi-step wizard using `React Hook Form` + `Zod` Validation.
+
+**Step 1: Basic Info**
+| Field | Type | Mandatory? | Constraint / Note |
+|-------|------|------------|-------------------|
+| Type  | Dropdown | YES | Course, Internship, Workshop, Project |
+| Code  | Text | YES (Auto) | Format: `EDZ-YYYY-TYPE-XXX`. Read-only. |
+| Title | Text | YES | Min 3 chars. |
+| Desc  | Textarea | YES | Min 10 chars. |
+| Start Date | Date | YES | Must be valid date. |
+| End Date | Date | YES | Must be >= Start Date. |
+| Reg Deadline| Date | NO | If set, controls "Reg Closed" status. |
+| Mode | Dropdown | YES | Online, Offline, Hybrid. |
+| Start/End Time | Time | NO | Display only. |
+
+**Step 2: Payment & Fee**
+| Field | Type | Mandatory? | Constraint / Note |
+|-------|------|------------|-------------------|
+| Mode | Dropdown | YES | Paid, Free, Invite Only. |
+| Fee | Number | YES (if Paid)| Currency (INR). |
+
+**Step 3: Templates**
+| Field | Type | Mandatory? | Constraint / Note |
+|-------|------|------------|-------------------|
+| Offer Letter | File | NO | Required for Internship/Project types. |
+| Certificate | File | NO | JPG/PNG/DOCX. Used for background. |
+| Branding | Dropdown | NO | `Edinz`, `Inspire`, `IGreen`. Sets PDF style. |
+| Layout Config | Inputs | NO | X/Y Coordinates for Name, QR, RegNo. |
+
+**Step 4: Communication**
+| Field | Type | Mandatory? | Constraint / Note |
+|-------|------|------------|-------------------|
+| WhatsApp Group | URL | NO | Link sent in welcome email. |
+| Welcome Email | Text | NO | Custom message appended to system email. |
+
+4. STUDENT & ENROLLMENT MANAGEMENT (`/admin/enrollments`)
+=========================================================
+
+4.1 Enrollment List View
+------------------------
+*   **Source**: Fetches from `/api/admin/enrollments`.
+*   **Pagination**: NONE. Loads all records. Caution with >2000 records.
+*   **Columns**:
+    *   **Student Info**: Name, Email (Click copy).
+    *   **Program**: Title of the program.
+    *   **Status**: Active/Inactive.
+    *   **Credentials**: "View" button (See 4.1.1).
+    *   **Certificate**: "Resend" button (if published).
+    *   **Actions**: Edit Student, Remove.
+
+4.1.1 View Credentials Security
+-------------------------------
+To view a student's password (for support):
+1.  Admin clicks "View Key" icon.
+2.  **Security Prompt**: Validates Admin's OWN password first.
+3.  **Backend Call**: `/api/admin/get-credentials`.
+4.  **Decryption**: Server decrypts using AES-256 key.
+5.  **Audit**: Logs access to `AccessLog` collection.
+
+4.2 Invite Student Form (`/admin/invite`)
+-----------------------------------------
+Allows manual onboarding. Bypasses payment.
+*   **Logic**:
+    1.  Checks if User exists by Email.
+    2.  If New: Creates User -> Generates Password -> Creates Enrollment.
+    3.  If Existing: Adds Enrollment to existing User.
+    4.  **Email**: Sends "You have been invited..." with credentials.
+*   **Fields**:
+    *   Name (Optional)
+    *   Email (Required, Unique/Index)
+    *   Phone (Min 10 chars)
+    *   Program (Dropdown select)
+    *   Institution, Reg No, Dept (Academic details stored in User Profile).
+
+4.3 Data Export (CSV)
+---------------------
+*   **Button**: "Export List" (Top Right).
+*   **Endpoint**: `/api/admin/enrollments/export`.
+*   **Content**: Dumps current table view.
+*   **Columns**:
+    *   Student Name
+    *   Email
+    *   Phone
+    *   Institution
+    *   Department
+    *   Year
+    *   Register No
+    *   City
+    *   State
+    *   Pincode
+    *   User Code
+    *   Program Title
+    *   Type
+    *   Fee Amount
+    *   Status
+    *   Enrolled Date (YYYY-MM-DD)
+    *   Certificate Status
+    *   Certificate ID
+    *   Issued Date
+
+5. CERTIFICATE SYSTEM
+=====================
+
+5.1 Publishing Process
+----------------------
+1.  **Trigger**: Admin goes to Programs -> Click "Publish Certificates".
+2.  **Scope**: Generates for ALL 'Active' enrollments in that program.
+3.  **Process** (Synchronous):
+    *   Loop through students.
+    *   Check if ID exists? If no, Generate `CERT-PROG-YYYY-RAND`.
+    *   Call PDF Service (Internal).
+    *   Save `Enrollment` status = 'PUBLISHED'.
+    *   Create `Certificate` collection record (for validation).
+    *   (Optional) Send Email.
+
+5.2 Verification
+----------------
+*   **Public URL**: `/verify`
+*   **Mechanism**:
+    *   User types Certificate ID or scans QR.
+    *   System searches `Enrollments` (Primary Truth) + `Certificates` (Audit).
+    *   **Valid**: Shows "Verified", Student Name, Program, Date.
+    *   **Invalid**: Shows "Record Not Found".
+
+5.3 Re-generation
+-----------------
+If a name/date changes:
+1.  Go to Enrollments Page.
+2.  Find Student.
+3.  Click "Regenerate".
+4.  System: Deletes old keys -> Generates New PDF -> Overwrites File -> Updates DB.
+
+6. FEEDBACK & QUIZZES
+=====================
+
+6.1 Feedback Templates
+----------------------
+*   **Creation**: Admin defines questions (Text/Rating).
+*   **Deployment**: Linked to a Program.
+*   **Student View**: Appears on Dashboard when "Published".
+
+6.2 Feedback CSV Export
+-----------------------
+*   **Dynamic Columns**:
+    The CSV generator dynamically adds columns for each question.
+*   **Header**: `Submitted At, Name, Email, [Question 1], [Question 2], ...`
+*   **Endpoint**: `/api/feedback/admin/:id/export`
+
+--------------------------------------------------------------------------------
+PART II: TECHNICAL ARCHITECTURE & REFERENCE
+--------------------------------------------------------------------------------
+
+7. TECHNOLOGY STACK
+===================
+
+7.1 Core Components
+-------------------
+*   **Runtime**: Node.js (v16+)
+*   **Framework**: Express.js
+*   **Database**: MongoDB (Local Instance v5+)
+*   **Frontend**: React.js (Vite Build)
+*   **Language**: JavaScript (ES6+)
+
+7.2 Local Environment Variables (`.env`)
+----------------------------------------
+| Key | Description | Default / Example |
+|-----|-------------|-------------------|
+| `PORT` | Backend Port | `5000` |
+| `MONGO_URI` | DB Connection String | `mongodb://localhost:27017/edinztech` |
+| `JWT_SECRET` | Token Signing Key | `change_this_secret` |
+| `EMAIL_HOST` | SMTP Server | `smtp.gmail.com` |
+| `EMAIL_USER` | SMTP Username | `admin@edinztech.com` |
+| `EMAIL_PASS` | SMTP Password | `app-specific-password` |
+| `VITE_API_URL`| Frontend API Target | `http://localhost:5000` |
+
+8. DATABASE SCHEMAS & CONSTRAINTS
+=================================
+
+9.1 User Collection (`users`)
+-----------------------------
+| Field | Type | Attributes | Description |
+|-------|------|------------|-------------|
+| `_id` | ObjectId | | Primary Key |
+| `name` | String | Required | Full Name |
+| `email` | String | Unique, Index | Login ID |
+| `password` | String | Required | Bcrypt Hash |
+| `role` | String | Enum | `student`, `admin` |
+| `phone` | String | | Contact No |
+| `institution`| String | | College/Company |
+| `userCode` | String | Unique | `EDZ-STU-YYYY-XXXX` |
+| `encryptedPassword`| String | | AES-256 recovery string |
+
+9.2 Program Collection (`programs`)
+-----------------------------------
+| Field | Type | Attributes | Description |
+|-------|------|------------|-------------|
+| `title` | String | Required | |
+| `code` | String | Unique | `EDZ-YYYY-TYPE-XXX` |
+| `type` | String | Enum | Course, Internship... |
+| `startDate` | Date | Required | UTC ISO |
+| `endDate` | Date | Required | UTC ISO |
+| `certificateTemplate` | String | | Local file path |
+| `offerLetterTemplate` | String | | Local file path |
+
+9.3 Enrollment Collection (`enrollments`)
+-----------------------------------------
+**The "Join Table" - Most Critical Collection**
+| Field | Type | Attributes | Description |
+|-------|------|------------|-------------|
+| `user` | Ref(User)| Required | Link to Student |
+| `program` | Ref(Prog)| Required | Link to Course |
+| `status` | String | Enum | `active`, `completed` |
+| `certificateStatus`| String | Enum | `PUBLISHED`, `PENDING` |
+| `certificateId` | String | Unique | `CERT-...` |
+| `certificateUrl` | String | | Path to generated PDF |
+| `offerLetterStatus`| String | Enum | `ISSUED`, `PENDING` |
+
+**Constraints**:
+*   Compound Unique Index: `{ user: 1, program: 1 }`. Prevents double enrollment.
+
+10. SECURITY ARCHITECTURE
+=========================
+
+10.1 Authentication Flow (JWT)
+------------------------------
+1.  **Login**: User updates `POST /api/auth/login`.
+2.  **Verify**: Server hashes input password with `bcrypt` (Salt 10).
+3.  **Token**: If match, signs JWT with `JWT_SECRET`.
+    *   Payload: `{ id: _id, role: role }`.
+4.  **Client**: Stores token. Sends `Authorization: Bearer <token>` on every request.
+
+10.2 Admin Privilege
+--------------------
+*   Middleware `protect`: Decodes token, attaches `req.user`.
+*   Middleware `admin`: Checks if `req.user.role === 'admin'`. If not, returns 403 Forbidden.
+
+10.3 Credential Recovery (AES-256)
+----------------------------------
+Since `bcrypt` is one-way, Admins cannot "see" user passwords.
+*   **Solution**: When an Admin invites a student, the generated password is ALSO encrypted using `AES-256-CBC` and stored in `encryptedPassword`.
+*   **Algorithm**:
+    *   Key: `SHA256(JWT_SECRET)` (32 bytes).
+    *   IV: Random 16 bytes.
+    *   Stored Format: `IV:CIPHERTEXT`.
+*   This allows Admins to "Resend Credentials" by decrypting this field.
+
+10.4 File Security
+------------------
+*   **Uploads**: Stored in `server/uploads`.
+*   **Access**: Served via `express.static`.
+*   **Risk**: Files are accessible if the filename is known. No signed URLs implemented locally.
+
+--------------------------------------------------------------------------------
+PART III: DEEP TECHNICAL INTEGRATIONS AND MICROSERVICES
+--------------------------------------------------------------------------------
+
+11. RAZORPAY PAYMENT GATEWAY ARCHITECTURE
+=========================================
+
+11.1 Payment Flow Diagram (Logical)
+-----------------------------------
+1.  **Client (React)**: User clicks "Enroll" -> Calls internal API `/api/payments/create-order`.
+2.  **Server (Node)**:
+    *   Validates Program Fee > 0.
+    *   Checks for Duplicate Enrollment (Idempotency).
+    *   Calls Razorpay API `orders.create` with amount (in paise).
+    *   Returns `order_id` to Client.
+3.  **Client (Razorpay SDK)**: Opens Payment Modal.
+4.  **Razorpay**: Processes Card/UPI. Returns `payment_id` and `signature`.
+5.  **Client**: Sends verification payload to `/api/payments/verify`.
+6.  **Server Verification**:
+    *   Regenerates HMAC signature using `RAZORPAY_KEY_SECRET`.
+    *   Compares with `razorpay_signature`.
+    *   If Match: Enrolls User (Create User if new -> Create Enrollment).
+
+11.2 Webhook Security & Handling (`paymentController.js`)
+---------------------------------------------------------
+The system uses Webhooks as a robust fallback for network failures during client-side verification.
+*   **Endpoint**: `/api/payments/webhook`
+*   **Security Mechanism**: HMAC SHA-256 Signature Verification.
+*   **Critical Constraint**:
+    *   The signature must be verified against the **RAW REQUEST BODY**.
+    *   Express `json()` middleware usually consumes the stream.
+    *   **Solution**: A custom middleware captures `req.rawBody` buffer before JSON parsing.
+
+```javascript
+// Verification Logic Snippet
+const shasum = crypto.createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET);
+shasum.update(req.rawBody); // Must use RAW buffer
+const digest = shasum.digest('hex');
+if (digest === req.headers['x-razorpay-signature']) {
+    // Valid Event
+}
+```
+
+11.3 Idempotency & Race Conditions
+----------------------------------
+Since both Client Verification and Webhooks can trigger enrollment, **Race Conditions** are possible.
+*   **Scenario**: User pays -> Client Verify calls API -> Webhook arrives simultaneously.
+*   **Handling**:
+    *   **Database Constraints**: `Enrollment` has compound index `{ user: 1, program: 1, unique: true }`.
+    *   **Error Handling**: Logic catches `E11000` (Duplicate Key Error).
+    *   **Resolution**: If `E11000` occurs, the system logs it as "Race condition caught" and proceeds as success, acknowledging the user is already enrolled.
+
+12. WHATSAPP INTEGRATION (INTERAKT/2DESH)
+=========================================
+
+12.1 Provider Architecture
+--------------------------
+*   **Service Provider**: Interakt (via `2desh` wrapper).
+*   **Endpoint**: External API (Provider specific).
+*   **Authentication**: API Key in headers.
+
+12.2 Templates & Approval (`whatsappController.js`)
+---------------------------------------------------
+WhatsApp Business API requires pre-approved templates.
+*   **Status**: Templates must be in `APPROVED` state.
+*   **Variables**: Support dynamic injection (e.g., `{{1}}` = Name, `{{2}}` = Program).
+*   **Logic**:
+    *   Admin syncs templates via `/api/admin/whatsapp/templates`.
+    *   System checks `status === 'APPROVED'`.
+
+12.3 Trigger Points
+-------------------
+*   **On Enrollment**: Welcome message with Portal Link.
+*   **On Invite**: Credential delivery.
+*   **On Certificate**: "Your certificate is ready" notification.
+
+13. CERTIFICATE MICROSERVICE ARCHITECTURE
+=========================================
+
+13.1 Service Decoupling
+-----------------------
+Certificate generation is resource-intensive (PDF manipulation). It is decoupled into a separate service/process flow.
+*   **Primary Backend**: Handles Logic, DB, Auth (`port: 5000`).
+*   **Certificate Service**: Handles PDF Generation (`port: 5002` typically, or internal route).
+
+13.2 Payload Structure
+----------------------
+When publishing certificates, the Main Server sends this JSON payload to the Service:
+
+```json
+{
+  "studentData": {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "id": "6500ca...",
+    "registerNumber": "REG2024001",
+    "institutionName": "Engineering College"
+  },
+  "courseData": {
+    "title": "Full Stack Dev",
+    "id": "6500...program"
+  },
+  "certificateId": "CERT-2024-EDZ-001",
+  "templateUrl": "uploads/template-123.pdf",
+  "qrCode": "data:image/png;base64,..."
+}
+```
+
+13.3 QR Code Generation (`certificateController.js`)
+----------------------------------------------------
+*   **Library**: `qrcode` (NPM).
+*   **Data Format**:
+    *   **Legacy**: `CERT:<ID>`
+    *   **Modern**: `https://domain.com/verify?certificateId=<ID>`
+*   **Storage**: The QR code is generated as a Base64 Data URI string and embedded into the PDF payload. It is also stored in the `Certificate` collection for quick display in the frontend.
+
+14. DEPLOYMENT & OPERATIONAL MANUAL
+===================================
+
+14.1 Process Management (PM2)
+-----------------------------
+The application should be run using PM2 for process resilience.
+*   **Start Command**: `pm2 start server.js --name "edinz-backend"`
+*   **Logs**: `pm2 logs edinz-backend`
+*   **Monitoring**: `pm2 monit`
+
+14.2 Backup Strategy (Manual)
+-----------------------------
+As noted, no automated backup exists.
+*   **Database**: Run `mongodump --db edinztech --out C:\Backups\Date\`
+*   **Files**: Copy `server/uploads` folder manually to an external drive.
+*   **Frequency Recommendation**: Weekly.
+
+14.3 Nginx Reverse Proxy (Recommended for Production)
+-----------------------------------------------------
+For exposing to local network or public internet:
+```nginx
+server {
+    listen 80;
+    server_name local.edinztech;
+
+    location / {
+        proxy_pass http://localhost:5173; # Frontend
+    }
+
+    location /api {
+        proxy_pass http://localhost:5000; # Backend
+    }
+}
+```
+
+--------------------------------------------------------------------------------
+PART IV: TROUBLESHOOTING & ERROR REFERENCES
+--------------------------------------------------------------------------------
+
+15. COMMON ERROR CODES AND SOLUTIONS
+====================================
+
+15.1 "Order not found" (Razorpay)
+---------------------------------
+*   **Symptom**: 404 Error when verifying payment.
+*   **Cause**: The user might be paying for a program created in "Test Mode" Razorpay keys but verified against "Live Mode" Keys, or vice versa.
+*   **Fix**: Ensure `RAZORPAY_KEY_ID` in `.env` matches the dashboard used to create the order.
+
+15.2 "Signature Mismatch"
+-------------------------
+*   **Symptom**: Webhook logs "Invalid Signature".
+*   **Cause**: The secret defined in Razorpay Dashboard does not match `RAZORPAY_WEBHOOK_SECRET` in `.env`.
+*   **Fix**: Copy the secret exactly from Dashboard -> Settings -> Webhooks.
+
+15.3 "E11000 Duplicate Key Error"
+---------------------------------
+*   **Symptom**: Server crash or 500 error in Payment/Enrollment.
+*   **Cause**: User clicked "pay" twice, or Webhook + Client verify raced.
+*   **Fix**: The `paymentController` has logic to catch this `err.code === 11000`. If it crashes, ensure `asyncHandler` is wrapping the function correctly.
+
+15.4 "Certificate Generation Timeout"
+-------------------------------------
+*   **Symptom**: 504 Gateway Timeout during "Publish Certificates".
+*   **Cause**: Synchronous loop processing > 500 students.
+*   **Fix**: The loop awaits PDF generation one by one. For large batches, restart PM2 if stuck, or implement a Queue (RabbitMQ/Bull).
+
+--------------------------------------------------------------------------------
+APPENDIX A: API ROUTE REFERENCE (EXHAUSTIVE)
+--------------------------------------------------------------------------------
+
+A.1 Admin Routes (/api/admin)
+-----------------------------
+| Method | Route | Middleware | Controller | Purpose |
+|--------|-------|------------|------------|---------|
+| POST   | /invite | protect, admin | inviteStudent | Create User + Enroll + Email w/ Creds. |
+| GET    | /enrollments | protect, admin | getEnrollments | List all students with filters. |
+| GET    | /enrollments/export | protect, admin | exportEnrollments | Download CSV of all enrollments. |
+| POST   | /credentials | protect, admin | getStudentCredentials | Decrypt password (AES-256) for audit. |
+| POST   | /credentials/resend | protect, admin | resendCredentials | Email existing credentials again. |
+| GET    | /dashboard | protect, admin | getDashboardStats | Get live counts for dashboard cards. |
+| PUT    | /students/:id | protect, admin | updateStudent | Edit Name, Phone, Institution. |
+| POST   | /programs/:id/publish-certificates | protect, admin | publishCertificates | Trigger Async Cert Generation. |
+| POST   | /programs/:id/publish-offer-letters | protect, admin | publishOfferLetters | Trigger Async Offer Generation. |
+| GET    | /whatsapp/templates | protect, admin | getTemplates | Fetch active WA Interakt Templates. |
+
+A.2 Program Routes (/api/programs)
+----------------------------------
+| Method | Route | Middleware | Controller | Purpose |
+|--------|-------|------------|------------|---------|
+| GET    | / | Public | getPrograms | List active programs (Frontend Grid). |
+| POST   | / | protect, admin | createProgram | Create new program via form. |
+| GET    | /export | protect, admin | exportPrograms | Download CSV of programs list. |
+| PATCH  | /:id/toggle-feedback | protect, admin | toggleFeedbackStatus | Enable/Disable feedback for program. |
+| GET    | /:id | Public | getProgramById | Detailed view. |
+| PUT    | /:id | protect, admin | updateProgram | Edit program details. |
+| DELETE | /:id | protect, admin | deleteProgram | Soft/Hard delete program. |
+| POST   | /:id/upload-template | protect, admin | upload (Multer) | Save .docx/.pdf template file. |
+
+A.3 Certificate Routes (/api/certificates)
+------------------------------------------
+| Method | Route | Middleware | Controller | Purpose |
+|--------|-------|------------|------------|---------|
+| GET    | /verify | Public | verifyCertificate | Query Param ?certificateId=... |
+| GET    | /verify/:code | Public | verifyCertificate | Path Param verification. |
+| POST   | /issue | protect | issueCertificate | Manual Issue (Edge Case). |
+| POST   | /regenerate/:enrollmentId | protect, admin | regenerateCertificate | Force new ID/PDF for student. |
+| GET    | /me | protect (Student) | getMyCertificates | List certificates for logged in user. |
+
+A.4 Auth Routes (/api/auth)
+---------------------------
+| Method | Route | Middleware | Controller | Purpose |
+|--------|-------|------------|------------|---------|
+| POST   | /login | Public | authUser | Student Login (Email/Pass). |
+| POST   | /admin/login | Public | authAdmin | Admin Login (Must have role: admin). |
+| GET    | /me | protect | getUserProfile | Check valid token extension. |
+| POST   | /forgot-password | Public | forgotPassword | Trigger reset email flow. |
+
+--------------------------------------------------------------------------------
+APPENDIX B: COMPLETE DATABASE SCHEMA DEFINITIONS (JSON SPEC)
+--------------------------------------------------------------------------------
+
+B.1 User Schema (models/User.js)
+```json
+{
+  "name": { "type": "String", "required": true },
+  "email": { "type": "String", "required": true, "unique": true },
+  "password": { "type": "String", "required": true },
+  "role": { "type": "String", "enum": ["student", "admin"], "default": "student" },
+  "phone": { "type": "String" },
+  "institution": { "type": "String" },
+  "department": { "type": "String" },
+  "year": { "type": "String" },
+  "registerNumber": { "type": "String" },
+  "city": { "type": "String" },
+  "state": { "type": "String" },
+  "pincode": { "type": "String" },
+  "userCode": { "type": "String", "unique": true },
+  "encryptedPassword": { "type": "String" },
+  "createdAt": { "type": "Date", "default": "Date.now" },
+  "updatedAt": { "type": "Date", "default": "Date.now" }
+}
+```
+
+B.2 Program Schema (models/Program.js)
+```json
+{
+  "title": { "type": "String", "required": true },
+  "code": { "type": "String", "required": true, "unique": true },
+  "type": { "type": "String", "enum": ["Course", "Internship", "Workshop", "Project"] },
+  "mode": { "type": "String", "enum": ["Online", "Offline", "Hybrid"] },
+  "description": { "type": "String" },
+  "startDate": { "type": "Date", "required": true },
+  "endDate": { "type": "Date", "required": true },
+  "startTime": { "type": "String" },
+  "endTime": { "type": "String" },
+  "registrationDeadline": { "type": "Date" },
+  "paymentMode": { "type": "String", "enum": ["Paid", "Free", "Invite Only"] },
+  "fee": { "type": "Number", "default": 0 },
+  "certificateTemplate": { "type": "String" },
+  "offerLetterTemplate": { "type": "String" },
+  "isFeedbackEnabled": { "type": "Boolean", "default": false },
+  "communication": {
+    "whatsappGroupLink": { "type": "String" },
+    "whatsappMessage": { "type": "String" },
+    "emailSubject": { "type": "String" },
+    "emailBody": { "type": "String" },
+    "welcomeEmailContent": { "type": "String" }
+  },
+  "certificateConfig": {
+    "name": {
+      "x": { "type": "Number" },
+      "y": { "type": "Number" },
+      "fontSize": { "type": "Number" },
+      "color": { "type": "String" }
+    },
+    "qr": { "show": "Boolean", "x": "Number", "y": "Number" }
+  }
+}
+```
+
+B.3 Enrollment Schema (models/Enrollment.js)
+```json
+{
+  "user": { "type": "ObjectId", "ref": "User", "required": true },
+  "program": { "type": "ObjectId", "ref": "Program", "required": true },
+  "status": { "type": "String", "enum": ["active", "completed", "dropped"], "default": "active" },
+  "joinedAt": { "type": "Date", "default": "Date.now" },
+  "source": { "type": "String", "enum": ["website", "invite"], "default": "website" },
+  "certificateStatus": { "type": "String", "enum": ["NOT_PUBLISHED", "PUBLISHED"], "default": "NOT_PUBLISHED" },
+  "certificateId": { "type": "String", "unique": true, "sparse": true },
+  "certificateUrl": { "type": "String" },
+  "certificateIssuedAt": { "type": "Date" },
+  "offerLetterStatus": { "type": "String", "enum": ["PENDING", "ISSUED"], "default": "PENDING" },
+  "offerLetterUrl": { "type": "String" }
+}
+```
+
+--------------------------------------------------------------------------------
+APPENDIX C: DIRECTORY TREE (KEY FILES)
+--------------------------------------------------------------------------------
+
+[SERVER]
+/server
+├── .env                  (Environment Config)
+├── server.js             (Entry Point)
+├── app.js                (Express App)
+├── config/
+│   └── db.js            (Mongoose Connect)
+├── controllers/
+│   ├── adminController.js
+│   ├── authController.js
+│   ├── certificateController.js
+│   ├── paymentController.js
+│   └── programController.js
+├── models/
+│   ├── User.js
+│   ├── Program.js
+│   └── Enrollment.js
+├── routes/
+│   ├── adminRoutes.js
+│   ├── paymentRoutes.js
+│   └── ...
+├── middlewares/
+│   ├── authMiddleware.js
+│   └── uploadMiddleware.js
+├── utils/
+│   └── encryption.js
+└── uploads/              (Local File Storage)
+
+[FRONTEND]
+/src
+├── components/
+│   ├── forms/
+│   │   ├── InviteForm.jsx
+│   │   └── ProgramForm.jsx
+│   └── ui/
+├── lib/
+│   └── api.js            (Axios)
+└── pages/
+    ├── Login.jsx
+    ├── Dashboard.jsx
+    └── admin/
+        ├── AdminDashboard.jsx
+        ├── AdminPrograms.jsx
+        └── AdminEnrollments.jsx
+
+--------------------------------------------------------------------------------
+APPENDIX D: SYSTEM LIBRARY REFERENCE (PACKAGE.JSON)
+--------------------------------------------------------------------------------
+This section documents the specific versions of key libraries used in the system, which is crucial for maintenance and upgrade planning.
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| **axios** | ^1.13.2 | Making HTTP requests to external services (Cert Service, etc). |
+| **bcryptjs** | ^2.4.3 | Comparing passwords during login (One-way hash). |
+| **cors** | ^2.8.5 | Enabling Cross-Origin requests from Frontend (Port 5173). |
+| **dotenv** | ^16.3.1 | Loading secrets from `.env` file. |
+| **express** | ^4.18.2 | Main Web Server Framework. |
+| **jsonwebtoken** | ^9.0.2 | Signing and Verifying Auth Tokens (JWT). |
+| **mongoose** | ^8.0.3 | MongoDB Object Modeling (ODM). |
+| **multer** | ^1.4.5 | Handling Multipart Form Data (File Uploads). |
+| **nodemailer** | ^6.9.7 | Sending Emails (SMTP). |
+| **pdf-lib** | ^1.17.1 | Low-level PDF manipulation (Stamping/Splitting). |
+| **qrcode** | ^1.5.4 | Generating QR Codes for Certificates/Payment. |
+| **razorpay** | ^2.9.2 | Official Node SDK for Payment Gateway. |
+| **sharp** | ^0.33.1 | Image processing (Thumbnails/Resizing). |
+| **xlsx** | ^0.18.5 | Reading/Writing Excel/CSV files for Export features. |
+
+--------------------------------------------------------------------------------
+APPENDIX E: WEBHOOK PAYLOAD EXAMPLES
+--------------------------------------------------------------------------------
+
+E.1 Razorpay Payment Captured Payload
+-------------------------------------
+```json
+{
+  "entity": "event",
+  "account_id": "acc_12345678",
+  "event": "payment.captured",
+  "contains": ["payment"],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_Des456...",
+        "entity": "payment",
+        "amount": 50000,
+        "currency": "INR",
+        "status": "captured",
+        "order_id": "order_Des456...",
+        "email": "student@example.com",
+        "contact": "+919999999999",
+        "notes": {
+          "programId": "65b...",
+          "programType": "Course",
+          "institutionName": "Tech University"
+        }
+      }
+    }
+  },
+  "created_at": 1699999999
+}
+```
+
+E.2 Certificate Service Callback Payload (Success)
+--------------------------------------------------
+```json
+{
+  "status": "success",
+  "certificateId": "CERT-2024-EDZ-001",
+  "fileUrl": "https://service-url/downloads/cert-123.pdf",
+  "metadata": {
+    "generatedAt": "2024-01-01T12:00:00Z",
+    "fileSize": "1.2MB"
+  }
+}
+```
+
+--------------------------------------------------------------------------------
+APPENDIX F: FRONTEND ARCHITECTURE & COMPONENTS
+--------------------------------------------------------------------------------
+
+F.1 Component Hierarchy
+-----------------------
+The frontend is built with React 19 (Vite) and follows a structured hierarchy:
+
+*   **App.jsx**: Main Router Provider.
+*   **Context**:
+    *   `AuthContext.jsx`: Manages `userInfo` (JWT) and login state.
+*   **Pages**:
+    *   `Dashboard` (Student): Shows `MyCertificates`, `MyEnrollments`.
+    *   `AdminLayout`: Protected Route Wrapper.
+        *   `AdminDashboard`: Stats & Charts.
+        *   `AdminPrograms`: CRUD for Programs.
+        *   `AdminEnrollments`: CRUD for Students.
+*   **Components**:
+    *   `ProgramForm.jsx`: Massive 4-step wizard.
+    *   `InviteForm.jsx`: Modal for manual invites.
+    *   `StatusBadge.jsx`: Reusable Tailwind pill for statuses.
+
+F.2 Key Libraries (Frontend)
+----------------------------
+*   **react-hook-form**: Form state management (Uncontrolled components).
+*   **zod**: Schema validation for forms (email, phone, dates).
+*   **tailwindcss**: Utility-first CSS framework.
+*   **lucide-react**: Icon set (Users, FileText, Settings).
+*   **axios**: API Client with Interceptors (Auto-attach Bearer Token).
+
+--------------------------------------------------------------------------------
+APPENDIX G: CRITICAL CODE LOGIC (REFERENCE)
+--------------------------------------------------------------------------------
+
+G.1 Payment Verification (Idempotent)
+-------------------------------------
+Code verification logic used in `paymentController.js` to ensure users aren't enrolled twice:
+
+```javascript
+// Check Duplicate
+const existingEnrollment = await Enrollment.findOne({
+    user: user._id,
+    program: programId,
+    status: 'active'
+});
+if (existingEnrollment) {
+    throw new Error('Already enrolled.');
+}
+
+// Enroll (Atomic)
+await Enrollment.findOneAndUpdate(
+    { user: user._id, program: programId },
+    { $set: { status: 'active', paymentId: payment._id } },
+    { upsert: true, new: true }
+);
+```
+
+G.2 Certificate Loop (Synchronous)
+----------------------------------
+The certificate publisher loop (`certificateController.js`) handles bulk operations:
+
+```javascript
+for (const enrollment of enrollments) {
+    try {
+        // 1. Generate ID
+        const certId = `CERT-PROG-${Date.now()}`;
+
+        // 2. Call Microservice
+        await axios.post(CERT_SERVICE_URL, {
+            studentData: ...,
+            certificateId: certId
+        });
+
+        // 3. Update DB
+        enrollment.certificateStatus = 'PUBLISHED';
+        await enrollment.save();
+
+    } catch (error) {
+        errors.push(error.message); // Fail Soft
+    }
+}
+```
+
+--------------------------------------------------------------------------------
+APPENDIX H: SOURCE CODE REFERENCE (CONFIGURATION)
+--------------------------------------------------------------------------------
+
+H.1 Backend Entry Point (app.js)
+--------------------------------
+The core Express application configuration.
+```javascript
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const morgan = require('morgan');
+const helmet = require('helmet');
+
+// Routes Import
+const authRoutes = require('./routes/authRoutes');
+const programRoutes = require('./routes/programRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const certificateRoutes = require('./routes/certificateRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+// ... other routes
+
+const connectDB = require('./config/db');
+require('./events/listeners');
+
+const app = express();
+connectDB(); // MongoDB Connect
+
+// 1. Webhook Logging Middleware
+app.use((req, res, next) => {
+    if (req.path === '/api/payments/webhook') {
+        console.log(`[Req Log] Webhook Hit: ${req.method} ${req.path}`);
+    }
+    next();
+});
+
+// 2. Raw Body Capture for Razorpay Signature
+app.use(express.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
+
+app.use(cors());
+app.use(helmet({ crossOriginResourcePolicy: false }));
+
+// 3. Mount Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/programs', programRoutes);
+app.use('/api/payments', paymentRoutes); // Includes Webhook
+app.use('/api/certificates', certificateRoutes);
+app.use('/api/admin', adminRoutes);
+
+// 4. Serve Uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 5. Error Handler
+app.use((err, req, res, next) => {
+    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    res.status(statusCode).json({
+        message: err.message,
+        stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    });
+});
+
+module.exports = app;
+```
+
+H.2 Client Build Config (vite.config.js)
+----------------------------------------
+Vite configuration for React Build and Proxy settings.
+```javascript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  assetsInclude: ['**/*.PNG'],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/uploads': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
+})
+```
+
+--------------------------------------------------------------------------------
+APPENDIX I: UTILITY FUNCTIONS (REFERENCE)
+--------------------------------------------------------------------------------
+
+I.1 Encryption Utils (server/utils/encryption.js)
+-------------------------------------------------
+Used for password recovery of student accounts.
+```javascript
+const crypto = require('crypto');
+
+// Lazy load key to ensure env vars are loaded even if required early
+const getEncryptionKey = () => {
+    const secret = process.env.JWT_SECRET || 'fallback_secret';
+    // Consistent derivation
+    return process.env.ENCRYPTION_KEY || crypto.createHash('sha256').update(secret).digest('base64').substr(0, 32);
+};
+const IV_LENGTH = 16; // AES block size
+
+const encrypt = (text) => {
+    if (!text) return null;
+    const key = getEncryptionKey();
+    const iv = crypto.randomBytes(IV_LENGTH);
+    const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+const decrypt = (text) => {
+    // ... logic matches encrypt ...
+    // See full file for details
+};
+```
+
+--------------------------------------------------------------------------------
+APPENDIX J: FRONTEND API CLIENT (src/lib/api.js)
+--------------------------------------------------------------------------------
+Full list of all API endpoints and Axios interceptor logic.
+
+```javascript
+/* FULL SOURCE CODE OF api.js */
+import axios from 'axios';
+
+// Create Axios Instance
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // Default to local for dev safety
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Request Interceptor: Add Token
+api.interceptors.request.use(
+    (config) => {
+        const userInfo = localStorage.getItem('userInfo');
+        if (userInfo) {
+            try {
+                const parsed = JSON.parse(userInfo);
+                // Handle different keys: token, accessToken, or nested in user object
+                const token = parsed?.token || parsed?.accessToken || parsed?.user?.token;
+
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                }
+            } catch (e) {
+                localStorage.removeItem('userInfo');
+            }
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Response Interceptor: Handle 401 (Logout)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Not authorized, clear token and redirect (optional)
+            localStorage.removeItem('userInfo');
+            window.location.href = '/login'; // Force login if needed
+        }
+        return Promise.reject(error);
+    }
+);
+
+// Program APIs
+export const getPrograms = async () => {
+    const { data } = await api.get('/programs');
+    return data;
+};
+
+export const getProgramsByType = async (type) => {
+    const { data } = await api.get(`/programs?type=${type}`);
+    return data;
+};
+
+export const getProgram = async (id) => {
+    const { data } = await api.get(`/programs/${id}`);
+    return data;
+};
+
+export const createProgram = async (programData) => {
+    const { data } = await api.post('/programs', programData);
+    return data;
+};
+
+export const uploadProgramTemplate = async (id, file) => {
+    const formData = new FormData();
+    formData.append('template', file);
+
+    // Explicitly let browser set Content-Type for multipart
+    const { data } = await api.post(`/programs/${id}/upload-template`, formData);
+    return data;
+};
+
+export const updateProgram = async (id, programData) => {
+    const { data } = await api.put(`/programs/${id}`, programData);
+    return data;
+};
+
+export const deleteProgram = async (id) => {
+    const { data } = await api.delete(`/programs/${id}`);
+    return data;
+};
+
+export const adminInviteStudent = async (inviteData) => {
+    const { data } = await api.post('/admin/invite', inviteData);
+    return data;
+};
+
+export const exportPrograms = async () => {
+    const response = await api.get('/programs/export', {
+        responseType: 'blob',
+    });
+    return response;
+};
+
+// Quiz APIs
+export const createQuiz = async (quizData) => {
+    const { data } = await api.post('/quiz', quizData);
+    return data;
+};
+
+export const getAllQuizzes = async () => {
+    const { data } = await api.get('/quiz/all');
+    return data;
+};
+
+export const getQuizzesByProgram = async (programId) => {
+    const { data } = await api.get(`/quiz/${programId}`);
+    return data;
+};
+
+export const updateQuiz = async (id, quizData) => {
+    const { data } = await api.patch(`/quiz/${id}`, quizData);
+    return data;
+};
+
+export const deleteQuiz = async (id) => {
+    const { data } = await api.delete(`/quiz/${id}`);
+    return data;
+};
+
+export const publishQuiz = async (id) => {
+    const { data } = await api.patch(`/quiz/${id}/publish`);
+    return data;
+};
+
+export const unpublishQuiz = async (id) => {
+    const { data } = await api.patch(`/quiz/${id}/unpublish`);
+    return data;
+};
+
+export const attemptQuiz = async (id, answers) => {
+    const { data } = await api.post(`/quiz/${id}/attempt`, { answers });
+    return data;
+};
+
+export const getStudentQuizzes = async () => {
+    const { data } = await api.get('/quiz/my-quizzes');
+    return data;
+};
+
+export const uploadQuizImage = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const { data } = await api.post('/quiz/upload', formData);
+    return data;
+};
+
+export const getQuizReports = async (id) => {
+    const { data } = await api.get(`/quiz/${id}/reports`);
+    return data;
+};
+
+export const getQuizAttempt = async (id) => {
+    const { data } = await api.get(`/quiz/attempt/${id}`);
+    return data;
+};
+
+export const getQuiz = async (id) => {
+    const { data } = await api.get(`/quiz/detail/${id}`);
+    return data;
+};
+
+// Dashboard & Enrollment APIs
+export const getMyEnrollments = async () => {
+    const { data } = await api.get('/me/enrollments');
+    return data;
+};
+
+export const updateMyProfile = async (profileData) => {
+    const { data } = await api.put('/me/profile', profileData);
+    return data;
+};
+
+export const getDashboardOverview = async () => {
+    const { data } = await api.get('/me/dashboard');
+    return data;
+};
+
+export const getMyQuizzes = async () => {
+    const { data } = await api.get('/me/quizzes');
+    return data;
+};
+
+export const getMyQuiz = async (id) => {
+    const { data } = await api.get(`/me/quizzes/${id}`);
+    return data;
+};
+
+export const getMyFeedbacks = async () => {
+    const { data } = await api.get('/me/feedbacks');
+    return data;
+};
+
+export const getMyFeedback = async (id) => {
+    const { data } = await api.get(`/me/feedbacks/${id}`);
+    return data;
+};
+
+export const getProgramProgress = async (programId) => {
+    const { data } = await api.get(`/me/program/${programId}/progress`);
+    return data;
+};
+
+// Payment APIs
+export const createPaymentOrder = async (orderData) => {
+    const { data } = await api.post('/payments/create-order', orderData);
+    return data;
+};
+
+export const verifyPayment = async (verifyData) => {
+    const { data } = await api.post('/payments/verify', verifyData);
+    return data;
+};
+
+export const enrollFree = async (programId) => {
+    const { data } = await api.post('/payments/enroll-free', { programId });
+    return data;
+};
+
+// Feedback APIs
+export const getAdminFeedbacks = async () => {
+    const { data } = await api.get('/feedback/admin');
+    return data;
+};
+
+export const createFeedback = async (feedbackData) => {
+    const { data } = await api.post('/feedback/admin', feedbackData);
+    return data;
+};
+
+export const getFeedback = async (id) => {
+    const { data } = await api.get(`/feedback/admin/${id}`);
+    return data;
+};
+
+export const updateFeedback = async (id, feedbackData) => {
+    const { data } = await api.put(`/feedback/admin/${id}`, feedbackData);
+    return data;
+};
+
+export const publishFeedback = async (id) => {
+    const { data } = await api.patch(`/feedback/admin/${id}/publish`);
+    return data;
+};
+
+export const unpublishFeedback = async (id) => {
+    const { data } = await api.patch(`/feedback/admin/${id}/unpublish`);
+    return data;
+};
+
+export const deleteFeedback = async (id) => {
+    const { data } = await api.delete(`/feedback/admin/${id}`);
+    return data;
+};
+
+export const getAdminDashboardStats = async () => {
+    const { data } = await api.get('/admin/dashboard');
+    return data;
+};
+
+export const updateStudentDetails = async (studentId, updates) => {
+    const { data } = await api.put(`/admin/students/${studentId}`, updates);
+    return data;
+};
+
+export const getAdminEnrollments = async (filters) => {
+    const params = new URLSearchParams(filters).toString();
+    const res = await api.get(`/admin/enrollments?${params}`);
+    return res.data;
+};
+
+export const exportEnrollments = async (filters) => {
+    const params = new URLSearchParams(filters).toString();
+    const response = await api.get(`/admin/enrollments/export?${params}`, {
+        responseType: 'blob',
+    });
+    return response;
+};
+
+export const getStudentCredentials = async (studentId, adminPassword) => {
+    const res = await api.post('/admin/credentials', { studentId, adminPassword });
+    return res.data;
+};
+
+export const resendStudentCredentials = async (studentId, adminPassword) => {
+    const res = await api.post('/admin/credentials/resend', { studentId, adminPassword });
+    return res.data;
+};
+
+export const getFeedbackForSubmission = async (id) => {
+    const { data } = await api.get(`/feedback/me/${id}`);
+    return data;
+};
+
+export const submitFeedback = async (id, answers) => {
+    const { data } = await api.post(`/feedback/me/${id}`, { answers });
+    return data;
+};
+
+export const exportFeedback = async (id) => {
+    const response = await api.get(`/feedback/admin/${id}/export`, {
+        responseType: 'blob', // Important for file download
+    });
+    return response;
+};
+
+// Default Feedback APIs
+export const toggleProgramFeedback = async (id) => {
+    const { data } = await api.patch(`/programs/${id}/toggle-feedback`);
+    return data;
+};
+
+export const getPendingDefaultFeedbacks = async () => {
+    const { data } = await api.get('/feedback/me/default-pending');
+    return data;
+};
+
+export const submitDefaultFeedback = async (feedbackData) => {
+    const { data } = await api.post('/feedback/me/default', feedbackData);
+    return data;
+};
+
+export const submitPublicFeedback = async (feedbackData) => {
+    const { data } = await api.post('/feedback/public', feedbackData);
+    return data;
+};
+
+// Certificates
+export const publishCertificates = async (programId) => {
+    const { data } = await api.post(`/admin/programs/${programId}/publish-certificates`);
+    return data;
+};
+
+export const publishOfferLetters = async (programId, force = false) => {
+    const { data } = await api.post(`/admin/programs/${programId}/publish-offer-letters?force=${force}`);
+    return data;
+};
+
+export const regenerateCertificate = async (enrollmentId) => {
+    const { data } = await api.post(`/certificates/regenerate/${enrollmentId}`);
+    return data;
+};
+
+// WhatsApp Templates
+export const getWhatsAppTemplates = async () => {
+    const { data } = await api.get('/admin/whatsapp/templates');
+    return data;
+};
+
+export const registerWhatsAppTemplate = async (templateData) => {
+    const { data } = await api.post('/admin/whatsapp/templates', templateData);
+    return data;
+};
+
+// Outsider Quiz APIs
+export const createOutsiderQuiz = async (quizData) => {
+    const { data } = await api.post('/outsider-quiz/admin', quizData);
+    return data;
+};
+
+export const uploadOutsiderQuizTemplate = async (id, file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    // Explicitly unset Content-Type so browser sets it with boundary
+    const { data } = await api.post(`/outsider-quiz/admin/${id}/upload-template`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return data;
+};
+
+export const getOutsiderQuizzes = async () => {
+    const { data } = await api.get('/outsider-quiz/admin');
+    return data;
+};
+
+export const getOutsiderQuizAdmin = async (id) => {
+    const { data } = await api.get(`/outsider-quiz/admin/${id}`);
+    return data;
+};
+
+export const updateOutsiderQuiz = async (id, quizData) => {
+    const { data } = await api.put(`/outsider-quiz/admin/${id}`, quizData);
+    return data;
+};
+
+export const getOutsiderQuizResults = async (id) => {
+    const { data } = await api.get(`/outsider-quiz/admin/${id}/results`);
+    return data;
+};
+
+export const getPublicOutsiderQuiz = async (id) => {
+    const { data } = await api.get(`/outsider-quiz/public/${id}`);
+    return data;
+};
+
+export const submitPublicOutsiderQuiz = async (id, submissionData) => {
+    const { data } = await api.post(`/outsider-quiz/public/${id}/submit`, submissionData);
+    return data;
+};
+
+export const duplicateOutsiderQuiz = async (id) => {
+    const { data } = await api.post(`/outsider-quiz/admin/${id}/duplicate`);
+    return data;
+};
+
+export default api;
+```
+
+--------------------------------------------------------------------------------
+END OF DOCUMENTATION
+--------------------------------------------------------------------------------

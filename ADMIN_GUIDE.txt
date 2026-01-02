@@ -1,0 +1,406 @@
+EDINZTECH LMS - OFFICIAL ADMINISTRATIVE USER GUIDE
+===================================================
+Document Reference: DOC-ADMIN-001
+Scope: Operational Guide for System Administrators
+Target Audience: Admin Staff, Operational Managers
+Total Sections: 9
+
+--------------------------------------------------------------------------------
+SECTION 1: SYSTEM OVERVIEW & PUBLIC INTERFACE
+--------------------------------------------------------------------------------
+
+1.1 Introduction
+----------------
+This platform is a comprehensive Learning Management System (LMS) designed to manage the entire lifecycle of educational programs, from student enrollment to certificate issuance. It serves two primary user bases:
+1.  **Public/Students**: Accessed via the main website.
+2.  **Administrators**: Accessed via the secure Admin Panel.
+
+1.2 Public Pages (Student Facing)
+---------------------------------
+Before logging in, the general public can access the following areas:
+*   **Landing Page**: The home page displaying the "Hero" section, generic information about EdinzTech, and navigation links.
+*   **About Page**: Company profile and mission statement.
+*   **Programs List**: A card-based view of all *Active* and *Upcoming* programs.
+    *   *Note*: Expired programs are automatically hidden from this view to keep the catalog fresh.
+    *   *Action*: Users can click "View Details" on any program card to read the full description and proceed to enrollment.
+*   **Certificate Verification**: A critical public utility located at `/verify`. Employers or students can verify the authenticity of a certificate by entering the unique Certificate ID (e.g., `CERT-2024...`).
+
+--------------------------------------------------------------------------------
+SECTION 2: ADMIN ACCESS & SECURITY
+--------------------------------------------------------------------------------
+
+2.1 Logging In
+--------------
+*   **URL**: `http://[server-address]/admin/login`
+*   **Credentials**: Access is restricted to pre-authorized accounts only. There is no "Sign Up" button for admins.
+*   **Fields**:
+    *   **Email Address**: Must match the registered admin email exactly.
+    *   **Password**: Case-sensitive.
+*   **Security Feature**: If you enter an incorrect password 5 times, your IP may be temporarily rate-limited (depending on server config).
+
+2.2 The Dashboard Overview
+--------------------------
+Upon successful login, you are greeted by the Dashboard. This is your "Command Center".
+*   **Top Statistics Cards**: These numbers are real-time.
+    *   **Total Students**: The absolute count of distinct student accounts in the system.
+    *   **Total Programs**: Includes everything—past, present, and future programs.
+    *   **Certificates Issued**: The number of students who have successfully received a Generated Certificate.
+    *   **Pending Verifications**: An alert counter for items needing your attention (e.g., pending quiz reviews).
+
+2.3 Navigation Menu
+-------------------
+Located on the left sidebar (or top on mobile), this menu links to all management modules:
+1.  **Dashboard**: Return to home.
+2.  **Programs**: Create and manage courses.
+3.  **Students**: View enrollments and invite users.
+4.  **Quizzes**: Manage internal academic quizzes.
+5.  **Outsider Quizzes**: Manage public-facing marketing quizzes.
+6.  **Feedbacks**: Create and view feedback forms.
+7.  **Certificates**: A master list of all issued documents.
+8.  **Logout**: Securely ends your session. *Always use this on shared computers.*
+
+--------------------------------------------------------------------------------
+SECTION 3: PROGRAM MANAGEMENT & LOGIC
+--------------------------------------------------------------------------------
+
+3.1 The Programs Grid ("All Programs")
+--------------------------------------
+This screen lists every program ever created. It is comprehensive.
+*   **Columns Explained**:
+    *   **Title**: The public name of the course.
+    *   **Type**: Category (Course, Internship, Workshop, Project).
+    *   **Mode**: Delivery method (Online/Offline).
+    *   **Start/End Dates**: Format `DD/MM/YYYY`.
+    *   **Status Badges** (Automated):
+        *   `Upcoming` (Yellow): Start Date is in the future.
+        *   `Ongoing` (Green): Today is between Start and End dates.
+        *   `Expired` (Gray): End Date has passed.
+    *   **Registration Status**:
+        *   `Open`: Users can enroll.
+        *   `Closed`: Deadline passed.
+    *   **Actions**:
+        *   *Edit*: Modify details.
+        *   *Delete*: Permanently remove (Caution: Deletes associated enrollments).
+        *   *Toggle Feedback*: Enable/Disable student feedback forms.
+        *   *Publish Certificate*: Unlock certificate generation.
+
+3.2 Creating a New Program (Detailed Form)
+------------------------------------------
+The "Create Program" wizard has 4 strict steps. All mandatory fields must be filled to proceed.
+
+**Step 1: Basic Information**
+*   **Program Type**: Select from dropdown. This affects the auto-generated code.
+*   **Program Code**: You simply see this; you cannot edit it. Format: `EDZ-[YEAR]-[TYPE]-[RANDOM]`.
+*   **Title**: Marketing name. displayed on the certificate.
+*   **Description**: Detailed text shown on the website details page.
+*   **Dates**:
+    *   *Constraint*: End Date cannot be before Start Date.
+*   **Registration Deadline**: Optional. If set, the "Enroll" button disappears automatically after this date.
+
+**Step 2: Payment Configuration**
+*   **Payment Mode**:
+    *   **Paid**: Requires a Fee amount. Users must pay via Razorpay.
+    *   **Free**: Users enroll instantly.
+    *   **Invite Only**: Users cannot self-enroll; Admins must add them manually.
+*   **Fee**: Enter amount in INR. Decimals allowed.
+
+**Step 3: Document Templates**
+This is where you upload the designs for automated generation.
+*   **Offer Letter Template**: Required for Internships. Must be a `.docx` file with placeholders.
+*   **Certificate Template**: Must be an image (`.jpg`, `.png`) or `.docx`.
+    *   *Tip*: Use high-resolution background images for best print quality.
+*   **Certificate Config**:
+    *   **X/Y Coordinates**: These numbers tell the system where to print the Student's Name on the certificate image. You may need trial and error to align it perfectly.
+
+**Step 4: Communication Defaults**
+*   **Start WhatsApp Group Link**: If provided, this link is included in the Welcome Email.
+*   **Welcome Email Content**: Additional custom instructions sent immediately after enrollment.
+
+3.3 Bulk Actions: Publishing Certificates
+-----------------------------------------
+When a program concludes, you must "Publish" certificates manually.
+1.  Go to the Program row.
+2.  Click the "Certificate" icon button.
+3.  **System Process**:
+    *   The system scans ALL distinct students in that program.
+    *   It checks against the template.
+    *   It generates a unique PDF for each student.
+    *   It marks their status as "PUBLISHED".
+    *   *Note*: This process may take a few minutes for large batches (500+ students). Do not close the tab.
+
+--------------------------------------------------------------------------------
+SECTION 4: STUDENT & ENROLLMENT MANAGEMENT
+--------------------------------------------------------------------------------
+
+4.1 The Enrollments Table
+-------------------------
+This is the master list of "Who is taking What".
+*   **Search**: You can search by Student Name or Email.
+*   **Filtering**: Filter list by Program Type (e.g., "Show only Interns").
+
+4.2 Student Profile & Actions
+-----------------------------
+Each row represents one student in one program.
+*   **Columns**:
+    *   **Name & Email**: Basic identity.
+    *   **Program**: What they are studying.
+    *   **User Code**: A unique ID like `EDZ-STU-2024-83921`. Unique to the student, stays same across programs.
+    *   **Status**: `Active` (Normal) or `Dropped`.
+    *   **Certificate**:
+        *   If *Not Published*: Shows "Pending".
+        *   If *Published*: Shows a "Resend" button (emails the PDF again).
+*   **View Credentials (Security)**:
+    *   If a student forgets their password, you can view it.
+    *   Click the "Key/Lock" icon.
+    *   You MUST enter *your* Admin Password to reveal *their* password.
+    *   This action is logged for security auditing.
+
+4.3 Inviting Students (Manual Enrollment)
+-----------------------------------------
+Use this to bypass payment and manually add a student.
+*   **Menu**: Go to "Invite Student" page.
+*   **Logic**:
+    *   **Existing User**: If you enter an email already in the system, it simply links them to the new program. They keep their old password.
+    *   **New User**: The system creates a brand new account, auto-generates a secure password, enrolls them, and emails them the credentials.
+*   **Result**: The student receives an email: "You have been invited to [Program Name]".
+
+4.4 Data Export (CSV)
+---------------------
+You can download the full database for Excel analysis.
+*   **Button**: "Export List" on the Top Right of Enrollments page.
+*   **File Format**: `.csv` (Comma Separated Values).
+*   **Columns included in Export**:
+    1.  `Student Name`
+    2.  `Email`
+    3.  `Phone Number`
+    4.  `Institution / College`
+    5.  `Department`
+    6.  `Year of Study`
+    7.  `Register Number` (College ID)
+    8.  `City`
+    9.  `State`
+    10. `Pincode`
+    11. `User Code` (System ID)
+    12. `Program Title`
+    13. `Program Type`
+    14. `Fee Paid`
+    15. `Enrollment Status`
+    16. `Date Joined`
+    17. `Certificate Status` (Published/Pending)
+    18. `Certificate ID` (If issued)
+    19. `Issue Date`
+
+--------------------------------------------------------------------------------
+SECTION 5: FEEDBACK & QUIZZES
+--------------------------------------------------------------------------------
+
+5.1 Feedback Management
+-----------------------
+Feedbacks are forms sent to students to rate the program.
+*   **Creating**: Go to "Feedbacks" -> "Create New".
+*   **Questions**: You can add multiple text or rating questions.
+*   **Deployment**: You must "Link" a feedback form to a specific Program.
+*   **Visibility**: Once "Published", it appears on the Student's Dashboard.
+
+5.2 Viewing Responses (CSV Export)
+----------------------------------
+To see what students said:
+1.  Go to the specific Feedback item.
+2.  Click "Export Responses".
+3.  **CSV Format**:
+    *   The CSV is dynamic.
+    *   Columns: `Timestamp`, `Student Name`, `Email`, `[Question 1 Answer]`, `[Question 2 Answer]`, etc.
+
+5.3 Internal Quizzes
+--------------------
+Used for assessments within a course.
+*   **Features**:
+    *   Multiple Choice Questions (MCQ).
+    *   Time Limit (e.g., 30 minutes).
+    *   Passing Criteria (e.g., 60%).
+*   **Result**: If passed, the system can auto-trigger certificate readiness (if configured).
+
+5.4 **Outsider Quizzes** (Marketing Tool)
+-----------------------------------------
+These are public quizzes available to anyone without logging in.
+*   **Use Case**: "Take this Python Challenge and get a Certificate!".
+*   **Workflow**:
+    1.  Admin creates quiz and sets a background template.
+    2.  Admin copies the "Public Link".
+    3.  Users take the quiz.
+    4.  If Score > Passing % -> They get an instant PDF Certificate download.
+    5.  Admin captures their Name/Email for marketing leads.
+
+--------------------------------------------------------------------------------
+SECTION 6: STUDENT PORTAL EXPERIENCE & LOGIC
+--------------------------------------------------------------------------------
+
+6.1 Student Dashboard (`/dashboard`)
+------------------------------------
+The first screen a logged-in student sees is a personalized command center.
+*   **Overview Stats**:
+    *   **Enrolled**: Total active programs.
+    *   **Completed**: Programs where the certificate is issued.
+    *   **Pending Actions**: Count of Feedbacks or Quizzes waiting for submission.
+*   **My Enrollments Grid**:
+    *   Displays all courses the student has joined.
+    *   **Progress Bar**: Visual indicator (0% -> 50% -> 100%).
+        *   *Logic*: Moves based on Feedback submission and Certificate status.
+    *   **Action Button**: "Continue Learning" takes them to the specific Program Space.
+
+6.2 The Program Space ("Classroom")
+-----------------------------------
+This is the main interaction area for a specific course.
+*   **Header**: Displays Program Title and Dates.
+*   **Communication Tab**:
+    *   **WhatsApp Group**: If configured by Admin, a giant green "Join WhatsApp Group" button appears. This is the primary channel for live updates.
+    *   **Notices**: (Future feature) Area for Admin announcements.
+*   **Action Checklist**:
+    1.  **Submit Feedback**: If enabled, this item appears. Students CANNOT generate their certificate until this is done (if configured as mandatory).
+    2.  **Take Quiz**: If an internal quiz is linked, it appears here.
+
+6.3 Taking Quizzes (Student View)
+---------------------------------
+*   **Start**: Clicking "Attempt Quiz" opens a full-screen mode to prevent distractions.
+*   **Timer**: A countdown timer (set by Admin) runs at the top.
+    *   *Timeout*: If time hits 00:00, the quiz auto-submits.
+*   **Navigation**:
+    *   "Next" / "Previous" buttons.
+    *   Question Palette: Jump to specific questions.
+    *   "Mark for Review": Flag a question to come back to later.
+*   **Submission**:
+    *   Requires confirmation ("Are you sure?").
+    *   **Instant Result**: The system calculates the score immediately.
+    *   **Display**: Shows "Passed" (Green) or "Failed" (Red) based on the criteria.
+    *   **Retake Policy**: If allowed, a "Retake" button appears immediately.
+
+6.4 Feedback Submission Flow
+----------------------------
+*   **Trigger**: Button on Dashboard or Program Space.
+*   **Form**: The questions you created in Section 5.1 appear here.
+    *   **Ratings**: Star/Number ratings (1-5).
+    *   **Comments**: Text boxes.
+*   **Logic**: Once submitted, it saves to the database and marks the "Feedback" step as Complete.
+*   **Restriction**: A student can only submit feedback ONCE per program. They cannot edit it later.
+
+6.5 Certificate Download & Verification
+---------------------------------------
+*   **Unlock Condition**: The "Download Certificate" button is **LOCKED (Disabled)** until:
+    1.  Admin sets Certificate Status to "PUBLISHED".
+    2.  (Optional) Student passes necessary Quizzes.
+*   **Download**: Generates the PDF on-the-fly or fetches the pre-generated file.
+*   **Public Profile**:
+    *   Each student gets a public URL: `edinztech.com/verify/[CERT-ID]`.
+    *   They can share this link on LinkedIn.
+
+6.6 Profile Management (`/me/settings`)
+---------------------------------------
+Students can self-manage specific parts of their identity to ensure certificate implementation is correct.
+*   **Editable Fields**:
+    *   **Phone Number**: Crucial for WhatsApp coordination.
+    *   **Institution/College**: Used for "referral" tracking.
+*   **Non-Editable**:
+    *   **Name**: Locked to prevent fraud (e.g., passing a course and changing the name to a friend). *Must contact Admin to change.*
+    *   **Email**: The primary account identifier.
+*   **Security**:
+    *   **Change Password**: Requires "Old Password" for verification.
+
+--------------------------------------------------------------------------------
+SECTION 7: DETAILED FIELD REFERENCE (ADMIN FORMS)
+--------------------------------------------------------------------------------
+
+7.1 Program Creation Fields - Step-by-Step
+------------------------------------------
+
+**Step 1: General Information**
+| Field Label | Mandatory? | Notes |
+|-------------|------------|-------|
+| `Type` | YES | Critical. Determines if "Offer Letter" step appears. |
+| `Title` | YES | Be precise. This prints on certificates. |
+| `Key` | AUTO | Internal sorting key. Ignore. |
+| `Mode` | YES | `Online` displays "Zoom Link" field later; `Offline` shows "Venue". |
+| `Description`| YES | Supports basic line breaks. Visible on public page. |
+| `Start Date` | YES | Controls "Upcoming" status. |
+| `End Date` | YES | Controls "Expired" status. |
+| `Reg Deadline`| NO | If left blank, registration stays open until End Date. |
+| `Start Time` | NO | For display only (e.g., "10:00 AM"). |
+
+**Step 2: Financials**
+| Field Label | Input Type | Notes |
+|-------------|------------|-------|
+| `Payment Mode`| Dropdown | Affects "Enroll" button behavior. |
+| `Fee (INR)` | Number | Required if Mode is "Paid". No currency symbols. |
+| `Discount` | Number | Optional percentage (0-100). |
+| `GST` | Boolean | If checked, adds 18% tax calculation on checkout. |
+
+**Step 3: Certification Logic**
+| Field Label | Config | Notes |
+|-------------|--------|-------|
+| `Template` | File Upload| Re-uploading overwrites the old template. |
+| `Name X/Y` | Number | Coordinates in pixels from Top-Left. |
+| `QR Code` | Toggle | Enables "Scan to Verify" block on PDF. |
+| `QR X/Y` | Number | Coordinates for the QR block. |
+| `Date X/Y` | Number | Coordinates for the Issue Date. |
+
+**Step 4: Notifications**
+| Field Label | Text | Notes |
+|-------------|------|-------|
+| `WhatsApp` | URL | Must start with `https://chat.whatsapp.com...` |
+| `Email Subj` | Text | Defaults to "Welcome to [Program]". |
+| `Email Body` | Text | Appended to standard footer. |
+
+7.2 Invite Student Modal
+------------------------
+| Field Label | Validation | Error Case |
+|-------------|------------|------------|
+| `Name` | Text | None. |
+| `Email` | Email fmt | "User already exists" (System links account instead). |
+| `Phone` | 10 Digits | "Invalid Phone Number". |
+| `Program` | Dropdown | Must select active program. |
+
+--------------------------------------------------------------------------------
+SECTION 8: TROUBLESHOOTING & FAQ
+--------------------------------------------------------------------------------
+
+8.1 Certificate Issues
+----------------------
+**Q: The name on the certificate is misaligned.**
+A: Go to Program -> Edit -> Step 3. Adjust the X (Horizontal) or Y (Vertical) coordinates. Increase X to move Right, increase Y to move Down. Republish.
+
+**Q: The QR code covers the text.**
+A: The QR code is a fixed size. Move it to a clear area using the QR X/Y coordinates in the Program Edit form.
+
+**Q: A student says they didn't get the certificate email.**
+A: Go to Enrollments -> Find Student -> Click "Resend". Check if their email is correct.
+
+8.2 Enrollment Issues
+---------------------
+**Q: A student paid but shows "Pending".**
+A: This is rare. Ask for their Razorpay Payment ID. Manually "Invite" them using the SAME email. The system will fix the record.
+
+**Q: Can I delete a student?**
+A: Yes, but be careful. Deleting an enrollment removes their certificate and payment history for that specific course. It does NOT delete their user account (so they can still log in to other courses).
+
+8.3 General System
+------------------
+**Q: How do I change an Admin password?**
+A: Admin passwords cannot be changed from the UI for security. Access the Database directly or ask the Super Admin to update the `users` collection.
+
+**Q: The site is loading slowly.**
+A: Check the dashboard stats. If "Total Students" > 5000, some lists may take time to load. Use the Search box instead of scrolling.
+
+--------------------------------------------------------------------------------
+APPENDIX: GLOSSARY OF TERMS
+--------------------------------------------------------------------------------
+*   **CSV (Comma Separated Values)**: A specific file format used for exporting lists. Can be opened in Excel, Google Sheets, or any spreadsheet software.
+*   **Enrollment**: The active link between a Student and a specific Program. A student can have multiple enrollments (e.g., one Internship, one Course).
+*   **JWT (Session Token)**: The "key" stored in your browser that keeps you logged in. If you clear your browser history/cache, you will be logged out.
+*   **Publishing**: The action of finalizing a draft item.
+    *   *Publish Certificate*: Generates the final PDF files.
+    *   *Publish Quiz*: Makes the quiz visible to waiting students.
+*   **User Code**: An immutable, system-generated ID (e.g., `EDZ-STU-...`) assigned to every student upon their first registration. This is used for database tracking and cannot be changed by Admins.
+*   **Verified**: A status indicating that a certificate ID exists in the system database and matches the student name provided.
+
+--------------------------------------------------------------------------------
+END OF DOCUMENTATION
+--------------------------------------------------------------------------------
