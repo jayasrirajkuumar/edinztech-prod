@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import InviteForm from '../../components/forms/InviteForm';
 import { Icons } from '../../components/icons';
 import api from '../../lib/api';
+import { formatDate } from '../../lib/dateUtils';
 
 export default function AdminInvitePage() {
     const [invitedStudents, setInvitedStudents] = useState([]);
@@ -89,7 +90,7 @@ export default function AdminInvitePage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-3 text-gray-500">
-                                            {enrollment.enrolledAt ? new Date(enrollment.enrolledAt).toLocaleDateString() : '-'}
+                                            {enrollment.enrolledAt ? formatDate(enrollment.enrolledAt) : '-'}
                                         </td>
                                         <td className="px-6 py-3">
                                             <span className="bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit">

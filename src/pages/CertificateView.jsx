@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../lib/api';
+import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
 
@@ -105,7 +106,7 @@ export default function CertificateView() {
 
                             <div className="grid grid-cols-2 gap-12 mt-12 text-center pt-12">
                                 <div className="border-t border-gray-400 pt-2">
-                                    <p className="font-bold text-gray-800 text-sm">{new Date(cert.issueDate).toLocaleDateString()}</p>
+                                    <p className="font-bold text-gray-800 text-sm">{formatDate(cert.issueDate)}</p>
                                     <p className="text-xs text-gray-500">Date Issued</p>
                                 </div>
                                 <div className="border-t border-gray-400 pt-2">

@@ -45,7 +45,7 @@ export default function DashboardQuizzes() {
             <div className="flex items-center gap-2 mb-2">
                 <Icons.Quiz className="text-secondary bg-orange-50 p-1.5 rounded-lg w-10 h-10" />
                 <div>
-                    <h1 className="text-2xl font-bold text-secondary">My Quizzes</h1>
+                    <h1 className="text-2xl font-bold text-secondary">Quizzes & Assessments</h1>
                     <p className="text-sm text-gray-500">Assessments for your enrolled programs.</p>
                 </div>
             </div>
@@ -109,10 +109,17 @@ export default function DashboardQuizzes() {
                                     </div>
 
                                     <div>
-                                        {status === 'Available' ? (
+                                        {quiz.isAttempted ? (
+                                            <Link to={`/dashboard/quizzes/${quiz._id}`}>
+                                                <Button variant="outline" className="w-full md:w-auto text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100">
+                                                    View Submission <Icons.ChevronRight size={18} className="ml-1" />
+                                                </Button>
+                                            </Link>
+                                        ) : status === 'Available' ? (
                                             <Link to={`/dashboard/quizzes/${quiz._id}`}>
                                                 <Button size="lg" className="w-full md:w-auto shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all">
-                                                    Start Quiz <Icons.ChevronRight size={18} className="ml-1" />
+                                                    {quiz.questions?.some(q => q.type === 'file_upload') ? 'Start Assignment' : 'Start Quiz'}
+                                                    <Icons.ChevronRight size={18} className="ml-1" />
                                                 </Button>
                                             </Link>
                                         ) : (

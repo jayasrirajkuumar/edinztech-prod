@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input, TextArea } from '../ui/Input';
 import Select from '../ui/Select';
+import TimePicker from '../ui/TimePicker';
 import Button from '../ui/Button';
 import { Icons } from '../icons/index';
 import { createProgram, uploadProgramTemplate, getWhatsAppTemplates, registerWhatsAppTemplate } from '../../lib/api';
@@ -201,7 +202,10 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
             type: 'Course',
             paymentMode: 'Paid',
             mode: 'Online',
-            code: ''
+            code: '',
+            // Default Time: Current Time
+            startTime: new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+            endTime: new Date(new Date().getTime() + 60 * 60 * 1000).toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' })
         }
     });
 
@@ -530,8 +534,30 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                             />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Input type="time" label="Start Time" {...register('startTime')} />
-                            <Input type="time" label="End Time" {...register('endTime')} />
+                            <Controller
+                                name="startTime"
+                                control={control}
+                                render={({ field }) => (
+                                    <TimePicker
+                                        label="Start Time"
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        error={errors.startTime?.message}
+                                    />
+                                )}
+                            />
+                            <Controller
+                                name="endTime"
+                                control={control}
+                                render={({ field }) => (
+                                    <TimePicker
+                                        label="End Time"
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        error={errors.endTime?.message}
+                                    />
+                                )}
+                            />
                         </div>
                     </div>
                 )}

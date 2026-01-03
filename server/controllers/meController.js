@@ -27,7 +27,7 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
 
     // 1. Fetch User's Enrollments (with Program details)
     const enrollments = await Enrollment.find({ user: userId })
-        .populate('program', 'title type validUntil')
+        .populate('program', 'title type validUntil isFeedbackEnabled')
         .sort('-enrolledAt');
 
     // 2. Aggregate Data per Enrollment
@@ -48,6 +48,20 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
             status: 'Published'
         }).select('title description type endAt');
 
+        // Check submissions
+        const FeedbackResponse = require('../models/FeedbackResponse');
+        const submissions = await FeedbackResponse.find({
+            userId: req.user._id,
+            programId: program._id
+        }).select('feedbackId');
+
+        const submittedIds = submissions.map(s => s.feedbackId.toString());
+
+        const feedbacksWithStatus = feedbacks.map(f => ({
+            ...f.toObject(),
+            isSubmitted: submittedIds.includes(f._id.toString())
+        }));
+
         return {
             programId: program._id,
             title: program.title,
@@ -55,7 +69,8 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
             enrollmentStatus: enrollment.status,
             validUntil: enrollment.validUntil || program.validUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Default 1 year if missing
             quizzes: quizzes,
-            feedbacks: feedbacks
+            feedbacks: feedbacksWithStatus,
+            isFeedbackEnabled: program.isFeedbackEnabled
         };
     }));
 

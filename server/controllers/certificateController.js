@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Certificate = require('../models/Certificate');
 const Enrollment = require('../models/Enrollment');
+const FeedbackResponse = require('../models/FeedbackResponse');
 const Program = require('../models/Program');
 const User = require('../models/User'); // Ensure User model is loaded
 const InspireRegistry = require('../models/InspireRegistry');
@@ -17,37 +18,118 @@ const QRCode = require('qrcode'); // New Architecture
 
 // @desc    Publish certificates for a program (Trigger Service)
 // @route   POST /api/admin/programs/:id/publish-certificates
-// @access  Private/Admin
-const publishCertificates = asyncHandler(async (req, res) => {
-    const programId = req.params.id;
+// Helper function to generate and publish a single certificate
+const generateCertificateForEnrollment = async (enrollment, program, user, force) => {
     const CERT_SERVICE_URL = process.env.CERT_SERVICE_URL || 'http://localhost:5002/api/generate';
     const CALLBACK_URL = process.env.CALLBACK_BASE_URL
         ? `${process.env.CALLBACK_BASE_URL}/api/webhooks/certificate-status`
         : `http://127.0.0.1:${process.env.PORT || 5000}/api/webhooks/certificate-status`;
 
-    // 1. Verify Program
+    // A. Generate ID (Standard Format: CERT-<CODE>-<YYYY>-<RANDOM>)
+    // Use existing ID if already published (and forced), otherwise generate new
+    let certificateId = enrollment.certificateId;
+    if (!certificateId || force) {
+        const year = new Date().getFullYear();
+        const randomSuffix = Math.floor(100000 + Math.random() * 900000); // 6 digit
+        const code = program.code || 'PROG';
+        certificateId = `CERT-${code}-${year}-${randomSuffix}`;
+    }
+
+    // B. Generate QR Data (Direct Verify Link)
+    const domain = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const verifyUrl = `${domain}/verify?certificateId=${certificateId}`;
+    const qrCodeImage = await QRCode.toDataURL(verifyUrl);
+
+    // C. CALL SERVICE SYNCHRONOUSLY
+    await axios.post(CERT_SERVICE_URL, {
+        studentData: {
+            name: user.name,
+            email: user.email,
+            id: user._id,
+            registerNumber: user.registerNumber,
+            year: user.year,
+            institutionName: user.institutionName,
+            programName: program.title
+        },
+        courseData: {
+            title: program.title,
+            id: program._id
+        },
+        certificateId: certificateId,
+        templateId: program.templateType || program.certificateTemplate || 'default',
+        templateUrl: program.certificateTemplate,
+        qrCode: qrCodeImage,
+        callbackUrl: CALLBACK_URL,
+        type: 'certificate'
+    });
+
+    // D. COMMIT TO DB
+    enrollment.certificateStatus = 'PUBLISHED';
+    enrollment.certificateId = certificateId;
+    if (!enrollment.certificateIssuedAt) {
+        enrollment.certificateIssuedAt = new Date();
+    }
+    await enrollment.save();
+
+    // E. UPSERT CERTIFICATE DOCUMENT (Fix for Verification)
+    // Essential for "Verify" page and "My Certificates"
+    await Certificate.findOneAndUpdate(
+        { certificateId: certificateId },
+        {
+            user: user._id,
+            program: program._id, // Use program._id from the populated program object
+            certificateId: certificateId,
+            status: 'sent',
+            courseName: program.title,
+            qrCode: qrCodeImage,
+            issuedAt: enrollment.certificateIssuedAt,
+            metadata: {
+                generatedAt: new Date(),
+                email: user.email,
+                fileUrl: `files/${certificateId}.pdf`
+            }
+        },
+        { upsert: true, new: true }
+    );
+
+    return {
+        certificateId: certificateId,
+        issuedAt: enrollment.certificateIssuedAt
+    };
+};
+
+
+// @desc    Publish certificates for a program (Trigger Service)
+// @route   POST /api/admin/programs/:id/publish-certificates
+// @access  Private/Admin
+const publishCertificates = asyncHandler(async (req, res) => {
+    const programId = req.params.id;
+    const force = req.query.force === 'true';
+
     const program = await Program.findById(programId);
     if (!program) {
         res.status(404);
         throw new Error('Program not found');
     }
 
-    // 2. Find Active/Completed Enrollments
-    const enrollments = await Enrollment.find({
-        program: programId,
-        status: { $in: ['active', 'completed'] }
-    }).populate('user', 'name email registerNumber year institutionName');
+    const enrollments = await Enrollment.find({ program: programId }) // Changed programId to program
+        .populate('user')
+        .populate('program'); // Changed programId to program
 
-    if (enrollments.length === 0) {
-        res.status(400);
-        throw new Error('No enrolled students found for this program');
-    }
-
-    const force = req.query.force === 'true';
-
-    const newlyPublished = [];
     const alreadyPublished = [];
+    const newlyPublished = [];
+    const pendingFeedback = [];
     const errors = [];
+
+    // 1. Fetch Feedback Status Map (Optimization)
+    // Actually, we use enrollment.isFeedbackSubmitted which is denormalized.
+
+    // 2. Determine Template
+    const templateId = program.templateType || program.certificateTemplate || 'default';
+    if (!templateId) {
+        res.status(400);
+        throw new Error('Certificate Template not configured for Program');
+    }
 
     // 3. Process Each Enrollment (ATOMICALLY)
     for (const enrollment of enrollments) {
@@ -57,7 +139,7 @@ const publishCertificates = asyncHandler(async (req, res) => {
         // CHECK: If already published and NOT forced -> Add to alreadyPublished list
         if (enrollment.certificateStatus === 'PUBLISHED' && !force) {
             alreadyPublished.push({
-                enrollmentId: enrollment._id, // Added ID
+                enrollmentId: enrollment._id,
                 studentName: user.name,
                 email: user.email,
                 certificateId: enrollment.certificateId,
@@ -66,81 +148,26 @@ const publishCertificates = asyncHandler(async (req, res) => {
             continue;
         }
 
-        try {
-            // A. Generate ID (Standard Format: CERT-<CODE>-<YYYY>-<RANDOM>)
-            // Use existing ID if already published (and forced), otherwise generate new
-            let certificateId = enrollment.certificateId;
-            if (!certificateId || force) {
-                const year = new Date().getFullYear();
-                const randomSuffix = Math.floor(100000 + Math.random() * 900000); // 6 digit
-                const code = program.code || 'PROG';
-                certificateId = `CERT-${code}-${year}-${randomSuffix}`;
-            }
-
-            // B. Generate QR Data (Direct Verify Link)
-            const domain = process.env.FRONTEND_URL || 'http://localhost:5173';
-            const verifyUrl = `${domain}/verify?certificateId=${certificateId}`;
-            const qrCodeImage = await QRCode.toDataURL(verifyUrl);
-
-            // C. CALL SERVICE SYNCHRONOUSLY
-            await axios.post(CERT_SERVICE_URL, {
-                studentData: {
-                    name: user.name,
-                    email: user.email,
-                    id: user._id,
-                    registerNumber: user.registerNumber,
-                    year: user.year,
-                    institutionName: user.institutionName,
-                    programName: program.title
-                },
-                courseData: {
-                    title: program.title,
-                    id: program._id
-                },
-                certificateId: certificateId,
-                templateId: program.templateType || program.certificateTemplate || 'default',
-                templateUrl: program.certificateTemplate,
-                qrCode: qrCodeImage,
-                callbackUrl: CALLBACK_URL,
-                type: 'certificate'
-            });
-
-            // D. COMMIT TO DB
-            enrollment.certificateStatus = 'PUBLISHED';
-            enrollment.certificateId = certificateId;
-            if (!enrollment.certificateIssuedAt) {
-                enrollment.certificateIssuedAt = new Date();
-            }
+        // FEEDBACK GATE
+        // If feedback is required AND not submitted AND not forced
+        if (program.isFeedbackEnabled && !enrollment.isFeedbackSubmitted && !force) {
+            enrollment.certificateStatus = 'PENDING_FEEDBACK';
             await enrollment.save();
+            pendingFeedback.push({
+                email: user.email,
+                name: user.name
+            });
+            continue;
+        }
 
-            // E. UPSERT CERTIFICATE DOCUMENT (Fix for Verification)
-            // Essential for "Verify" page and "My Certificates"
-            await Certificate.findOneAndUpdate(
-                { certificateId: certificateId },
-                {
-                    user: user._id,
-                    program: programId,
-                    certificateId: certificateId,
-                    status: 'sent',
-                    courseName: program.title,
-                    qrCode: qrCodeImage,
-                    issuedAt: enrollment.certificateIssuedAt,
-                    metadata: {
-                        generatedAt: new Date(),
-                        email: user.email,
-                        fileUrl: `files/${certificateId}.pdf`
-                    }
-                },
-                { upsert: true, new: true }
-            );
-
+        try {
+            const result = await generateCertificateForEnrollment(enrollment, program, user, force);
             newlyPublished.push({
                 studentName: user.name,
                 email: user.email,
-                certificateId: certificateId,
-                issuedAt: enrollment.certificateIssuedAt
+                certificateId: result.certificateId,
+                issuedAt: result.issuedAt
             });
-
         } catch (error) {
             console.error(`Failed to publish for ${user.email}:`, error.message);
             errors.push(`${user.email}: ${error.message}`);
@@ -149,9 +176,10 @@ const publishCertificates = asyncHandler(async (req, res) => {
 
     res.json({
         success: true,
-        message: `Processed. New: ${newlyPublished.length}, Existing: ${alreadyPublished.length}, Failed: ${errors.length}`,
+        message: `Processed. New: ${newlyPublished.length}, Existing: ${alreadyPublished.length}, Pending Feedback: ${pendingFeedback.length}, Failed: ${errors.length}`,
         newlyPublished,
         alreadyPublished,
+        pendingFeedback,
         errors
     });
 });
@@ -616,6 +644,49 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
     }
 });
 
+
+
+// @desc    Publish a single certificate for an enrollment
+// @route   POST /api/certificates/publish/:enrollmentId
+// @access  Private/Admin
+const publishSingleCertificate = asyncHandler(async (req, res) => {
+    const enrollmentId = req.params.enrollmentId;
+    const force = req.query.force === 'true';
+
+    const enrollment = await Enrollment.findById(enrollmentId)
+        .populate('user')
+        .populate('program');
+
+    if (!enrollment) {
+        res.status(404);
+        throw new Error('Enrollment not found');
+    }
+
+    const program = enrollment.program;
+    const user = enrollment.user;
+
+    // Check Gating
+    // If feedback enabled AND feedback not submitted AND not forced
+    if (program.isFeedbackEnabled && !enrollment.isFeedbackSubmitted && !force) {
+        res.status(400);
+        throw new Error('Feedback is pending for this student. Cannot publish certificate.');
+    }
+
+    // Generate
+    try {
+        const result = await generateCertificateForEnrollment(enrollment, program, user, force);
+        res.json({
+            success: true,
+            message: 'Certificate published successfully',
+            certificateId: result.certificateId
+        });
+    } catch (error) {
+        console.error(`Failed to publish single cert for ${user.email}:`, error.message);
+        res.status(500);
+        throw new Error(error.response?.data?.message || 'Failed to generate certificate');
+    }
+});
+
 module.exports = {
     publishCertificates,
     publishOfferLetters,
@@ -624,5 +695,7 @@ module.exports = {
     issueCertificate,
     resolveLegacyQR,
     verifyNewCertificate,
-    regenerateCertificate
+    regenerateCertificate,
+    generateCertificateForEnrollment,
+    publishSingleCertificate
 };

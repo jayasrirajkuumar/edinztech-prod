@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getAdminEnrollments, getStudentCredentials, resendStudentCredentials, exportEnrollments, updateStudentDetails, regenerateCertificate } from '../lib/api'; // Updated import
+import { getAdminEnrollments, getStudentCredentials, resendStudentCredentials, exportEnrollments, updateStudentDetails, regenerateCertificate, publishSingleCertificate } from '../lib/api'; // Updated import
+import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
 import Card from '../components/ui/Card';
 
@@ -13,6 +14,66 @@ export default function AdminEnrollments() {
     const [selectedStudent, setSelectedStudent] = useState(null); // For credentials modal
     const [editingStudent, setEditingStudent] = useState(null); // For edit modal
     const [editForm, setEditForm] = useState({ name: '', email: '', phone: '' });
+
+    // Selection State
+    const [selectedEnrollments, setSelectedEnrollments] = useState(new Set());
+    const [isBulkPublishing, setIsBulkPublishing] = useState(false);
+
+    // Toggle Selection
+    const toggleSelection = (id) => {
+        const newSet = new Set(selectedEnrollments);
+        if (newSet.has(id)) newSet.delete(id);
+        else newSet.add(id);
+        setSelectedEnrollments(newSet);
+    };
+
+    const toggleSelectAll = (filteredData) => {
+        if (selectedEnrollments.size === filteredData.length) {
+            setSelectedEnrollments(new Set());
+        } else {
+            setSelectedEnrollments(new Set(filteredData.map(e => e._id)));
+        }
+    };
+
+    // Single Publish
+    const handlePublishSingle = async (enrollment) => {
+        if (!enrollment.isFeedbackSubmitted) {
+            if (!window.confirm(`⚠️ Warning: ${enrollment.studentName} has NOT submitted feedback.\nDo you want to force publish?`)) return;
+            // Force publish logic if needed (add force param logic later if authorized)
+            // Currently backend blocks it. So we warn user.
+        }
+
+        if (!window.confirm(`Publish certificate for ${enrollment.studentName}?`)) return;
+
+        try {
+            await publishSingleCertificate(enrollment._id, !enrollment.isFeedbackSubmitted); // Pass force=true if confirmed despite pending
+            alert("Certificate Published!");
+            fetchEnrollments();
+        } catch (error) {
+            alert(error.response?.data?.message || "Failed to publish");
+        }
+    };
+
+    // Bulk Publish
+    const handleBulkPublish = async () => {
+        if (!window.confirm(`Publish certificates for ${selectedEnrollments.size} students?`)) return;
+        setIsBulkPublishing(true);
+        let success = 0;
+        let diff = 0; // failed
+
+        for (const id of selectedEnrollments) {
+            try {
+                await publishSingleCertificate(id); // Standard publish (obeys gating)
+                success++;
+            } catch (e) {
+                diff++;
+            }
+        }
+        setIsBulkPublishing(false);
+        alert(`Bulk Process Completed.\nSuccess: ${success}\nFailed/Skipped (Pending Feedback): ${diff}`);
+        fetchEnrollments();
+        setSelectedEnrollments(new Set());
+    };
 
     const handleResendCertificate = async (enrollmentId) => {
         if (!window.confirm("Are you sure you want to regenerate and resend this certificate?")) return;
@@ -132,6 +193,15 @@ export default function AdminEnrollments() {
                 >
                     <Icons.Download size={18} /> Export List
                 </button>
+                {selectedEnrollments.size > 0 && (
+                    <button
+                        onClick={handleBulkPublish}
+                        disabled={isBulkPublishing}
+                        className="flex items-center gap-2 px-4 py-2 border border-green-600 rounded-lg hover:bg-green-50 text-green-700 bg-white ml-2"
+                    >
+                        {isBulkPublishing ? 'Processing...' : `Publish Selected (${selectedEnrollments.size})`}
+                    </button>
+                )}
             </div>
 
             {/* Filters */}
@@ -173,6 +243,13 @@ export default function AdminEnrollments() {
                 <table className="min-w-full">
                     <thead className="bg-gray-50">
                         <tr>
+                            <th className="px-6 py-3 text-left">
+                                <input
+                                    type="checkbox"
+                                    onChange={() => toggleSelectAll(enrollments.filter(e => filterProgram === 'All' || e.programName === filterProgram))}
+                                    checked={enrollments.length > 0 && selectedEnrollments.size === enrollments.filter(e => filterProgram === 'All' || e.programName === filterProgram).length}
+                                />
+                            </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email / Phone</th>
@@ -180,6 +257,7 @@ export default function AdminEnrollments() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feedback</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cert Status</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cert ID</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
@@ -197,7 +275,14 @@ export default function AdminEnrollments() {
                                 .map((enrollment, index) => {
                                     if (index === 0) console.log('DEBUG FRONTEND:', enrollment);
                                     return (
-                                        <tr key={enrollment._id}>
+                                        <tr key={enrollment._id} className={selectedEnrollments.has(enrollment._id) ? 'bg-blue-50' : ''}>
+                                            <td className="px-6 py-4">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedEnrollments.has(enrollment._id)}
+                                                    onChange={() => toggleSelection(enrollment._id)}
+                                                />
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 {enrollment.userCode || 'N/A'}
                                             </td>
@@ -226,6 +311,17 @@ export default function AdminEnrollments() {
                                                 <span className="capitalize">{enrollment.status}</span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {enrollment.isFeedbackSubmitted ? (
+                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                        Submitted
+                                                    </span>
+                                                ) : (
+                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                        Pending
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${enrollment.certificateStatus === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                                                     {enrollment.certificateStatus === 'PUBLISHED' ? 'Published' : 'Yet to Publish'}
                                                 </span>
@@ -242,7 +338,7 @@ export default function AdminEnrollments() {
                                                 ) : '-'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                                                {formatDate(enrollment.enrolledAt)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
                                                 <button
@@ -264,6 +360,15 @@ export default function AdminEnrollments() {
                                                         title="Re-Generate PDF & Resend Email"
                                                     >
                                                         Re-Send
+                                                    </button>
+                                                )}
+                                                {enrollment.certificateStatus !== 'PUBLISHED' && (
+                                                    <button
+                                                        onClick={() => handlePublishSingle(enrollment)}
+                                                        className="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1 rounded"
+                                                        title="Publish Certificate"
+                                                    >
+                                                        Publish
                                                     </button>
                                                 )}
                                             </td>

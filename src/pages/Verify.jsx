@@ -3,7 +3,9 @@ import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Icons } from '../components/icons';
+
 import Button from '../components/ui/Button';
+import { formatDate } from '../lib/dateUtils';
 
 export default function Verify() {
     const [searchParams] = useSearchParams();
@@ -270,8 +272,8 @@ export default function Verify() {
                                     <span className="text-gray-500 text-sm">Course Duration</span>
                                     <span className="font-medium text-gray-900">
                                         {result.courseStartDate && result.courseEndDate
-                                            ? `${new Date(result.courseStartDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} - ${new Date(result.courseEndDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`
-                                            : new Date(result.issueDate).toLocaleDateString()}
+                                            ? `${formatDate(result.courseStartDate, { day: '2-digit', month: 'short', year: 'numeric' })} - ${formatDate(result.courseEndDate, { day: '2-digit', month: 'short', year: 'numeric' })}`
+                                            : formatDate(result.issueDate)}
                                     </span>
                                 </div>
                                 <div className="p-4 flex justify-between items-center">

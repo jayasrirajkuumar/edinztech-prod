@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
 import api from '../lib/api';
+import { formatDate } from '../lib/dateUtils';
 
 export default function DashboardOfferLetters() {
     const [offerLetters, setOfferLetters] = useState([]);
@@ -53,7 +54,7 @@ export default function DashboardOfferLetters() {
                                         <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Active</span>
                                     </div>
                                     <p className="text-xs font-medium text-gray-500 mt-0.5 mb-2">{isAcceptance ? 'Acceptance Letter' : 'Offer Letter'}</p>
-                                    <p className="text-sm text-gray-500 mt-1">Issued on {new Date(letter.createdAt).toLocaleDateString()}</p>
+                                    <p className="text-sm text-gray-500 mt-1">Issued on {formatDate(letter.createdAt)}</p>
                                     <p className="text-xs text-gray-400 font-mono mt-1">{letter.certificateId}</p>
                                     <div className="mt-4 flex gap-2">
                                         <Button

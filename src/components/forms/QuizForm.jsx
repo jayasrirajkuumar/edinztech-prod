@@ -8,10 +8,11 @@ import { Input } from '../ui/Input';
 import Button from '../ui/Button';
 import { Icons } from '../icons';
 import { createQuiz, updateQuiz, uploadQuizImage } from '../../lib/api';
+import DateTimePicker from '../ui/DateTimePicker';
 
 const questionSchema = z.object({
     question: z.string().min(1, 'Question text is required'),
-    type: z.enum(['mcq', 'text']),
+    type: z.enum(['mcq', 'text', 'file_upload']),
     image: z.string().optional(),
     marks: z.coerce.number().min(1),
     // Options required only if type is mcq
@@ -63,6 +64,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
             description: '',
             programId: programId || '',
             passingScore: 60,
+            startTime: new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16),
             questions: [{ question: '', type: 'mcq', marks: 1, options: ['', '', '', ''], correctOption: 0 }]
         }
     });
@@ -182,7 +184,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
     };
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(handleFormSubmit, (errors) => console.log("Form Errors:", errors))} className="space-y-8">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-4 rounded-lg">
                 <div className="md:col-span-2">
@@ -190,7 +192,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                 </div>
 
                 {/* Program Selection Check */}
-                {programs && programs.length > 0 && !programId && (
+                {programs && programs.length > 0 && (!programId || isEditing) && (
                     <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">Program</label>
                         <select
@@ -221,17 +223,31 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                         error={errors.passingScore?.message}
                     />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <Input
-                        label="Start Time"
-                        type="datetime-local"
-                        {...register('startTime')}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Controller
+                        name="startTime"
+                        control={control}
+                        render={({ field }) => (
+                            <DateTimePicker
+                                label="Start Time"
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={errors.startTime?.message}
+                            />
+                        )}
                     />
-                    <Input
-                        label="End Time"
-                        type="datetime-local"
-                        {...register('endTime')}
-                        min={watch('startTime')}
+                    <Controller
+                        name="endTime"
+                        control={control}
+                        render={({ field }) => (
+                            <DateTimePicker
+                                label="End Time"
+                                value={field.value}
+                                onChange={field.onChange}
+                                error={errors.endTime?.message}
+                                min={watch('startTime')}
+                            />
+                        )}
                     />
                 </div>
             </div>
@@ -333,6 +349,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                                     >
                                         <option value="mcq">MCQ</option>
                                         <option value="text">Paragraph</option>
+                                        <option value="file_upload">File Upload</option>
                                     </select>
                                 </div>
                                 <div className="md:col-span-2">
@@ -345,7 +362,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                                 </div>
                             </div>
 
-                            {currentType === 'mcq' ? (
+                            {currentType === 'mcq' && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {[0, 1, 2, 3].map((optIndex) => (
                                         <div key={optIndex} className="flex items-center gap-2">
@@ -367,7 +384,9 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                                         </div>
                                     ))}
                                 </div>
-                            ) : (
+                            )}
+
+                            {currentType === 'text' && (
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Reference Answer (For Grading)</label>
                                     <textarea
@@ -376,6 +395,24 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                                         rows={3}
                                         placeholder="Enter the expected answer or keywords for the evaluator..."
                                     />
+                                </div>
+                            )}
+
+                            {currentType === 'file_upload' && (
+                                <div className="col-span-1 md:col-span-12">
+                                    <div className="bg-blue-50 border border-blue-200 rounded p-4 text-sm text-blue-800 flex items-start gap-2">
+                                        <Icons.Info size={18} className="mt-0.5 flex-shrink-0" />
+                                        <div>
+                                            <p className="font-semibold">File Upload Question</p>
+                                            <p className="mt-1">
+                                                Students will be asked to upload a file (PDF, Word, Excel, Zip, Image) as their answer.
+                                                <br />
+                                                <strong>Max Size:</strong> 5MB per file.
+                                                <br />
+                                                <em>Note: File upload questions require manual grading.</em>
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProgram, createPaymentOrder, enrollFree } from '../lib/api';
 import { isRegistrationOpen } from '../lib/programUtils';
+import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -102,7 +103,7 @@ export default function InternshipDetails() {
                                 <Icons.Date size={20} className="text-primary" />
                                 <span>Start Date</span>
                             </div>
-                            <span className="font-semibold text-secondary">{new Date(program.startDate).toLocaleDateString()}</span>
+                            <span className="font-semibold text-secondary">{formatDate(program.startDate)}</span>
                         </div>
                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                             <div className="flex items-center gap-3 text-text-light">
@@ -124,7 +125,7 @@ export default function InternshipDetails() {
                     {program.registrationDeadline && new Date(program.registrationDeadline) > new Date() && (
                         <div className="mt-3 text-center animate-pulse">
                             <span className="text-sm font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">
-                                This program is extended registration till {new Date(program.registrationDeadline).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                This program is extended registration till {formatDate(program.registrationDeadline, { day: 'numeric', month: 'long', year: 'numeric' })}
                             </span>
                         </div>
                     )}

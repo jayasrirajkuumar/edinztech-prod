@@ -4,7 +4,7 @@ const questionSchema = mongoose.Schema({
     question: { type: String, required: true },
     type: {
         type: String,
-        enum: ['mcq', 'text'],
+        enum: ['mcq', 'text', 'file_upload'],
         default: 'mcq',
         required: true
     },

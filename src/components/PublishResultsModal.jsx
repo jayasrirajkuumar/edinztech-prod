@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from './ui/Modal';
 import { regenerateCertificate } from '../lib/api';
+import { formatDate } from '../lib/dateUtils';
 
 export default function PublishResultsModal({ isOpen, onClose, results }) {
     if (!results) return null;
@@ -63,7 +64,7 @@ export default function PublishResultsModal({ isOpen, onClose, results }) {
                                                 {item.certificateId}
                                             </div>
                                             <div className="text-[10px] text-blue-500">
-                                                Issued: {new Date(item.issuedAt).toLocaleDateString()}
+                                                Issued: {formatDate(item.issuedAt)}
                                             </div>
                                         </div>
                                         {item.enrollmentId && (
@@ -93,8 +94,28 @@ export default function PublishResultsModal({ isOpen, onClose, results }) {
                     </div>
                 )}
 
+                {/* 4. Pending Feedback (Gated) */}
+                {results.pendingFeedback && results.pendingFeedback.length > 0 && (
+                    <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h3 className="text-yellow-800 font-bold mb-2 flex items-center gap-2">
+                            ⚠️ Pending Feedback ({results.pendingFeedback.length})
+                        </h3>
+                        <div className="text-xs text-yellow-700 mb-2 italic">
+                            These students have not submitted feedback. Certificates will be generated automatically once they submit.
+                        </div>
+                        <ul className="space-y-1 text-sm text-yellow-800">
+                            {results.pendingFeedback.map((item, idx) => (
+                                <li key={idx} className="flex justify-between border-b border-yellow-200 pb-1 last:border-0 last:pb-0">
+                                    <span>{item.name} ({item.email})</span>
+                                    <span className="text-xs opacity-70">Waiting for feedback</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
                 {/* Empty State */}
-                {!hasNew && !hasExisting && !hasErrors && (
+                {!hasNew && !hasExisting && !hasErrors && (!results.pendingFeedback || results.pendingFeedback.length === 0) && (
                     <div className="text-center text-gray-500 py-4">
                         No active enrollments found to process.
                     </div>

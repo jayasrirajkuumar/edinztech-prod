@@ -32,7 +32,21 @@ const getMyQuizzes = asyncHandler(async (req, res) => {
         .populate('program', 'title')
         .sort({ startTime: 1 });
 
-    res.json(quizzes);
+    // 3. Attach attempt status
+    const quizzesWithStatus = await Promise.all(quizzes.map(async (quiz) => {
+        const attempt = await QuizAttempt.findOne({
+            quiz: quiz._id,
+            user: userId
+        }).select('_id passed score status');
+
+        return {
+            ...quiz.toObject(),
+            isAttempted: !!attempt,
+            attemptDetails: attempt
+        };
+    }));
+
+    res.json(quizzesWithStatus);
 });
 
 // @desc    Get Specific Quiz (Strict Enrollment Check)
@@ -73,7 +87,18 @@ const getMyQuiz = asyncHandler(async (req, res) => {
         throw new Error('Quiz is not currently active');
     }
 
-    res.json(quiz);
+    // Check for existing attempt
+    const attempt = await QuizAttempt.findOne({
+        quiz: quiz._id,
+        user: userId
+    });
+
+    const quizData = quiz.toObject();
+    if (attempt) {
+        quizData.attempt = attempt;
+    }
+
+    res.json(quizData);
 });
 
 // @desc    Submit Quiz Attempt
@@ -149,11 +174,14 @@ const submitQuizAttempt = asyncHandler(async (req, res) => {
                     isCorrect = true;
                     marksAwarded = question.marks || 1;
                 }
-            } else {
+            } else if (question.type === 'text') {
                 textAnswer = submittedValue;
-                // Text answers are pending by default unless we do exact match (optional)
-                // For now, mark as pending (isCorrect=false, marks=0 initially)
+                // Text answers are pending by default
                 hasPending = true;
+            } else if (question.type === 'file_upload') {
+                textAnswer = submittedValue; // This will be the File URL
+                // File uploads are always pending manual review
+                if (submittedValue) hasPending = true;
             }
         }
 

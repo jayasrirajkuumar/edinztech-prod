@@ -1,1 +1,1 @@
-[2026-01-01T13:34:42.745Z] First Enrollment CertStatus: NOT_PUBLISHED | ID: undefined
+[2026-01-03T02:54:56.202Z] First Enrollment CertStatus: PUBLISHED | ID: CERT-EDZ-2026-COU-285-2026-583228

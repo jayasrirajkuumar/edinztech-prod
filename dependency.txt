@@ -1,0 +1,55 @@
+Project Dependencies
+
+Frontend (Client):
+- axios: HTTP client
+- html5-qrcode: QR Code scanner
+- lucide-react: Icons
+- papaparse: CSV parser
+- react: UI Library
+- react-dom: React DOM bindings
+- react-hook-form: Form validation
+- react-router-dom: Routing
+- xlsx: Excel file parsing
+- zod: Schema validation
+- @hookform/resolvers: Zod resolver for forms
+
+Backend (Server):
+- axios: HTTP client
+- bcryptjs: Password hashing
+- cors: CORS middleware
+- docx: Document generation
+- docxtemplater: Word document templating
+- dotenv: Environment variables
+- exceljs: Excel workbook manager
+- express: Web server framework
+- express-async-handler: Async error handling
+- express-validator: Request validation
+- helmet: Security headers
+- jsonwebtoken: JWT authentication
+- mammoth: .docx to HTML converter (used for PDF generation flow)
+- mongoose: MongoDB object modeling
+- morgan: HTTP request logger
+- multer: File upload middleware
+- node-cron: Task scheduler
+- node-fetch: HTTP client (Fetch API)
+- nodemailer: Email sending
+- pdf-lib: PDF generation/modification
+- pizzip: Zip utility (used with docxtemplater)
+- puppeteer: Headless Chrome (PDF generation)
+- qrcode: QR code generation
+- razorpay: Payment gateway integration
+- sharp: Image processing
+- uuid: UUID generation
+- xlsx: Excel file processing
+
+Certificate Service (Microservice):
+- axios: HTTP client
+- cors: CORS middleware
+- docx: Document generation
+- docxtemplater: Word document templating
+- dotenv: Environment variables
+- express: Web server framework
+- mammoth: .docx to HTML converter
+- nodemailer: Email sending
+- pizzip: Zip utility
+- puppeteer: Headless Chrome (PDF generation)

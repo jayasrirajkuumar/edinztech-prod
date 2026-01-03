@@ -264,6 +264,21 @@ const submitFeedback = asyncHandler(async (req, res) => {
         answers: req.body.answers
     });
 
+    // Update Enrollment & Trigger Certificate
+    enrollment.isFeedbackSubmitted = true;
+    await enrollment.save();
+
+    if (enrollment.certificateStatus === 'PENDING_FEEDBACK') {
+        try {
+            const Program = require('../models/Program');
+            const program = await Program.findById(feedback.programId);
+            const { generateCertificateForEnrollment } = require('./certificateController');
+            await generateCertificateForEnrollment(enrollment, program, req.user);
+        } catch (error) {
+            console.error('Auto-certificate generation failed:', error);
+        }
+    }
+
     res.status(201).json(response);
 });
 
@@ -389,6 +404,7 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
     }
 
     // 4. Create Feedback
+    // 4. Create Feedback
     const response = await DefaultFeedbackResponse.create({
         programId,
         userId: user._id,
@@ -399,6 +415,20 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
         // Optional fields
         submittedAt: new Date()
     });
+
+    enrollment.isFeedbackSubmitted = true;
+    await enrollment.save();
+
+    if (enrollment.certificateStatus === 'PENDING_FEEDBACK') {
+        try {
+            const Program = require('../models/Program');
+            const program = await Program.findById(programId);
+            const { generateCertificateForEnrollment } = require('./certificateController');
+            await generateCertificateForEnrollment(enrollment, program, user);
+        } catch (error) {
+            console.error('Auto-certificate generation failed:', error);
+        }
+    }
 
     res.status(201).json({ success: true, message: 'Feedback submitted successfully' });
 });
@@ -444,6 +474,19 @@ const submitDefaultFeedback = asyncHandler(async (req, res) => {
         userId: req.user._id,
         inspireId, name, organization, email, mobile, place, state, feedback
     });
+
+    // Update Enrollment & Trigger Certificate
+    enrollment.isFeedbackSubmitted = true;
+    await enrollment.save();
+
+    if (enrollment.certificateStatus === 'PENDING_FEEDBACK') {
+        try {
+            const { generateCertificateForEnrollment } = require('./certificateController');
+            await generateCertificateForEnrollment(enrollment, program, req.user);
+        } catch (error) {
+            console.error('Auto-certificate generation failed:', error);
+        }
+    }
 
     res.status(201).json(response);
 });

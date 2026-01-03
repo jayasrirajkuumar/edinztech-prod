@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -116,11 +117,47 @@ export default function AdminPrograms() {
         }
     };
 
-    const handlePublishCertificate = async (programId, title) => {
-        if (!window.confirm(`Are you sure you want to publish certificates for "${title}"? This will issue certificates to all enrolled students.`)) return;
+    const handlePublishCertificate = async (program) => {
+        // 1. Check Gating Status
+        if (!program.isFeedbackEnabled) {
+            const enableGating = window.confirm(
+                `Feedback Gating is currently DISABLED for "${program.title}".\n\n` +
+                `Do you want to ENABLE it now?\n` +
+                `• OK: Enable Gating (Certificates will be generated ONLY after feedback)\n` +
+                `• Cancel: Keep Disabled (Certificates issued IMMEDIATELY to everyone)`
+            );
+
+            if (enableGating) {
+                try {
+                    await toggleProgramFeedback(program._id || program.id);
+                    // Manually update local state to reflect change immediately for this transaction
+                    program.isFeedbackEnabled = true;
+
+                    // Also update the UI list
+                    setPrograms(programs.map(p => {
+                        if ((p._id || p.id) === (program._id || program.id)) {
+                            return { ...p, isFeedbackEnabled: true };
+                        }
+                        return p;
+                    }));
+                    alert("Feedback Gating Enabled. Proceeding to Publish check...");
+                } catch (e) {
+                    console.error("Failed to enable gating", e);
+                    alert("Failed to enable gating. Aborting.");
+                    return;
+                }
+            } else {
+                // If they cancelled, confirm they really want to publish UNGATED
+                if (!window.confirm(`⚠️ FINAL WARNING: You are publishing WITHOUT feedback check.\n\nEveryone will get a certificate immediately. Are you sure?`)) {
+                    return;
+                }
+            }
+        } else {
+            if (!window.confirm(`Are you sure you want to publish certificates for "${program.title}"?\n\nStudents without feedback will be marked as 'Pending'.`)) return;
+        }
 
         try {
-            const res = await publishCertificates(programId);
+            const res = await publishCertificates(program._id || program.id);
             setPublishResults(res);
             setIsPublishModalOpen(true);
         } catch (err) {
@@ -329,8 +366,10 @@ export default function AdminPrograms() {
                                 <div className="flex items-center">
                                     <div className="font-medium text-secondary">{program.title}</div>
                                 </div>
+
+
                                 <div className="text-xs text-text-light mt-1">
-                                    {new Date(program.startDate).toLocaleDateString()} - {new Date(program.endDate).toLocaleDateString()}
+                                    {formatDate(program.startDate)} - {formatDate(program.endDate)}
                                 </div>
                             </td>
                             {/* Status Column */}
@@ -344,7 +383,7 @@ export default function AdminPrograms() {
                                 {program.registrationDeadline && new Date(program.registrationDeadline) > new Date() && (
                                     <div className="mt-1">
                                         <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200 block w-fit font-medium">
-                                            Ext. Open: {new Date(program.registrationDeadline).toLocaleDateString()}
+                                            Ext. Open: {formatDate(program.registrationDeadline)}
                                         </span>
                                     </div>
                                 )}
@@ -404,7 +443,7 @@ export default function AdminPrograms() {
 
                                     {/* Certificate Publish Action */}
                                     <button
-                                        onClick={() => !isCertActionDisabled && handlePublishCertificate(program._id || program.id, program.title)}
+                                        onClick={() => !isCertActionDisabled && handlePublishCertificate(program)}
                                         className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors ${isCertActionDisabled ? 'text-gray-300 border-gray-100 cursor-not-allowed bg-gray-50' : 'text-yellow-700 bg-yellow-50 border-yellow-200 hover:bg-yellow-100'}`}
                                         title={isExpired ? "Program Expired" : "Publish Certificates"}
                                         disabled={isCertActionDisabled}

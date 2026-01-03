@@ -37,6 +37,7 @@ import {
     User, // Added
     LayoutDashboard, // Added
     Settings, // Added for ProgramForm
+    File, // Added
     FileText, // Added
     ArrowLeft, // Added
     Phone, // Added
@@ -120,6 +121,7 @@ export const Icons = {
     User: (props) => <User className="text-primary" {...props} />, // Added
     Dashboard: (props) => <LayoutDashboard className="text-primary" {...props} />, // Added
     Clock: (props) => <Clock className="text-primary" {...props} />, // Added generic Clock
+    File: (props) => <File className="text-secondary" {...props} />, // Added
     FileText: (props) => <FileText className="text-secondary" {...props} />, // Added
     ArrowLeft: (props) => <ArrowLeft className="text-secondary" {...props} />, // Added
     GraduationCap: (props) => <GraduationCap className="text-secondary" {...props} />, // Added

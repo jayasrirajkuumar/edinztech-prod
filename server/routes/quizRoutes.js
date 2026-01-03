@@ -13,12 +13,14 @@ const {
     uploadQuizImage,
     getQuizReports,
     getQuizAttempt, // Added
-    getQuizById
+    getQuizById,
+    uploadQuizFile
 } = require('../controllers/quizController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware'); // Import upload middleware
 
 router.post('/upload', protect, admin, upload.single('image'), uploadQuizImage); // Image Upload
+router.post('/upload-file', protect, upload.single('file'), uploadQuizFile); // Generic File Upload used by students/admin
 router.get('/:id/reports', protect, admin, getQuizReports); // Get Reports
 router.get('/attempt/:id', protect, admin, getQuizAttempt); // New Route for Single Attempt Detail
 router.get('/detail/:id', protect, admin, getQuizById); // Get Single Quiz for Edit

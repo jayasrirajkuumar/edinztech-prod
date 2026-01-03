@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form'; // Not strictly needed unless editing
-import { Link } from 'react-router-dom';
-import { Icons } from '../components/icons/index';
+
+import { formatDate } from '../lib/dateUtils';
+import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import AdminTable from '../components/AdminTable';
 import api from '../lib/api';
@@ -68,7 +69,7 @@ export default function AdminFeedbacks() {
     };
 
     const copyPublicLink = () => {
-        navigator.clipboard.writeText(`${window.location.origin}/feedback/public`);
+        navigator.clipboard.writeText(`${window.location.origin} /feedback/public`);
         alert("Public Feedback Link copied to clipboard!");
     };
 
@@ -136,7 +137,7 @@ export default function AdminFeedbacks() {
                                 </div>
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-500">
-                                {new Date(fb.submittedAt).toLocaleDateString()}
+                                {formatDate(fb.submittedAt)}
                             </td>
                             <td className="px-6 py-4">
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">

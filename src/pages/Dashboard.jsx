@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDate, formatDateTime } from '../lib/dateUtils';
 import { getDashboardOverview, updateMyProfile } from '../lib/api';
 import { Link } from 'react-router-dom';
 import { Icons } from '../components/icons';
@@ -118,19 +119,19 @@ export default function Dashboard() {
                                                 <h2 className="text-2xl font-bold text-gray-900">{prog.title}</h2>
                                                 <p className="text-sm text-gray-500">
                                                     Status: <span className="capitalize font-medium text-green-600">{prog.enrollmentStatus}</span> •
-                                                    Valid until: {new Date(prog.validUntil).toLocaleDateString()}
+                                                    Valid until: {formatDate(prog.validUntil)}
                                                 </p>
 
                                                 {/* Progress Bar */}
                                                 <div className="mt-4 w-full md:w-96">
                                                     <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                                        <span>Start: {new Date(prog.startDate).toLocaleDateString()}</span>
-                                                        <span>End: {new Date(prog.validUntil).toLocaleDateString()}</span>
+                                                        <span>Start: {formatDate(prog.startDate)}</span>
+                                                        <span>End: {formatDate(prog.validUntil)}</span>
                                                     </div>
                                                     <div className="mt-4">
                                                         <div className="flex justify-between items-center text-sm mb-1">
-                                                            <span className="text-gray-500">Start: {prog.startTime ? new Date(prog.startTime).toLocaleDateString() : 'N/A'}</span>
-                                                            <span className="text-gray-500">End: {prog.endTime ? new Date(prog.endTime).toLocaleDateString() : 'N/A'}</span>
+                                                            <span className="text-gray-500">Start: {prog.startTime ? formatDateTime(prog.startTime) : 'N/A'}</span>
+                                                            <span className="text-gray-500">End: {prog.endTime ? formatDateTime(prog.endTime) : 'N/A'}</span>
                                                         </div>
 
                                                         {(() => {
@@ -191,7 +192,7 @@ export default function Dashboard() {
                                                             <li key={q._id} className="bg-white p-3 rounded shadow-sm border border-gray-100 flex justify-between items-center">
                                                                 <div>
                                                                     <p className="font-medium text-sm">{q.title}</p>
-                                                                    <p className="text-xs text-gray-500">Due: {new Date(q.endTime).toLocaleDateString()}</p>
+                                                                    <p className="text-xs text-gray-500">Due: {formatDateTime(q.endTime)}</p>
                                                                 </div>
                                                                 <Link to={`/dashboard/quizzes`} className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-primary/90">
                                                                     Attempt
@@ -214,12 +215,18 @@ export default function Dashboard() {
                                                         {prog.feedbacks.map(f => (
                                                             <li key={f._id} className="bg-white p-3 rounded shadow-sm border border-gray-100 flex justify-between items-center">
                                                                 <p className="font-medium text-sm">{f.title}</p>
-                                                                <Link
-                                                                    to={f.isDefault ? '/dashboard/feedbacks' : `/dashboard/feedbacks/${f._id}`}
-                                                                    className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90"
-                                                                >
-                                                                    Give Feedback
-                                                                </Link>
+                                                                {f.isSubmitted ? (
+                                                                    <span className="text-xs text-green-600 font-medium border border-green-200 bg-green-50 px-2 py-1 rounded flex items-center gap-1">
+                                                                        <Icons.CheckCircle size={12} /> Submitted
+                                                                    </span>
+                                                                ) : (
+                                                                    <Link
+                                                                        to={f.isDefault ? '/dashboard/feedbacks' : `/dashboard/feedbacks/${f._id}`}
+                                                                        className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 shadow-sm"
+                                                                    >
+                                                                        Give Feedback
+                                                                    </Link>
+                                                                )}
                                                             </li>
                                                         ))}
                                                     </ul>

@@ -4,6 +4,7 @@ import { getQuizReports, getMyQuiz } from '../lib/api'; // getMyQuiz might need 
 // Actually admin needs specific quiz fetch or just rely on reports including quiz info?
 // Let's use getQuizReports and maybe fetch quiz details if needed.
 import { Icons } from '../components/icons';
+import { formatDate, formatDateTime } from '../lib/dateUtils';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 
@@ -38,7 +39,7 @@ export default function AdminQuizReports() {
                 r.user?.email || "",
                 r.score ? Math.round(r.score) : 0,
                 r.status || (r.passed ? 'Passed' : 'Failed'),
-                new Date(r.attemptedAt).toLocaleDateString()
+                formatDateTime(r.attemptedAt)
             ].map(e => `"${e}"`).join(","))
         ].join("\n");
 
@@ -107,7 +108,7 @@ export default function AdminQuizReports() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">
-                                        {new Date(attempt.attemptedAt).toLocaleDateString()}
+                                        {formatDateTime(attempt.attemptedAt)}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <Link to={`/admin/quizzes/attempt/${attempt._id}`}>

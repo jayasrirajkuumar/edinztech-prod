@@ -137,7 +137,7 @@ export const router = createBrowserRouter([
             { path: '/admin/certificates', element: <AdminTemplateCertificate /> },
             { path: '/admin/offer-letters', element: <AdminTemplateOfferLetter /> },
             { path: '/admin/invite', element: <AdminInvitePage /> },
-            { path: '/admin/invite', element: <AdminInvitePage /> },
+
             { path: '/admin/enrollments', element: <AdminEnrollments /> },
             { path: '/admin/outsider-quizzes', element: <AdminOutsiderQuizzes /> },
             { path: '/admin/outsider-quizzes/new', element: <AdminOutsiderQuizForm /> },

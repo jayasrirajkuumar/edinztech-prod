@@ -199,7 +199,50 @@ const getEnrollments = async (req, res) => {
             );
         }
 
-        // Format for frontend
+        // Format for frontend (and Auto-Fix Feedback Status)
+        // Optimization: Fetch all feedbacks for these enrollments in one go to avoid N+1 queries
+        // We only need to check for enrollments that are NOT marked as submitted yet
+        const pendingEnrollments = results.filter(e => !e.isFeedbackSubmitted);
+
+        let feedbackMap = new Set();
+        let defaultFeedbackMap = new Set(); // userId-programId string
+
+        if (pendingEnrollments.length > 0) {
+            const FeedbackResponse = require('../models/FeedbackResponse');
+            const DefaultFeedbackResponse = require('../models/DefaultFeedbackResponse');
+
+            const enrollmentIds = pendingEnrollments.map(e => e._id);
+            const userIds = pendingEnrollments.map(e => e.user?._id).filter(Boolean);
+            const programIds = pendingEnrollments.map(e => e.program?._id).filter(Boolean);
+
+            const [templateFeedbacks, defaultFeedbacks] = await Promise.all([
+                FeedbackResponse.find({ enrollmentId: { $in: enrollmentIds } }).select('enrollmentId'),
+                DefaultFeedbackResponse.find({ userId: { $in: userIds }, programId: { $in: programIds } }).select('userId programId')
+            ]);
+
+            templateFeedbacks.forEach(f => feedbackMap.add(f.enrollmentId.toString()));
+            defaultFeedbacks.forEach(f => defaultFeedbackMap.add(`${f.userId}-${f.programId}`));
+
+            // Apply fixes
+            const fixUpdates = [];
+            for (const enrollment of results) {
+                if (!enrollment.isFeedbackSubmitted) {
+                    const hasTemplate = feedbackMap.has(enrollment._id.toString());
+                    const hasDefault = enrollment.user && enrollment.program && defaultFeedbackMap.has(`${enrollment.user._id}-${enrollment.program._id}`);
+
+                    if (hasTemplate || hasDefault) {
+                        enrollment.isFeedbackSubmitted = true;
+                        fixUpdates.push(enrollment.save());
+                    }
+                }
+            }
+
+            if (fixUpdates.length > 0) {
+                await Promise.all(fixUpdates);
+                console.log(`[Admin] Auto-healed feedback status for ${fixUpdates.length} enrollments.`);
+            }
+        }
+
         const formatted = results.map(e => ({
             _id: e._id, // Enrollment ID
             userId: e.user?._id, // Student User ID for actions
@@ -221,6 +264,7 @@ const getEnrollments = async (req, res) => {
             amount: e.paymentId?.amount ? `₹${e.paymentId.amount}` : (e.program?.fee ? `₹${e.program.fee}` : 'Free'),
             status: e.paymentId?.status || 'Active', // Fallback
             certificateStatus: e.certificateStatus || 'NOT_PUBLISHED',
+            isFeedbackSubmitted: e.isFeedbackSubmitted || false,
             certificateId: e.certificateId || '-',
             enrolledAt: e.enrolledAt
         }));

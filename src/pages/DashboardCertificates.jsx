@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
 import api from '../lib/api';
+import { formatDate } from '../lib/dateUtils';
 
 export default function DashboardCertificates() {
     const [certificates, setCertificates] = useState([]);
@@ -52,7 +53,7 @@ export default function DashboardCertificates() {
                             </div>
                             <div className="p-4">
                                 <h3 className="font-bold text-lg text-secondary line-clamp-1">{cert.program?.title || 'Certificate'}</h3>
-                                <p className="text-sm text-gray-500 mt-1">Issued on {new Date(cert.issueDate).toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-500 mt-1">Issued on {formatDate(cert.issueDate)}</p>
                                 <p className="text-xs text-gray-400 font-mono mt-1">{cert.certificateId}</p>
                                 <div className="mt-4 flex gap-2">
                                     <Button

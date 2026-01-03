@@ -192,12 +192,19 @@ const attemptQuiz = asyncHandler(async (req, res) => {
         // Simple Logic: Match index or ID
         const question = quiz.questions.find(q => q._id.toString() === ans.questionId);
         if (question) {
-            // Check correctness (Assuming correctOption is index 0-3)
-            // Need to verify if 'selectedOption' is the index or the text value.
-            // Let's assume Index for simplicity.
-            if (parseInt(ans.selectedOption) === question.correctOption) {
-                score++;
+            if (question.type === 'mcq') {
+                // Check correctness (Assuming correctOption is index 0-3)
+                if (parseInt(ans.selectedOption) === question.correctOption) {
+                    score++;
+                }
+            } else if (question.type === 'file_upload') {
+                // File uploads invoke manual grading or specific logic
+                // For now, they don't contribute to auto-score or could trigger a "Needs Review" status
+                // If we want to support manual grading later, we'd store the answer and leave score/result tentative.
+                // CURRENT LOGIC: Auto-grading skips this (score 0 for this question). 
+                // Admin must manually verify.
             }
+            // Text type is also skipped for auto-grading usually
         }
     });
 
@@ -239,6 +246,15 @@ const uploadQuizImage = asyncHandler(async (req, res) => {
     // Assuming 'uploads' is served statically as /uploads
     const imagePath = `/uploads/${req.file.filename}`;
     res.json({ url: imagePath });
+});
+
+const uploadQuizFile = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        res.status(400);
+        throw new Error('No file uploaded');
+    }
+    const filePath = `/uploads/${req.file.filename}`;
+    res.json({ url: filePath, filename: req.file.originalname });
 });
 
 // @desc    Get Quiz Reports (Admin)
@@ -299,5 +315,6 @@ module.exports = {
     uploadQuizImage,
     getQuizReports,
     getQuizAttempt,
-    getQuizById
+    getQuizById,
+    uploadQuizFile
 };

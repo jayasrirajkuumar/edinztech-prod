@@ -3,6 +3,7 @@ import { Icons } from '../icons';
 import Button from '../ui/Button';
 import { getQuizzesByProgram, deleteQuiz, publishQuiz, unpublishQuiz } from '../../lib/api';
 import QuizForm from '../forms/QuizForm';
+import { formatDate, formatDateTime } from '../../lib/dateUtils';
 
 export default function QuizList({ programId }) {
     const [quizzes, setQuizzes] = useState([]);
@@ -113,7 +114,7 @@ export default function QuizList({ programId }) {
                                     {quiz.startTime && (
                                         <span className="flex items-center gap-1">
                                             <Icons.Date size={12} />
-                                            {new Date(quiz.startTime).toLocaleDateString()}
+                                            {formatDateTime(quiz.startTime)}
                                         </span>
                                     )}
                                 </div>

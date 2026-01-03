@@ -3,6 +3,7 @@ import { Icons } from './icons';
 import Button from './ui/Button';
 import Card from './ui/Card';
 import { getProgramStatus, getRegistrationStatus, getDurationString } from '../lib/programUtils';
+import { formatDate } from '../lib/dateUtils';
 
 export default function ProgramCard({ program, showStatus = false }) {
     // Backend API uses _id, type (instead of category)
@@ -32,7 +33,7 @@ export default function ProgramCard({ program, showStatus = false }) {
         } else if (regStatus === 'Closed') {
             badge = <span className="bg-red-50 text-red-600 text-xs font-bold px-2 py-1 rounded">reg. closed</span>;
         } else if (regStatus === 'Extended' || isExtended) {
-            const extDate = new Date(program.registrationDeadline).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+            const extDate = formatDate(program.registrationDeadline, { day: 'numeric', month: 'short' });
             badge = <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-1 rounded border border-purple-200">Extended till {extDate}</span>;
         } else if (regStatus === 'Closing Soon') {
             badge = <span className="bg-orange-50 text-orange-600 text-xs font-bold px-2 py-1 rounded">Closing Soon</span>;
@@ -81,7 +82,7 @@ export default function ProgramCard({ program, showStatus = false }) {
                 {program.startDate && (
                     <div className="flex items-center gap-3 text-sm text-text-light">
                         <Icons.Date size={16} className="text-primary" />
-                        <span>Starts {new Date(program.startDate).toLocaleDateString()}</span>
+                        <span>Starts {formatDate(program.startDate)}</span>
                     </div>
                 )}
             </div>

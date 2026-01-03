@@ -113,6 +113,30 @@ export default function AdminQuizAttemptDetail() {
                                             )
                                         })}
                                     </div>
+                                ) : q.type === 'file_upload' ? (
+                                    <div className="space-y-4">
+                                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            <div className="text-xs font-semibold text-gray-400 uppercase mb-1">Student Upload</div>
+                                            {studentAnswer?.textAnswer ? (
+                                                <div className="flex items-center gap-3">
+                                                    <Icons.File className="text-blue-500 w-8 h-8" />
+                                                    <div className="flex-1 overflow-hidden">
+                                                        <a
+                                                            href={`http://localhost:5000${studentAnswer.textAnswer}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="text-blue-600 hover:underline font-medium break-all block"
+                                                        >
+                                                            {studentAnswer.textAnswer.split('/').pop()}
+                                                        </a>
+                                                        <p className="text-xs text-gray-400 mt-1">Click to view/download file</p>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <span className="italic text-gray-400">No file uploaded</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 ) : (
                                     <div className="space-y-4">
                                         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">

@@ -51,7 +51,7 @@ const enrollmentSchema = mongoose.Schema({
     // MANDATORY CERTIFICATE LOGIC
     certificateStatus: {
         type: String,
-        enum: ["NOT_PUBLISHED", "PUBLISHED"],
+        enum: ["NOT_PUBLISHED", "PUBLISHED", "PENDING_FEEDBACK"],
         default: "NOT_PUBLISHED"
     },
     certificateId: {
@@ -62,6 +62,10 @@ const enrollmentSchema = mongoose.Schema({
     certificateIssuedAt: {
         type: Date,
         default: null
+    },
+    isFeedbackSubmitted: {
+        type: Boolean,
+        default: false
     },
     offerLetterStatus: {
         type: String,

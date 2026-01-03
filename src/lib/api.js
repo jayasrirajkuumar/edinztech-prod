@@ -148,6 +148,17 @@ export const uploadQuizImage = async (file) => {
     return data;
 };
 
+export const uploadQuizFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await api.post('/quiz/upload-file', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return data;
+};
+
 export const getQuizReports = async (id) => {
     const { data } = await api.get(`/quiz/${id}/reports`);
     return data;
@@ -347,6 +358,11 @@ export const publishOfferLetters = async (programId, force = false) => {
 
 export const regenerateCertificate = async (enrollmentId) => {
     const { data } = await api.post(`/certificates/regenerate/${enrollmentId}`);
+    return data;
+};
+
+export const publishSingleCertificate = async (enrollmentId, force = false) => {
+    const { data } = await api.post(`/certificates/publish/${enrollmentId}?force=${force}`);
     return data;
 };
 

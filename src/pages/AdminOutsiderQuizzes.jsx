@@ -4,6 +4,7 @@ import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import AdminTable from '../components/AdminTable';
 import { getOutsiderQuizzes, updateOutsiderQuiz, duplicateOutsiderQuiz } from '../lib/api';
+import { formatDate } from '../lib/dateUtils';
 
 export default function AdminOutsiderQuizzes() {
     const [quizzes, setQuizzes] = useState([]);
@@ -88,7 +89,7 @@ export default function AdminOutsiderQuizzes() {
                                 {quiz.certificateTemplate ? 'Has Template' : 'Default'}
                             </td>
                             <td className="px-6 py-4 text-gray-500">
-                                {new Date(quiz.createdAt).toLocaleDateString()}
+                                {formatDate(quiz.createdAt)}
                             </td>
                             <td className="px-6 py-4">
                                 <div className="flex gap-2">
