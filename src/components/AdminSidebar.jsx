@@ -62,6 +62,7 @@ export default function AdminSidebar({ isOpen, onClose }) {
 
                     <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-2">System</div>
                     <SidebarItem to="/admin/notifications" icon={Icons.Info}>Notifications</SidebarItem>
+                    <SidebarItem to="/admin/system/buffer" icon={Icons.Settings}>System Buffer</SidebarItem>
                 </nav>
 
 

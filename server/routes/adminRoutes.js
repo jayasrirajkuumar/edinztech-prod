@@ -7,7 +7,9 @@ const {
     getEnrollments,
     exportEnrollments,
     getDashboardStats,
-    updateStudent
+    updateStudent,
+    listTempFiles,
+    deleteTempFiles
 } = require('../controllers/adminController');
 const { publishCertificates, publishOfferLetters } = require('../controllers/certificateController');
 const { getTemplates, registerTemplate } = require('../controllers/whatsappController'); // WhatsApp Config
@@ -26,5 +28,9 @@ router.get('/dashboard', protect, admin, getDashboardStats);
 router.put('/students/:id', protect, admin, updateStudent);
 router.post('/programs/:id/publish-certificates', protect, admin, publishCertificates); // New Route
 router.post('/programs/:id/publish-offer-letters', protect, admin, publishOfferLetters);
+
+// Temp Files Cleanup
+router.get('/temp-files', protect, admin, listTempFiles);
+router.post('/temp-files/delete', protect, admin, deleteTempFiles);
 
 module.exports = router;

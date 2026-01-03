@@ -645,6 +645,99 @@ const updateStudent = async (req, res) => {
     }
 };
 
+const fs = require('fs');
+const path = require('path');
+
+// @desc    List all temporary files in certificate-service/temp
+// @route   GET /api/admin/temp-files
+// @access  Private/Admin
+const listTempFiles = async (req, res) => {
+    try {
+        // Path to certificate-service/temp. Assumes sibling directory structure.
+        const tempDir = path.join(__dirname, '../../certificate-service/temp');
+
+        if (!fs.existsSync(tempDir)) {
+            // Create it if it doesn't exist so we don't crash, but it should exist
+            fs.mkdirSync(tempDir, { recursive: true });
+        }
+
+        const files = fs.readdirSync(tempDir);
+        const fileStats = [];
+
+        for (const file of files) {
+            // Only list PDFs to be safe, or all files? User asked for "all temporary files".
+            // Ideally we filter for .pdf, .png (qr codes).
+            if (file === '.gitignore') continue;
+
+            const filePath = path.join(tempDir, file);
+            try {
+                const stats = fs.statSync(filePath);
+                fileStats.push({
+                    name: file,
+                    size: (stats.size / 1024 / 1024).toFixed(2) + ' MB', // Convert to MB
+                    sizeBytes: stats.size,
+                    created: stats.birthtime
+                });
+            } catch (err) {
+                // Ignore stat errors for locked files etc.
+            }
+        }
+
+        // Sort by created date descending (newest first)
+        fileStats.sort((a, b) => b.created - a.created);
+
+        res.json({
+            count: fileStats.length,
+            totalSize: (fileStats.reduce((acc, curr) => acc + curr.sizeBytes, 0) / 1024 / 1024).toFixed(2) + ' MB',
+            files: fileStats
+        });
+
+    } catch (error) {
+        console.error("List Temp Files Error:", error);
+        res.status(500).json({ message: 'Failed to list temporary files' });
+    }
+};
+
+const deleteTempFiles = async (req, res) => {
+    try {
+        const { files } = req.body; // Array of filenames
+
+        if (!files || !Array.isArray(files)) {
+            return res.status(400).json({ message: 'Invalid file list' });
+        }
+
+        const tempDir = path.join(__dirname, '../../certificate-service/temp');
+        let deletedCount = 0;
+        let failedCount = 0;
+
+        for (const fileName of files) {
+            // Security: Prevent directory traversal
+            const safeName = path.basename(fileName);
+            if (safeName !== fileName) continue; // Skip suspicious paths
+
+            const filePath = path.join(tempDir, safeName);
+            if (fs.existsSync(filePath)) {
+                try {
+                    fs.unlinkSync(filePath);
+                    deletedCount++;
+                } catch (err) {
+                    console.error(`Failed to delete ${fileName}:`, err);
+                    failedCount++;
+                }
+            }
+        }
+
+        res.json({
+            message: `Deleted ${deletedCount} files. ${failedCount > 0 ? failedCount + ' failed.' : ''}`,
+            deletedCount
+        });
+
+    } catch (error) {
+        console.error("Delete Temp Files Error:", error);
+        res.status(500).json({ message: 'Failed to delete files' });
+    }
+};
+
 module.exports = {
     inviteStudent,
     getEnrollments,
@@ -652,5 +745,7 @@ module.exports = {
     resendCredentials,
     exportEnrollments,
     getDashboardStats,
-    updateStudent
+    updateStudent,
+    listTempFiles,
+    deleteTempFiles
 };

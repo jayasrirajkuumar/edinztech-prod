@@ -439,4 +439,15 @@ export const duplicateOutsiderQuiz = async (id) => {
     return data;
 };
 
+// Admin System APIs
+export const listTempFiles = async () => {
+    const { data } = await api.get('/admin/temp-files');
+    return data;
+};
+
+export const deleteTempFiles = async (files) => {
+    const { data } = await api.post('/admin/temp-files/delete', { files });
+    return data;
+};
+
 export default api;

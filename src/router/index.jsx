@@ -65,6 +65,7 @@ import AdminOutsiderQuizzes from '../pages/AdminOutsiderQuizzes';
 import AdminOutsiderQuizForm from '../pages/AdminOutsiderQuizForm';
 import AdminOutsiderQuizResults from '../pages/AdminOutsiderQuizResults';
 import PublicOutsiderQuiz from '../pages/PublicOutsiderQuiz';
+import AdminTempFiles from '../pages/AdminTempFiles'; // New Page
 
 export const router = createBrowserRouter([
     {
@@ -143,6 +144,10 @@ export const router = createBrowserRouter([
             { path: '/admin/outsider-quizzes/new', element: <AdminOutsiderQuizForm /> },
             { path: '/admin/outsider-quizzes/:id/edit', element: <AdminOutsiderQuizForm /> },
             { path: '/admin/outsider-quizzes/:id/results', element: <AdminOutsiderQuizResults /> },
+            { path: '/admin/outsider-quizzes/:id/results', element: <AdminOutsiderQuizResults /> },
+
+            // System
+            { path: '/admin/system/buffer', element: <AdminTempFiles /> },
         ],
     },
 ]);

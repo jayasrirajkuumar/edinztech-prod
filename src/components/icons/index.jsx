@@ -53,11 +53,14 @@ import {
     Globe, // Added
     Power, // Added
     Copy, // Added
+    Database, // Added
 } from 'lucide-react';
 
 export const Icons = {
     // Navigation & General
+    Database: (props) => <Database className="text-secondary" {...props} />, // Added
     Sync: (props) => <RefreshCcw className="text-primary" {...props} />, // Added for Sync
+    Refresh: (props) => <RefreshCcw className="text-secondary" {...props} />, // Added alias
     ArrowRight: (props) => <ArrowRight className="text-secondary" {...props} />, // Added
     History: (props) => <History className="text-secondary" {...props} />, // Added
     Rocket: (props) => <Rocket className="text-primary" {...props} />,
