@@ -69,7 +69,6 @@ export default function PublicOutsiderQuiz() {
                     name: userDetails.name,
                     email: userDetails.email,
                     phone: userDetails.phone,
-                    phone: userDetails.phone,
                     college: userDetails.college,
                     education: userDetails.education
                 },
