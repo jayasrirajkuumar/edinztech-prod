@@ -32,11 +32,22 @@ const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
             setIsImage(isImg);
             return () => URL.revokeObjectURL(objectUrl);
         } else if (initialUrl && typeof initialUrl === 'string' && !isDismissed) {
-            // Existing file from server (unless dismissed)
+            // Existing file from server
             let url = initialUrl.replace(/\\/g, '/');
-            if (!url.startsWith('/')) {
-                url = '/' + url;
+
+            // Handle relative 'uploads/' path by prepending backend URL
+            // This bypasses potential Vite proxy issues
+            if (!url.startsWith('http')) {
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                const SERVER_URL = API_URL.replace('/api', ''); // Get root 'http://localhost:5000'
+
+                if (url.startsWith('/')) {
+                    url = `${SERVER_URL}${url}`;
+                } else {
+                    url = `${SERVER_URL}/${url}`;
+                }
             }
+
             setPreview(url);
             const lowerUrl = url.toLowerCase();
             setIsImage(lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg') || lowerUrl.endsWith('.png') || lowerUrl.endsWith('.webp'));
@@ -68,9 +79,13 @@ const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
                 <div className="relative inline-block group">
                     {isImage ? (
                         <img
-                            src={preview}
+                            src={`${preview}${preview.startsWith('blob:') ? '' : `?v=${Date.now()}`}`}
                             alt={`${label} Preview`}
                             className="h-48 object-contain rounded-md border border-gray-300 bg-white"
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                setIsImage(false); // Fallback to file icon if image fails
+                            }}
                         />
                     ) : (
                         <div className="h-48 w-48 flex flex-col items-center justify-center bg-white border border-gray-300 rounded-md">
@@ -89,8 +104,8 @@ const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
                         <Icons.Close size={16} />
                     </button>
                 </div>
-                <p className="text-xs text-gray-400 mt-2">
-                    {file ? file.name : 'Current Template'}
+                <p className="text-xs text-gray-400 mt-2 truncate w-full px-2">
+                    {file ? file.name : (initialUrl ? initialUrl.split(/[/\\]/).pop() : 'Current Template')}
                 </p>
                 {/* Add a specific "Change/Delete" hint if needed, but the X button works */}
             </div>
@@ -383,6 +398,8 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                             }
                         } catch (err) {
                             console.error("Failed to upload certificate", err);
+                            alert("Certificate Upload Failed: " + (err.response?.data?.message || err.message));
+                            return; // Stop submission
                         }
                     }
                 }

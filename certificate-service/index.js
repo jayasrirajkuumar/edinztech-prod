@@ -80,12 +80,14 @@ async function processCertificate({ studentData, courseData, certificateId, call
             }
 
             const absPath = path.resolve(__dirname, relativePath);
+            console.log(`[Template Path Debug] Input: ${templateUrl}, Resolved: ${absPath}`);
 
             if (fs.existsSync(absPath)) {
                 templatePath = absPath;
                 isDocx = templatePath.toLowerCase().endsWith('.docx') || templatePath.toLowerCase().endsWith('.doc');
             } else {
-                console.warn(`[Warning] Provided template not found at ${absPath} (URL: ${templateUrl})`);
+                console.error(`[Error] Template File Missing at: ${absPath}`);
+                throw new Error(`Template file not found on server at: ${absPath}`);
             }
         }
 

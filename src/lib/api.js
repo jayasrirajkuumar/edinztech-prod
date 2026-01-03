@@ -69,7 +69,9 @@ export const uploadProgramTemplate = async (id, file) => {
     formData.append('template', file);
 
     // Explicitly let browser set Content-Type for multipart
-    const { data } = await api.post(`/programs/${id}/upload-template`, formData);
+    const { data } = await api.post(`/programs/${id}/upload-template`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return data;
 };
 
@@ -144,7 +146,9 @@ export const getStudentQuizzes = async () => {
 export const uploadQuizImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const { data } = await api.post('/quiz/upload', formData);
+    const { data } = await api.post('/quiz/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return data;
 };
 
