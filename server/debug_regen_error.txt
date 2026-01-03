@@ -43,3 +43,23 @@
 [2026-01-02T06:25:52.753Z] QR Generated.
 [2026-01-02T06:25:52.754Z] Calling Service at: http://localhost:5002/api/generate
 [2026-01-02T06:26:02.111Z] Service Call Success.
+[2026-01-03T05:45:02.135Z] Starting regeneration for Enrollment: 69589da018e296d1b9a41d66
+[2026-01-03T05:45:02.137Z] Certificate ID: CERT-EDZ-2026-COU-285-2026-196101
+[2026-01-03T05:45:02.187Z] QR Generated.
+[2026-01-03T05:45:02.190Z] Calling Service at: http://localhost:5002/api/generate
+[2026-01-03T05:45:10.657Z] Service Call Success.
+[2026-01-03T05:46:01.654Z] Starting regeneration for Enrollment: 69589da018e296d1b9a41d66
+[2026-01-03T05:46:01.657Z] Certificate ID: CERT-EDZ-2026-COU-285-2026-196101
+[2026-01-03T05:46:01.696Z] QR Generated.
+[2026-01-03T05:46:01.699Z] Calling Service at: http://localhost:5002/api/generate
+[2026-01-03T05:46:08.992Z] Service Call Success.
+[2026-01-03T05:48:45.742Z] Starting regeneration for Enrollment: 69589da018e296d1b9a41d66
+[2026-01-03T05:48:45.744Z] Certificate ID: CERT-EDZ-2026-COU-285-2026-196101
+[2026-01-03T05:48:45.786Z] QR Generated.
+[2026-01-03T05:48:45.788Z] Calling Service at: http://localhost:5002/api/generate
+[2026-01-03T05:48:52.847Z] Service Call Success.
+[2026-01-03T05:50:45.347Z] Starting regeneration for Enrollment: 69589da018e296d1b9a41d66
+[2026-01-03T05:50:45.349Z] Certificate ID: CERT-EDZ-2026-COU-285-2026-196101
+[2026-01-03T05:50:45.385Z] QR Generated.
+[2026-01-03T05:50:45.387Z] Calling Service at: http://localhost:5002/api/generate
+[2026-01-03T05:50:54.672Z] Service Call Success.

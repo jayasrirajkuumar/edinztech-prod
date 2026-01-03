@@ -440,15 +440,15 @@ async function processCertificate({ studentData, courseData, certificateId, call
                     top: '35%',     // Moved UP to avoid line overlap (was 38%)
                     left: '10%',
                     width: '80%',
-                    fontSize: '40px', // slightly smaller might help too if name is long, but pos is key
+                    fontSize: '35px', // Standardized Equal Size
                     fontFamily: "'Times New Roman', serif"
                 };
 
                 const LINE2_POSITION = {
-                    top: '48%',     // Moved UP from 56% to clear the static text below
+                    top: '45%',     // Adjusted DOWN from 42% (too high) to align with line (was 48% originally)
                     left: '15%',
                     width: '70%',
-                    fontSize: '20px', // Slightly smaller
+                    fontSize: '35px', // Standardized Equal Size
                     fontFamily: "'Helvetica', sans-serif"
                 };
 
