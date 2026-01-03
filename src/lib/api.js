@@ -175,6 +175,11 @@ export const getQuiz = async (id) => {
 };
 
 // Dashboard & Enrollment APIs
+export const checkUser = async (email) => {
+    const { data } = await api.post('/auth/check-user', { email });
+    return data;
+};
+
 export const getMyEnrollments = async () => {
     const { data } = await api.get('/me/enrollments');
     return data;

@@ -107,7 +107,7 @@ const programSchema = mongoose.Schema({
     welcomeEmailContent: { type: String, default: '' },
 
     isArchived: { type: Boolean, default: false },
-    isFeedbackEnabled: { type: Boolean, default: false } // Default Feedback Form Toggle
+    enableFeedback: { type: Boolean, default: false } // Default Feedback Form Toggle
 }, {
     timestamps: true
 });

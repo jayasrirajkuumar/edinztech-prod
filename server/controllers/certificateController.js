@@ -150,7 +150,7 @@ const publishCertificates = asyncHandler(async (req, res) => {
 
         // FEEDBACK GATE
         // If feedback is required AND not submitted AND not forced
-        if (program.isFeedbackEnabled && !enrollment.isFeedbackSubmitted && !force) {
+        if (program.enableFeedback && !enrollment.isFeedbackSubmitted && !force) {
             enrollment.certificateStatus = 'PENDING_FEEDBACK';
             await enrollment.save();
             pendingFeedback.push({
@@ -667,7 +667,7 @@ const publishSingleCertificate = asyncHandler(async (req, res) => {
 
     // Check Gating
     // If feedback enabled AND feedback not submitted AND not forced
-    if (program.isFeedbackEnabled && !enrollment.isFeedbackSubmitted && !force) {
+    if (program.enableFeedback && !enrollment.isFeedbackSubmitted && !force) {
         res.status(400);
         throw new Error('Feedback is pending for this student. Cannot publish certificate.');
     }

@@ -1,10 +1,38 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import api, { createPaymentOrder } from '../../lib/api';
+import api, { createPaymentOrder, checkUser } from '../../lib/api';
 
 const GuestEnrollmentForm = ({ program, onClose }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [processing, setProcessing] = useState(false);
+    const [userFound, setUserFound] = useState(false);
+
+    const handleEmailBlur = async (email) => {
+        if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) return;
+
+        try {
+            const data = await checkUser(email);
+            if (data.exists && data.user) {
+                // Auto-fill and Disable
+                setUserFound(true);
+                setValue('name', data.user.name);
+                setValue('phone', data.user.phone);
+                setValue('institutionName', data.user.institutionName);
+                setValue('registerNumber', data.user.registerNumber);
+                setValue('year', data.user.year);
+                setValue('department', data.user.department);
+                setValue('city', data.user.city);
+                setValue('state', data.user.state);
+                setValue('pincode', data.user.pincode);
+            } else {
+                setUserFound(false);
+                // Optional: Clear fields if mistakenly entered existing email then changed to new? 
+                // Better to leave as is so user doesn't lose typed data.
+            }
+        } catch (error) {
+            console.error("Failed to check user", error);
+        }
+    };
 
     const onSubmit = async (data) => {
         setProcessing(true);
@@ -91,8 +119,9 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
                         <label className="block text-sm font-medium text-gray-700">Full Name</label>
                         <input
                             {...register("name", { required: "Name is required" })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             placeholder="John Doe"
+                            readOnly={userFound}
                         />
                         {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                     </div>
@@ -105,20 +134,29 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
                                 pattern: {
                                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                                     message: "Invalid email address"
-                                }
+                                },
+                                onBlur: (e) => handleEmailBlur(e.target.value)
                             })}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
                             placeholder="john@example.com"
                         />
                         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+                        {userFound && (
+                            <div className="mt-2 p-2 bg-blue-50 text-blue-700 text-xs rounded border border-blue-100">
+                                <strong>User Found!</strong> Basic details have been auto-filled.
+                                <br />
+                                To update your profile, please login to your <a href="/dashboard" className="underline font-bold">Student Dashboard</a> and click "Edit Profile".
+                            </div>
+                        )}
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                         <input
                             {...register("phone", { required: "Phone is required" })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                            className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                             placeholder="9876543210"
+                            readOnly={userFound}
                         />
                         {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
                     </div>
@@ -128,44 +166,44 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Institution Name</label>
                             <input
-                                {...register("institutionName", { required: "Institution Name is required" })}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                {...register("institutionName")} // Optional
+                                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                 placeholder="University"
+                                readOnly={userFound}
                             />
-                            {errors.institutionName && <p className="text-red-500 text-xs mt-1">{errors.institutionName.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Register No</label>
                             <input
-                                {...register("registerNumber", { required: "Register Number is required" })}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
+                                {...register("registerNumber")} // Optional
+                                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                 placeholder="Roll No"
+                                readOnly={userFound}
                             />
-                            {errors.registerNumber && <p className="text-red-500 text-xs mt-1">{errors.registerNumber.message}</p>}
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Department</label>
-                            <input {...register("department")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" placeholder="Dept" />
+                            <input {...register("department")} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`} placeholder="Dept" readOnly={userFound} />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Year</label>
-                            <input {...register("year")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" placeholder="Year" />
+                            <input {...register("year")} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`} placeholder="Year" readOnly={userFound} />
                         </div>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                         <div className="col-span-1">
                             <label className="block text-sm font-medium text-gray-700">City</label>
-                            <input {...register("city")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                            <input {...register("city")} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`} readOnly={userFound} />
                         </div>
                         <div className="col-span-1">
                             <label className="block text-sm font-medium text-gray-700">State</label>
-                            <input {...register("state")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                            <input {...register("state")} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`} readOnly={userFound} />
                         </div>
                         <div className="col-span-1">
                             <label className="block text-sm font-medium text-gray-700">Pincode</label>
-                            <input {...register("pincode")} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                            <input {...register("pincode")} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border ${userFound ? 'bg-gray-100 cursor-not-allowed' : ''}`} readOnly={userFound} />
                         </div>
                     </div>
 

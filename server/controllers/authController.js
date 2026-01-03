@@ -159,4 +159,32 @@ const forgotPassword = asyncHandler(async (req, res) => {
     }
 });
 
-module.exports = { authUser, authAdmin, getUserProfile, forgotPassword };
+// @desc    Check if user exists (for enrollment auto-fill)
+// @route   POST /api/auth/check-user
+// @access  Public
+const checkUserExistence = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email }).select('-password -encryptedPassword'); // Exclude sensitive
+
+    if (user) {
+        res.json({
+            exists: true,
+            user: {
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                institutionName: user.institutionName,
+                registerNumber: user.registerNumber,
+                year: user.year,
+                department: user.department,
+                city: user.city,
+                state: user.state,
+                pincode: user.pincode
+            }
+        });
+    } else {
+        res.json({ exists: false });
+    }
+});
+
+module.exports = { authUser, authAdmin, getUserProfile, forgotPassword, checkUserExistence };

@@ -185,11 +185,14 @@ export default function AdminPrograms() {
     };
 
     const handleToggleFeedback = async (program) => {
+        const action = program.enableFeedback ? "DISABLE" : "ENABLE";
+        if (!window.confirm(`Do you want to ${action} feedback submission for "${program.title}"?`)) return;
+
         try {
             await toggleProgramFeedback(program._id || program.id);
             setPrograms(programs.map(p => {
                 if ((p._id || p.id) === (program._id || program.id)) {
-                    return { ...p, isFeedbackEnabled: !p.isFeedbackEnabled };
+                    return { ...p, enableFeedback: !p.enableFeedback };
                 }
                 return p;
             }));
@@ -453,13 +456,13 @@ export default function AdminPrograms() {
 
                                     <button
                                         onClick={() => handleToggleFeedback(program)}
-                                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-all duration-200 ${program.isFeedbackEnabled
+                                        className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-all duration-200 ${program.enableFeedback
                                             ? 'bg-purple-600 text-white border-purple-600'
                                             : 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50'
                                             }`}
                                         title="Toggle Feedback"
                                     >
-                                        {program.isFeedbackEnabled ? <Icons.MessageCircle size={14} /> : <Icons.MessageSquare size={14} />} Feedback
+                                        {program.enableFeedback ? <Icons.MessageCircle size={14} /> : <Icons.MessageSquare size={14} />} Feedback
                                     </button>
 
                                     {/* Offer/Acceptance Letter Action */}

@@ -197,17 +197,14 @@ const exportPrograms = asyncHandler(async (req, res) => {
 // @route   PATCH /api/admin/programs/:id/toggle-feedback
 // @access  Private/Admin
 const toggleFeedbackStatus = asyncHandler(async (req, res) => {
-    console.log(`[DEBUG] Toggle Feedback hit for ID: ${req.params.id}`);
     const program = await Program.findById(req.params.id);
 
     if (program) {
-        console.log(`[DEBUG] Current Status: ${program.isFeedbackEnabled}`);
-        program.isFeedbackEnabled = !program.isFeedbackEnabled;
+        // Toggle status
+        program.enableFeedback = !program.enableFeedback;
         const updatedProgram = await program.save();
-        console.log(`[DEBUG] New Status: ${updatedProgram.isFeedbackEnabled}`);
         res.json(updatedProgram);
     } else {
-        console.log(`[DEBUG] Program not found`);
         res.status(404);
         throw new Error('Program not found');
     }

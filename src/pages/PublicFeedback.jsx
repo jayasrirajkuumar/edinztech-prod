@@ -46,6 +46,9 @@ const PublicFeedback = () => {
                     <div className="text-green-500 text-5xl mb-4">✓</div>
                     <h2 className="text-2xl font-bold mb-2">Thank You!</h2>
                     <p className="text-gray-600 mb-6">Your feedback has been submitted successfully.</p>
+                    <p className="text-sm text-green-600 font-medium mb-6 bg-green-50 p-3 rounded border border-green-100">
+                        Your certificate will be automatically generated and sent to you shortly.
+                    </p>
                     <button
                         onClick={() => window.location.reload()}
                         className="text-blue-600 hover:underline"

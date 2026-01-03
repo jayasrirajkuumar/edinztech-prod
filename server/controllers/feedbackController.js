@@ -268,12 +268,17 @@ const submitFeedback = asyncHandler(async (req, res) => {
     enrollment.isFeedbackSubmitted = true;
     await enrollment.save();
 
-    if (enrollment.certificateStatus === 'PENDING_FEEDBACK') {
+    // Auto-Generate if Pending Feedback OR if Feedback Enabled (and not yet published)
+    console.log(`[DEBUG] Auth Check Auto-Gen: Status=${enrollment.certificateStatus}, Enabled=${program.enableFeedback}`);
+    // Fix: explicitly check against 'PUBLISHED' to allow 'NOT_PUBLISHED' to pass
+    if (enrollment.certificateStatus === 'PENDING_FEEDBACK' || (program.enableFeedback && enrollment.certificateStatus !== 'PUBLISHED')) {
         try {
+            console.log(`[DEBUG] Triggering Auto-Gen for ${req.user.email} (FORCE)`);
             const Program = require('../models/Program');
-            const program = await Program.findById(feedback.programId);
+            const program = await Program.findById(feedback.programId); // Re-fetch to be safe or use existing if avail
             const { generateCertificateForEnrollment } = require('./certificateController');
-            await generateCertificateForEnrollment(enrollment, program, req.user);
+            await generateCertificateForEnrollment(enrollment, program, req.user, true);
+            console.log(`[DEBUG] Auto-Gen Success`);
         } catch (error) {
             console.error('Auto-certificate generation failed:', error);
         }
@@ -379,6 +384,19 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
         throw new Error('No account found with this email. Please enroll first.');
     }
 
+    // 2. Verify Program & Feedback Status
+    const Program = require('../models/Program');
+    const program = await Program.findById(programId);
+    if (!program) {
+        res.status(404);
+        throw new Error('Program not found');
+    }
+
+    if (!program.enableFeedback) {
+        res.status(403);
+        throw new Error('Feedback submission is currently disabled for this program.');
+    }
+
     // 2. Verify Enrollment
     const enrollment = await Enrollment.findOne({
         user: user._id,
@@ -419,12 +437,16 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
     enrollment.isFeedbackSubmitted = true;
     await enrollment.save();
 
-    if (enrollment.certificateStatus === 'PENDING_FEEDBACK') {
+    // Auto-Generate if Pending Feedback OR if Feedback Enabled (and not yet published)
+    console.log(`[DEBUG] Check Auto-Gen: Status=${enrollment.certificateStatus}, Enabled=${program.enableFeedback}`);
+    // Fix: explicitly check against 'PUBLISHED' to allow 'NOT_PUBLISHED' to pass
+    if (enrollment.certificateStatus === 'PENDING_FEEDBACK' || (program.enableFeedback && enrollment.certificateStatus !== 'PUBLISHED')) {
         try {
-            const Program = require('../models/Program');
-            const program = await Program.findById(programId);
+            console.log(`[DEBUG] Triggering Auto-Gen for ${user.email} (FORCE)`);
             const { generateCertificateForEnrollment } = require('./certificateController');
-            await generateCertificateForEnrollment(enrollment, program, user);
+            // Strict: Pass force=true to bypass internal checks and ensure generation
+            await generateCertificateForEnrollment(enrollment, program, user, true);
+            console.log(`[DEBUG] Auto-Gen Success`);
         } catch (error) {
             console.error('Auto-certificate generation failed:', error);
         }
@@ -444,7 +466,12 @@ const submitDefaultFeedback = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('Program not found');
     }
-    // Skipped isFeedbackEnabled check as per user request to simplify
+
+    // Strict Check: Feedback must be enabled
+    if (!program.enableFeedback) {
+        res.status(403);
+        throw new Error('Feedback submission is currently disabled for this program.');
+    }
 
     // Check enrollment
     const enrollment = await Enrollment.findOne({
@@ -479,7 +506,8 @@ const submitDefaultFeedback = asyncHandler(async (req, res) => {
     enrollment.isFeedbackSubmitted = true;
     await enrollment.save();
 
-    if (enrollment.certificateStatus === 'PENDING_FEEDBACK') {
+    // Auto-Generate if Pending Feedback OR if Feedback Enabled (and not yet published)
+    if (enrollment.certificateStatus === 'PENDING_FEEDBACK' || (program.enableFeedback && !enrollment.certificateStatus)) {
         try {
             const { generateCertificateForEnrollment } = require('./certificateController');
             await generateCertificateForEnrollment(enrollment, program, req.user);
