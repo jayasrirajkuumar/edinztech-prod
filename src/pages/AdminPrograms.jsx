@@ -119,9 +119,9 @@ export default function AdminPrograms() {
 
     const handlePublishCertificate = async (program) => {
         // 1. Check Gating Status
-        if (!program.isFeedbackEnabled) {
+        if (!program.enableFeedback) {
             const enableGating = window.confirm(
-                `Feedback Gating is currently DISABLED for "${program.title}".\n\n` +
+                `Feedback Gating is currently DISABLED (RED) for "${program.title}".\n\n` +
                 `Do you want to ENABLE it now?\n` +
                 `• OK: Enable Gating (Certificates will be generated ONLY after feedback)\n` +
                 `• Cancel: Keep Disabled (Certificates issued IMMEDIATELY to everyone)`
@@ -131,12 +131,12 @@ export default function AdminPrograms() {
                 try {
                     await toggleProgramFeedback(program._id || program.id);
                     // Manually update local state to reflect change immediately for this transaction
-                    program.isFeedbackEnabled = true;
+                    program.enableFeedback = true;
 
                     // Also update the UI list
                     setPrograms(programs.map(p => {
                         if ((p._id || p.id) === (program._id || program.id)) {
-                            return { ...p, isFeedbackEnabled: true };
+                            return { ...p, enableFeedback: true };
                         }
                         return p;
                     }));
@@ -457,12 +457,13 @@ export default function AdminPrograms() {
                                     <button
                                         onClick={() => handleToggleFeedback(program)}
                                         className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-all duration-200 ${program.enableFeedback
-                                            ? 'bg-purple-600 text-white border-purple-600'
-                                            : 'text-gray-500 bg-white border-gray-200 hover:bg-gray-50'
+                                            ? 'bg-green-600 text-white border-green-600 hover:bg-green-700'
+                                            : 'text-red-600 bg-red-50 border-red-200 hover:bg-red-100'
                                             }`}
-                                        title="Toggle Feedback"
+                                        title={program.enableFeedback ? "Feedback Enabled" : "Feedback Disabled"}
                                     >
-                                        {program.enableFeedback ? <Icons.MessageCircle size={14} /> : <Icons.MessageSquare size={14} />} Feedback
+                                        {program.enableFeedback ? <Icons.MessageCircle size={14} /> : <Icons.MessageSquare size={14} />}
+                                        {program.enableFeedback ? "Enabled" : "Disabled"}
                                     </button>
 
                                     {/* Offer/Acceptance Letter Action */}
