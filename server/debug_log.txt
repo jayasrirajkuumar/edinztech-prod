@@ -6120,3 +6120,23 @@
 [AUTH 2026-01-04T08:00:29.466Z] Token found: eyJhbGciOi...
 [AUTH 2026-01-04T08:00:29.470Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
 [AUTH 2026-01-04T08:00:29.475Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-04T08:31:55.055Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-04T08:31:55.065Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-04T08:31:55.115Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-04T08:31:55.182Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-04T08:31:55.384Z] Checking Auth for: GET /api/admin/enrollments?type=All&search=
+[AUTH 2026-01-04T08:31:55.385Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-04T08:31:55.387Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-04T08:31:55.391Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-04T08:32:01.032Z] Checking Auth for: POST /api/certificates/regenerate/695a1d9a18e296d1b9a41d7d
+[AUTH 2026-01-04T08:32:01.033Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-04T08:32:01.036Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-04T08:32:01.042Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-04T08:32:11.350Z] Checking Auth for: POST /api/certificates/regenerate/6958d8fb18e296d1b9a41d75
+[AUTH 2026-01-04T08:32:11.351Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-04T08:32:11.353Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-04T08:32:11.359Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)
+[AUTH 2026-01-04T08:33:29.934Z] Checking Auth for: POST /api/certificates/regenerate/695a1a3518e296d1b9a41d79
+[AUTH 2026-01-04T08:33:29.935Z] Token found: eyJhbGciOi...
+[AUTH 2026-01-04T08:33:29.939Z] Token decoded ID: 693bed92dcd2f9da34d6dbec
+[AUTH 2026-01-04T08:33:29.951Z] User Authenticated: admin@edinztech.com (693bed92dcd2f9da34d6dbec)

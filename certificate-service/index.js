@@ -451,7 +451,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
                     left: '15%',
                     width: '70%',
                     fontSize: '35px', // Standardized Equal Size
-                    fontFamily: "'Helvetica', sans-serif"
+                    fontFamily: "'Times New Roman', serif"
                 };
 
                 const QR_POSITION = {
