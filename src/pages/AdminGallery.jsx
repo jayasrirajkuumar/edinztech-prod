@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getGallery, addGalleryItem, deleteGalleryItem } from '../lib/api';
+import { getGalleries, addGalleryItem, deleteGalleryItem } from '../lib/api';
 import Button from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import Modal from '../components/ui/Modal';
@@ -13,7 +13,7 @@ export default function AdminGallery() {
 
     const fetchGallery = async () => {
         try {
-            const data = await getGallery();
+            const data = await getGalleries();
             setItems(data);
         } catch (error) {
             console.error("Failed to fetch gallery", error);

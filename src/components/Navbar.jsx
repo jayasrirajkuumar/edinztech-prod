@@ -248,10 +248,13 @@ export default function Navbar({ hideNavigation = false }) {
                                             <Link to="/process" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary">
                                                 Our Process
                                             </Link>
+                                            <Link to="/gallery" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary">
+                                                Gallery
+                                            </Link>
                                         </div>
                                     </div>
 
-                                    <NavItem to="/gallery" icon={Icons.History}>Gallery</NavItem>
+
 
                                     <NavItem to="/contact" icon={Icons.Contact}>Contact</NavItem>
                                 </>

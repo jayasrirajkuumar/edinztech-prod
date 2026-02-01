@@ -83,9 +83,7 @@ export default function CourseDetails() {
                         </div>
                     )}
 
-                    <div className="text-xl text-text-light whitespace-pre-line leading-relaxed">
-                        {program.description}
-                    </div>
+
                 </div>
 
                 <Card>
@@ -151,15 +149,6 @@ export default function CourseDetails() {
                             </div>
                             <span className="font-semibold text-secondary">{formatDate(program.startDate)}</span>
                         </div>
-                        {program.extendedDate && (new Date() > new Date(program.registrationDeadline)) && (new Date() <= new Date(program.extendedDate)) && (
-                            <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                                <div className="flex items-center gap-3 text-text-light">
-                                    <Icons.Clock size={20} className="text-orange-500" />
-                                    <span>Extended Date</span>
-                                </div>
-                                <span className="font-semibold text-orange-600">{formatDate(program.extendedDate)}</span>
-                            </div>
-                        )}
                     </div>
 
                     <Button
@@ -170,13 +159,15 @@ export default function CourseDetails() {
                         {processing ? 'Processing...' : (!isRegistrationOpen(program) ? 'Registration Closed' : 'Enroll Now')}
                     </Button>
 
-                    {program.registrationDeadline && new Date(program.registrationDeadline) > new Date() && (
-                        <div className="mt-3 text-center animate-pulse">
-                            <span className="text-sm font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">
-                                This program is extended registration till {formatDate(program.registrationDeadline, { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </span>
-                        </div>
-                    )}
+                    {program.registrationDeadline &&
+                        new Date(program.registrationDeadline) > new Date() &&
+                        (new Date(program.registrationDeadline) - new Date()) / (1000 * 60 * 60 * 24) <= 2 && (
+                            <div className="mt-3 text-center animate-pulse">
+                                <span className="text-sm font-semibold text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">
+                                    Registration closes on {formatDate(program.registrationDeadline, { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                            </div>
+                        )}
                     <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>
             </div>

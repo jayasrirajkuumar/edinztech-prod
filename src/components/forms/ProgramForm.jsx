@@ -566,8 +566,13 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Input type="date" label="Start Date" {...register('startDate')} error={errors.startDate?.message} />
                             <Input type="date" label="End Date" {...register('endDate')} error={errors.endDate?.message} min={watch('startDate')} />
-                            <Input type="date" label="Registration Deadline" {...register('registrationDeadline')} />
-                            <Input type="date" label="Extended Date" {...register('extendedDate')} />
+                            <Input
+                                type="date"
+                                label="Registration Deadline"
+                                {...register('registrationDeadline')}
+                                min={watch('startDate')}
+                                max={watch('endDate')}
+                            />
                             <Controller
                                 name="mode"
                                 control={control}

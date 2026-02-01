@@ -461,7 +461,7 @@ export const deleteTempFiles = async (files) => {
 };
 
 // Gallery APIs
-export const getGallery = async () => {
+export const getGalleries = async () => {
     const { data } = await api.get('/gallery');
     return data;
 };

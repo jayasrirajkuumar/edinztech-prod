@@ -6,6 +6,7 @@ import Button from '../components/ui/Button';
 import { Icons } from '../components/icons';
 import Team from '../components/Team'; // Integrated Team component
 import ContactSection from '../components/ContactSection';
+import GalleryCarousel from '../components/GalleryCarousel';
 
 export default function Home() {
     const [featuredPrograms, setFeaturedPrograms] = useState([]);
@@ -123,6 +124,9 @@ export default function Home() {
                     </div>
                 </div>
             </section>
+
+            {/* Gallery Carousel */}
+            <GalleryCarousel />
 
             {/* Industries We Serve */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

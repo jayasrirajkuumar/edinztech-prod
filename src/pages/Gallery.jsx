@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getGallery } from '../lib/api';
+import { getGalleries } from '../lib/api';
 import { Icons } from '../components/icons';
 
 export default function Gallery() {
@@ -10,7 +10,7 @@ export default function Gallery() {
     useEffect(() => {
         const fetchGallery = async () => {
             try {
-                const data = await getGallery();
+                const data = await getGalleries();
                 setItems(data);
             } catch (error) {
                 console.error("Failed to fetch gallery", error);
