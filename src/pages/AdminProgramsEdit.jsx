@@ -62,6 +62,7 @@ export default function AdminProgramsEdit() {
         code: program.code, // CRITICAL: Preserve code to prevent auto-gen collision
         templateType: program.templateType || 'edinz', // Add templateType default
         welcomeEmailContent: program.welcomeEmailContent || '', // Welcome Email Content
+        bannerImage: program.bannerImage, // New Field
     };
 
     return (

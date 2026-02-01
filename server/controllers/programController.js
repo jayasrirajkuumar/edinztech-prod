@@ -210,6 +210,28 @@ const toggleFeedbackStatus = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Upload Banner Image
+// @route   POST /api/admin/programs/:id/upload-banner
+// @access  Private/Admin
+const uploadBannerImage = asyncHandler(async (req, res) => {
+    const program = await Program.findById(req.params.id);
+
+    if (program) {
+        if (!req.file) {
+            res.status(400);
+            throw new Error('No banner file uploaded');
+        }
+
+        // Store relative path
+        program.bannerImage = `uploads/${req.file.filename}`;
+        const updatedProgram = await program.save();
+        res.json(updatedProgram);
+    } else {
+        res.status(404);
+        throw new Error('Program not found');
+    }
+});
+
 module.exports = {
     getPrograms,
     getProgramById,
@@ -217,5 +239,6 @@ module.exports = {
     updateProgram,
     deleteProgram,
     exportPrograms,
-    toggleFeedbackStatus
+    toggleFeedbackStatus,
+    uploadBannerImage
 };

@@ -19,6 +19,8 @@ const programSchema = mongoose.Schema({
     startTime: { type: String },
     startTime: { type: String },
     endTime: { type: String },
+    endTime: { type: String },
+    extendedDate: { type: Date }, // New Field: Extended Registration Date
     registrationDeadline: { type: Date }, // Last Date to Register
 
     // Payment
@@ -28,6 +30,7 @@ const programSchema = mongoose.Schema({
 
     // Templates (File Paths)
     image: { type: String }, // Implementation uses 'image' generally
+    bannerImage: { type: String }, // New Field: Optional Banner/Poster Image
     offerLetterTemplate: { type: String },
     certificateTemplate: { type: String },
     templateType: {

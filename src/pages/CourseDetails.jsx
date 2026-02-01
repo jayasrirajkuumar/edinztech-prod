@@ -71,14 +71,28 @@ export default function CourseDetails() {
                         {program.type}
                     </span>
                     <h1 className="text-4xl font-bold text-secondary mb-4">{program.title}</h1>
-                    <p className="text-xl text-text-light">{program.description}</p>
+
+                    {/* Banner Image */}
+                    {program.bannerImage && (
+                        <div className="mb-8 rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                            <img
+                                src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/${program.bannerImage}`}
+                                alt={program.title}
+                                className="w-full h-auto object-cover"
+                            />
+                        </div>
+                    )}
+
+                    <div className="text-xl text-text-light whitespace-pre-line leading-relaxed">
+                        {program.description}
+                    </div>
                 </div>
 
                 <Card>
                     <h3 className="text-xl font-bold text-secondary mb-4 border-b border-gray-100 pb-2">About this Program</h3>
-                    <p className="text-text-light leading-relaxed mb-6">
+                    <div className="text-text-light leading-relaxed mb-6 whitespace-pre-line">
                         {program.description}
-                    </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <h4 className="font-semibold text-secondary col-span-2">Highlights:</h4>
                         {tags.map(tag => (
@@ -137,6 +151,15 @@ export default function CourseDetails() {
                             </div>
                             <span className="font-semibold text-secondary">{formatDate(program.startDate)}</span>
                         </div>
+                        {program.extendedDate && (new Date() > new Date(program.registrationDeadline)) && (new Date() <= new Date(program.extendedDate)) && (
+                            <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                                <div className="flex items-center gap-3 text-text-light">
+                                    <Icons.Clock size={20} className="text-orange-500" />
+                                    <span>Extended Date</span>
+                                </div>
+                                <span className="font-semibold text-orange-600">{formatDate(program.extendedDate)}</span>
+                            </div>
+                        )}
                     </div>
 
                     <Button

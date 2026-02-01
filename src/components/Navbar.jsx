@@ -251,6 +251,8 @@ export default function Navbar({ hideNavigation = false }) {
                                         </div>
                                     </div>
 
+                                    <NavItem to="/gallery" icon={Icons.History}>Gallery</NavItem>
+
                                     <NavItem to="/contact" icon={Icons.Contact}>Contact</NavItem>
                                 </>
                             )}

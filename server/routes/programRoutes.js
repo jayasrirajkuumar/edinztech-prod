@@ -7,7 +7,8 @@ const {
     updateProgram,
     deleteProgram,
     exportPrograms,
-    toggleFeedbackStatus // Added
+    toggleFeedbackStatus,
+    uploadBannerImage // Import
 } = require('../controllers/programController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
@@ -25,6 +26,9 @@ router.route('/:id')
     .get(getProgramById)
     .put(protect, admin, updateProgram)
     .delete(protect, admin, deleteProgram);
+
+// Upload Banner Route
+router.post('/:id/upload-banner', protect, admin, upload.single('banner'), uploadBannerImage);
 
 // Upload Template Route (Specific)
 // Upload Template Route (Specific)
