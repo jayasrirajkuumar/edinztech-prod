@@ -554,7 +554,14 @@ export default function AdminEnrollments() {
                                 </div>
                                 <div className="bg-gray-50 p-4 rounded border">
                                     <p className="text-sm text-gray-500">Password</p>
-                                    <p className="font-mono text-red-600 font-bold tracking-wider">{credentials.password}</p>
+                                    {credentials.password && credentials.password !== 'Not Available' && !credentials.password.startsWith('Error') ? (
+                                        <p className="font-mono text-indigo-700 font-bold tracking-wider">{credentials.password}</p>
+                                    ) : (
+                                        <div className="flex flex-col">
+                                            <p className="font-mono text-gray-400 italic">Hidden (User Set)</p>
+                                            <p className="text-xs text-gray-400 mt-1">This user created their own password. It is secure and cannot be viewed.</p>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="flex justify-between items-center mt-6">
                                     <div className="text-sm">

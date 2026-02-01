@@ -7,7 +7,7 @@ import Select from '../ui/Select';
 import TimePicker from '../ui/TimePicker';
 import Button from '../ui/Button';
 import { Icons } from '../icons/index';
-import { createProgram, uploadProgramTemplate, getWhatsAppTemplates, registerWhatsAppTemplate } from '../../lib/api';
+import { createProgram, uploadProgramTemplate, getWhatsAppTemplates, registerWhatsAppTemplate, uploadProgramBanner } from '../../lib/api';
 import Modal from '../ui/Modal';
 import { useNavigate } from 'react-router-dom';
 
@@ -148,7 +148,8 @@ const step1Schema = z.object({
     mode: z.enum(['Online', 'Offline', 'Hybrid']),
     startTime: z.string().optional(),
     endTime: z.string().optional(),
-    registrationDeadline: z.string().optional(), // Adding new field
+    registrationDeadline: z.string().optional(), // Last Date to Register
+    extendedDate: z.string().optional(), // New Field: Extended Registration Date
 });
 
 const step2Schema = z.object({
@@ -185,6 +186,7 @@ const fullSchema = z.any(); // We validate per step
 export default function ProgramForm({ defaultValues: initialValues, onSubmit: parentSubmit, isEditing = false, programId }) {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(0); // 0: Basic, 1: Payment, 2: Templates, 3: Communication
+    const [bannerFile, setBannerFile] = useState(null); // New State
     const [offerLetterFile, setOfferLetterFile] = useState(null);
     const [certificateFile, setCertificateFile] = useState(null);
     const [waTemplates, setWaTemplates] = useState([]);
@@ -402,6 +404,16 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                             return; // Stop submission
                         }
                     }
+                    if (bannerFile) {
+                        try {
+                            await uploadProgramBanner(programId, bannerFile);
+                            // Payload doesn't need to carry this as it's a separate endpoint/update usually, 
+                            // unless we want to ensure it's set in state before parentSubmit closes modal?
+                            // Since banner upload updates the program in DB directly via controller, we are good.
+                        } catch (err) {
+                            console.error("Failed to upload banner", err);
+                        }
+                    }
                 }
 
                 await parentSubmit(payload);
@@ -429,6 +441,12 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                 const uploadRes = await uploadProgramTemplate(newProgramId, certificateFile);
                 if (uploadRes.path) {
                     updates.certificateTemplate = uploadRes.path;
+                }
+            }
+            if (bannerFile) {
+                const uploadRes = await uploadProgramBanner(newProgramId, bannerFile);
+                if (uploadRes.bannerImage) { // assuming controller returns updated program
+                    // updates.bannerImage = uploadRes.bannerImage; // Not needed if controller updates program directly, but good for consistency/if we were doing updateProgram call separately
                 }
             }
 
@@ -526,6 +544,18 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                             error={errors.title?.message}
                         />
 
+                        {/* Banner Image Upload */}
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <h4 className="font-medium text-gray-900 mb-2">Program Banner / Poster (Optional)</h4>
+                            <TemplateUploader
+                                label="Banner Image"
+                                file={bannerFile}
+                                setFile={setBannerFile}
+                                initialUrl={initialValues?.bannerImage}
+                                onRemove={() => setBannerFile(null)}
+                            />
+                        </div>
+
                         <TextArea
                             label="Description"
                             {...register('description')}
@@ -536,7 +566,13 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <Input type="date" label="Start Date" {...register('startDate')} error={errors.startDate?.message} />
                             <Input type="date" label="End Date" {...register('endDate')} error={errors.endDate?.message} min={watch('startDate')} />
-                            <Input type="date" label="Registration Deadline" {...register('registrationDeadline')} />
+                            <Input
+                                type="date"
+                                label="Registration Deadline"
+                                {...register('registrationDeadline')}
+                                min={watch('startDate')}
+                                max={watch('endDate')}
+                            />
                             <Controller
                                 name="mode"
                                 control={control}

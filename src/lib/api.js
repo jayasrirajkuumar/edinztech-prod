@@ -75,6 +75,16 @@ export const uploadProgramTemplate = async (id, file) => {
     return data;
 };
 
+export const uploadProgramBanner = async (id, file) => {
+    const formData = new FormData();
+    formData.append('banner', file);
+
+    const { data } = await api.post(`/programs/${id}/upload-banner`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return data;
+};
+
 export const updateProgram = async (id, programData) => {
     const { data } = await api.put(`/programs/${id}`, programData);
     return data;
@@ -447,6 +457,25 @@ export const listTempFiles = async () => {
 
 export const deleteTempFiles = async (files) => {
     const { data } = await api.post('/admin/temp-files/delete', { files });
+    return data;
+};
+
+// Gallery APIs
+export const getGalleries = async () => {
+    const { data } = await api.get('/gallery');
+    return data;
+};
+
+export const addGalleryItem = async (formData) => {
+    // Expects FormData object with 'title' and 'image'
+    const { data } = await api.post('/gallery', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return data;
+};
+
+export const deleteGalleryItem = async (id) => {
+    const { data } = await api.delete(`/gallery/${id}`);
     return data;
 };
 

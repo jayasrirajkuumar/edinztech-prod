@@ -26,10 +26,18 @@ export const getRegistrationStatus = (program) => {
         : (program.endDate ? new Date(program.endDate) : startDate);
 
     // Check for Extended Status
-    // Extended if: deadline exists AND deadline > endDate (original end) AND now > endDate AND now <= deadline
+    // Extended if: deadline passed AND extendedDate exists/valid
+    if (program.extendedDate && program.registrationDeadline) {
+        if (now > new Date(program.registrationDeadline) && now <= new Date(program.extendedDate)) {
+            return 'Extended'; // This is treated as NOT Closed
+        }
+    }
+
+    // Original Logic (Using registrationDeadline or EndDate)
     if (program.registrationDeadline && program.endDate) {
         const originalEnd = new Date(program.endDate);
-        if (new Date(program.registrationDeadline) > originalEnd && now > originalEnd && now <= new Date(program.registrationDeadline)) {
+        // Only consider "Extended" via explicit field now preferably, but keeping fallback logic if needed
+        if (!program.extendedDate && new Date(program.registrationDeadline) > originalEnd && now > originalEnd && now <= new Date(program.registrationDeadline)) {
             return 'Extended';
         }
     }

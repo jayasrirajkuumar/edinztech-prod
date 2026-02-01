@@ -286,7 +286,7 @@ const getStudentCredentials = async (req, res) => {
         const adminUser = await User.findById(req.user._id).select('+password');
 
         if (!adminUser || !await adminUser.matchPassword(adminPassword)) {
-            return res.status(401).json({ message: 'Invalid Admin Password' });
+            return res.status(403).json({ message: 'Invalid Admin Password' });
         }
 
         const student = await User.findById(studentId).select('+encryptedPassword');
@@ -333,7 +333,7 @@ const resendCredentials = async (req, res) => {
         const adminUser = await User.findById(req.user._id).select('+password');
 
         if (!adminUser || !await adminUser.matchPassword(adminPassword)) {
-            return res.status(401).json({ message: 'Invalid Admin Password' });
+            return res.status(403).json({ message: 'Invalid Admin Password' });
         }
 
         const student = await User.findById(studentId).select('+encryptedPassword');

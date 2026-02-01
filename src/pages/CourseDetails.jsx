@@ -71,14 +71,26 @@ export default function CourseDetails() {
                         {program.type}
                     </span>
                     <h1 className="text-4xl font-bold text-secondary mb-4">{program.title}</h1>
-                    <p className="text-xl text-text-light">{program.description}</p>
+
+                    {/* Banner Image */}
+                    {program.bannerImage && (
+                        <div className="mb-8 rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                            <img
+                                src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/${program.bannerImage}`}
+                                alt={program.title}
+                                className="w-full h-auto object-cover"
+                            />
+                        </div>
+                    )}
+
+
                 </div>
 
                 <Card>
                     <h3 className="text-xl font-bold text-secondary mb-4 border-b border-gray-100 pb-2">About this Program</h3>
-                    <p className="text-text-light leading-relaxed mb-6">
+                    <div className="text-text-light leading-relaxed mb-6 whitespace-pre-line">
                         {program.description}
-                    </p>
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <h4 className="font-semibold text-secondary col-span-2">Highlights:</h4>
                         {tags.map(tag => (
@@ -147,13 +159,15 @@ export default function CourseDetails() {
                         {processing ? 'Processing...' : (!isRegistrationOpen(program) ? 'Registration Closed' : 'Enroll Now')}
                     </Button>
 
-                    {program.registrationDeadline && new Date(program.registrationDeadline) > new Date() && (
-                        <div className="mt-3 text-center animate-pulse">
-                            <span className="text-sm font-semibold text-purple-600 bg-purple-50 px-2 py-1 rounded border border-purple-100">
-                                This program is extended registration till {formatDate(program.registrationDeadline, { day: 'numeric', month: 'long', year: 'numeric' })}
-                            </span>
-                        </div>
-                    )}
+                    {program.registrationDeadline &&
+                        new Date(program.registrationDeadline) > new Date() &&
+                        (new Date(program.registrationDeadline) - new Date()) / (1000 * 60 * 60 * 24) <= 2 && (
+                            <div className="mt-3 text-center animate-pulse">
+                                <span className="text-sm font-semibold text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100">
+                                    Registration closes on {formatDate(program.registrationDeadline, { day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                            </div>
+                        )}
                     <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>
             </div>

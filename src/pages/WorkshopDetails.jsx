@@ -105,6 +105,15 @@ export default function WorkshopDetails() {
                             </div>
                             <span className="font-semibold text-secondary">{formatDate(program.startDate)}</span>
                         </div>
+                        {program.extendedDate && (new Date() > new Date(program.registrationDeadline)) && (new Date() <= new Date(program.extendedDate)) && (
+                            <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                                <div className="flex items-center gap-3 text-text-light">
+                                    <Icons.Clock size={20} className="text-orange-500" />
+                                    <span>Extended Date</span>
+                                </div>
+                                <span className="font-semibold text-orange-600">{formatDate(program.extendedDate)}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                             <div className="flex items-center gap-3 text-text-light">
                                 <Icons.Home size={20} className="text-primary" />

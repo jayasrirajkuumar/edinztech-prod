@@ -66,6 +66,8 @@ import AdminOutsiderQuizForm from '../pages/AdminOutsiderQuizForm';
 import AdminOutsiderQuizResults from '../pages/AdminOutsiderQuizResults';
 import PublicOutsiderQuiz from '../pages/PublicOutsiderQuiz';
 import AdminTempFiles from '../pages/AdminTempFiles'; // New Page
+import Gallery from '../pages/Gallery'; // Added
+import AdminGallery from '../pages/AdminGallery'; // Added
 
 export const router = createBrowserRouter([
     {
@@ -81,6 +83,7 @@ export const router = createBrowserRouter([
             { path: '/courses', element: <Courses /> },
             { path: '/internships', element: <Internships /> },
             { path: '/workshops', element: <Workshops /> },
+            { path: '/gallery', element: <Gallery /> }, // Added
             { path: '/programs/:id', element: <CourseDetails /> },
             { path: '/verify', element: <Verify /> },
             { path: '/login', element: <Login /> },
@@ -138,6 +141,7 @@ export const router = createBrowserRouter([
             { path: '/admin/certificates', element: <AdminTemplateCertificate /> },
             { path: '/admin/offer-letters', element: <AdminTemplateOfferLetter /> },
             { path: '/admin/invite', element: <AdminInvitePage /> },
+            { path: '/admin/gallery', element: <AdminGallery /> }, // Added
 
             { path: '/admin/enrollments', element: <AdminEnrollments /> },
             { path: '/admin/outsider-quizzes', element: <AdminOutsiderQuizzes /> },

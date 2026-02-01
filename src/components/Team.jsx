@@ -1,33 +1,26 @@
-import profile1 from '../assets/profile01.jpg';
+import karthiyaNew from '../assets/karthiya_banu_new.png'; // Updated Image
+import umaraniNew from '../assets/umarani_new.jpg'; // Updated Image
 import profile2 from '../assets/profile02.PNG';
-import profile3 from '../assets/profile03.jpg';
-import profile4 from '../assets/profile04.jpg';
 
 export default function Team() {
     const team = [
         {
             name: "Dr. Karthiya Banu",
             role: "Founder",
-            image: profile1,
+            image: karthiyaNew, // Use new image
             desc: "A computer science professional with 17 years of teaching experience and 14 years' experience in the field of soft skills and technical training."
         },
         {
-            name: "Dr. RAVANAN R",
+            name: "Dr.R.Ravanan M.Sc., M.Phil., Ph.D., FSMS",
             role: "Mentor",
             image: profile2,
-            desc: "Dr.R.RAVANAN joined Tamil Nadu Government Collegiate Service as Assistant Professor in Statistics.He serviced as a faculty in Government Arts College Tirutani and Presidency College, Chennai. He organized several workshops and conferences at Presidency College inviting Eminent Scholars like Professor S.R.S.Varadhan Abel Prize Awardee (Equivalent to Nobel Price) in Mathematics."
+            desc: `"Tamil Nadu Scientist Awardee"\nJoint Director (P & D) (Retd)\nDirectorate of Collegiate Education\nChennai - 600 015`
         },
         {
             name: "Dr. UMARANI S",
             role: "Technical Consultant",
-            image: profile3,
+            image: umaraniNew, // Updated Image
             desc: "Encouraged students to participate and explore their talents in various inter and intra technical events (Over all Performance award received from Loyola Institute of Technology ,Chennai - 2010).Guided students in carrying out Industry Projects(Like Mobishare, Tamil Calendar, Cricket Score Board, Website Creation) , IEEE Based Research Projects and Applications Projects."
-        },
-        {
-            name: "Sundaram N K",
-            role: "Principal Consultant",
-            image: profile4,
-            desc: "He is a presenter of Training Programs in various Soft skills and also a Specialist Consultant in Human Resources, delivering programs and undertaking HR projects for major corporations on a range of Organisational and Human Resource issues. He is just 66 years young with 49 years experience."
         }
     ];
 
@@ -39,7 +32,8 @@ export default function Team() {
                     <h2 className="text-4xl font-bold text-gray-900">CHECK OUR TEAM</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {/* Updated grid to 3 columns for better alignment */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {team.map((member, index) => (
                         <div key={index} className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow text-center">
                             <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -51,7 +45,8 @@ export default function Team() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
                             <p className="text-blue-500 font-medium mb-4">{member.role}</p>
-                            <p className="text-gray-600 text-sm leading-relaxed">
+                            {/* Added whitespace-pre-line to respect newlines in description */}
+                            <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                                 {member.desc}
                             </p>
                         </div>
