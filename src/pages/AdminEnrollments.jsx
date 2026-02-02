@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAdminEnrollments, getStudentCredentials, resendStudentCredentials, exportEnrollments, updateStudentDetails, regenerateCertificate, publishSingleCertificate } from '../lib/api'; // Updated import
+import { getAdminEnrollments, getStudentCredentials, resendStudentCredentials, resetStudentPassword, exportEnrollments, updateStudentDetails, regenerateCertificate, publishSingleCertificate } from '../lib/api'; // Updated import
 import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
 import Card from '../components/ui/Card';
@@ -91,6 +91,10 @@ export default function AdminEnrollments() {
     const [credentialError, setCredentialError] = useState('');
     const [resendStatus, setResendStatus] = useState('');
 
+    // Reset Password State
+    const [isResetting, setIsResetting] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+
     useEffect(() => {
         fetchEnrollments();
     }, [filterType, searchTerm]);
@@ -128,6 +132,7 @@ export default function AdminEnrollments() {
         setCredentials(null);
         setAdminPassword('');
         setCredentialError('');
+        setIsResetting(false); // Reset UI state
     };
 
     const handleEditStudent = (student) => {
@@ -169,6 +174,31 @@ export default function AdminEnrollments() {
             setTimeout(() => setResendStatus(''), 5000);
         } catch (err) {
             setResendStatus('Failed: ' + (err.response?.data?.message || 'Server Error'));
+        }
+    };
+
+    const handleResetPassword = async () => {
+        if (!newPassword || newPassword.length < 6) {
+            alert("Password must be at least 6 characters.");
+            return;
+        }
+        if (!window.confirm("Are you sure? This will change the user's password immediately.")) return;
+
+        setResendStatus('Resetting...');
+        try {
+            await resetStudentPassword(selectedStudent.userId, newPassword, adminPassword);
+            setResendStatus('Password Reset Successful!');
+            setIsResetting(false);
+
+            // Refresh credentials view locally so admin sees the new password immediately
+            setCredentials(prev => ({
+                ...prev,
+                password: newPassword // Optimistic update
+            }));
+
+            setTimeout(() => setResendStatus(''), 5000);
+        } catch (err) {
+            setResendStatus('Reset Failed: ' + (err.response?.data?.message || 'Server Error'));
         }
     };
 
@@ -554,40 +584,81 @@ export default function AdminEnrollments() {
                                 </div>
                                 <div className="bg-gray-50 p-4 rounded border">
                                     <p className="text-sm text-gray-500">Password</p>
-                                    {credentials.password && credentials.password !== 'Not Available' && !credentials.password.startsWith('Error') ? (
-                                        <p className="font-mono text-indigo-700 font-bold tracking-wider">{credentials.password}</p>
-                                    ) : (
-                                        <div className="flex flex-col">
-                                            <p className="font-mono text-gray-400 italic">Hidden (User Set)</p>
-                                            <p className="text-xs text-gray-400 mt-1">This user created their own password. It is secure and cannot be viewed.</p>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex justify-between items-center mt-6">
-                                    <div className="text-sm">
-                                        {resendStatus && (
-                                            <span className={resendStatus.includes('Failed') ? 'text-red-600' : 'text-green-600'}>
-                                                {resendStatus}
-                                            </span>
+                                    <div className="flex flex-col">
+                                        <p className={`font-mono text-lg ${credentials.password === 'Not Available' || credentials.password?.startsWith('Error') ? 'text-gray-500 italic' : 'text-indigo-700 font-bold tracking-wider'}`}>
+                                            {credentials.password}
+                                        </p>
+                                        {credentials.password === 'Not Available' && (
+                                            <p className="text-xs text-gray-400 mt-1">
+                                                This user set their own password, so it is encrypted and cannot be viewed.
+                                            </p>
                                         )}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={handleResendCredentials}
-                                            className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded hover:bg-indigo-50"
-                                        >
-                                            Resend Email
-                                        </button>
-                                        <button
-                                            onClick={() => setSelectedStudent(null)}
-                                            className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
-                                        >
-                                            Close
-                                        </button>
                                     </div>
                                 </div>
                             </div>
+
+                    {isResetting ? (
+                            <div className="bg-red-50 p-4 rounded border border-red-200 mt-4">
+                                <h4 className="text-sm font-bold text-red-800 mb-2">Reset Password Override</h4>
+                                <p className="text-xs text-red-600 mb-3">
+                                    This will change the student's password and save a copy for you to view later.
+                                </p>
+                                <input
+                                    type="password"
+                                    placeholder="Enter New Password (min 6 chars)"
+                                    className="w-full border p-2 rounded mb-2 text-sm"
+                                    value={newPassword}
+                                    onChange={e => setNewPassword(e.target.value)}
+                                />
+                                <div className="flex justify-end gap-2 mt-2">
+                                    <button
+                                        onClick={() => setIsResetting(false)}
+                                        className="px-3 py-1 text-xs text-gray-600 hover:bg-gray-200 rounded"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleResetPassword}
+                                        className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                                    >
+                                        Confirm Reset
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-right mt-2">
+                                <button
+                                    onClick={() => { setIsResetting(true); setNewPassword(''); }}
+                                    className="text-xs text-red-600 hover:underline"
+                                >
+                                    Reset / Override Password
+                                </button>
+                            </div>
                         )}
+
+                        <div className="flex justify-between items-center mt-6">
+                            <div className="text-sm">
+                                {resendStatus && (
+                                    <span className={resendStatus.includes('Failed') ? 'text-red-600' : 'text-green-600'}>
+                                        {resendStatus}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleResendCredentials}
+                                    className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded hover:bg-indigo-50"
+                                >
+                                    Resend Email
+                                </button>
+                                <button
+                                    onClick={() => setSelectedStudent(null)}
+                                    className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

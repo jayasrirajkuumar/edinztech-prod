@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProgram, createPaymentOrder, enrollFree } from '../lib/api';
+import { getImageUrl } from '../lib/utils';
 import { isRegistrationOpen } from '../lib/programUtils';
 import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
@@ -76,7 +77,7 @@ export default function CourseDetails() {
                     {program.bannerImage && (
                         <div className="mb-8 rounded-xl overflow-hidden shadow-lg border border-gray-100">
                             <img
-                                src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/${program.bannerImage}`}
+                                src={getImageUrl(program.bannerImage)}
                                 alt={program.title}
                                 className="w-full h-auto object-cover"
                             />

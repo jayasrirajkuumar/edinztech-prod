@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getGalleries } from '../lib/api';
+import { getImageUrl } from '../lib/utils';
 import { Icons } from '../components/icons';
 
 export default function Gallery() {
@@ -61,7 +62,7 @@ export default function Gallery() {
                             >
                                 <div className="aspect-[4/3] bg-gray-200 relative overflow-hidden">
                                     <img
-                                        src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/${item.imageUrl}`}
+                                        src={getImageUrl(item.imageUrl)}
                                         alt={item.title}
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                         loading="lazy"
@@ -112,7 +113,7 @@ export default function Gallery() {
                         onClick={e => e.stopPropagation()} // Prevent close on image click
                     >
                         <img
-                            src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/${selectedImage.imageUrl}`}
+                            src={getImageUrl(selectedImage.imageUrl)}
                             alt={selectedImage.title}
                             className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                         />

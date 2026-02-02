@@ -4,6 +4,7 @@ const {
     getStudentCredentials,
     inviteStudent,
     resendCredentials,
+    resetStudentPassword,
     getEnrollments,
     exportEnrollments,
     getDashboardStats,
@@ -23,6 +24,7 @@ router.post('/whatsapp/templates', protect, admin, registerTemplate); // NEW
 router.get('/enrollments', protect, admin, getEnrollments); // Restored
 router.get('/enrollments/export', protect, admin, exportEnrollments); // NEW Export Route
 router.post('/credentials', protect, admin, getStudentCredentials);
+router.post('/credentials/reset', protect, admin, resetStudentPassword);
 router.post('/credentials/resend', protect, admin, resendCredentials);
 router.get('/dashboard', protect, admin, getDashboardStats);
 router.put('/students/:id', protect, admin, updateStudent);
