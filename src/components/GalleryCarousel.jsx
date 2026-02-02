@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getGalleries } from '../lib/api';
+import { getImageUrl } from '../lib/utils';
 
 export default function GalleryCarousel() {
     const [images, setImages] = useState([]);
@@ -40,7 +41,7 @@ export default function GalleryCarousel() {
                     {[...images, ...images].map((img, idx) => (
                         <div key={idx} className="flex-shrink-0 w-72 h-48 rounded-xl overflow-hidden shadow-sm border border-gray-100">
                             <img
-                                src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${img.startsWith('/') ? '' : '/'}${img}`}
+                                src={getImageUrl(img)}
                                 alt="Gallery Moment"
                                 className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                             />

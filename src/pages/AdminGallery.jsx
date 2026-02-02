@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getGalleries, addGalleryItem, deleteGalleryItem } from '../lib/api';
+import { getImageUrl } from '../lib/utils';
 import Button from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import Modal from '../components/ui/Modal';
@@ -78,7 +79,7 @@ export default function AdminGallery() {
                         <div key={item._id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden group relative">
                             <div className="aspect-video bg-gray-100 relative">
                                 <img
-                                    src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/${item.imageUrl}`}
+                                    src={getImageUrl(item.imageUrl)}
                                     alt={item.title}
                                     className="w-full h-full object-cover"
                                 />

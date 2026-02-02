@@ -738,11 +738,77 @@ const deleteTempFiles = async (req, res) => {
     }
 };
 
+// @desc    Reset Student Password (Admin Override)
+// @route   POST /api/admin/credentials/reset
+// @access  Private/Admin
+const resetStudentPassword = async (req, res) => {
+    try {
+        const { studentId, newPassword, adminPassword } = req.body;
+        const adminUser = await User.findById(req.user._id).select('+password');
+
+        if (!adminUser || !await adminUser.matchPassword(adminPassword)) {
+            return res.status(403).json({ message: 'Invalid Admin Password' });
+        }
+
+        const student = await User.findById(studentId);
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+
+        // Update Password (hashed)
+        student.password = newPassword;
+
+        // Update Encrypted Password (for future admin view)
+        student.encryptedPassword = encrypt(newPassword);
+
+        // Security: Clear any reset tokens if present to avoid confusion
+        student.resetPasswordTokenHash = undefined;
+        student.resetPasswordExpires = undefined;
+
+        await student.save();
+
+        // Audit Log
+        await AccessLog.create({
+            adminId: req.user._id,
+            targetUserId: student._id,
+            action: 'RESET_PASSWORD',
+            ipAddress: req.ip,
+            metadata: { userCode: student.userCode }
+        });
+
+        // Optional: Send email notification
+        try {
+            await sendEmail({
+                to: student.email,
+                subject: 'Your Password Has Been Reset - EdinzTech',
+                html: `<h3>Password Reset</h3>
+                       <p>Hello ${student.name},</p>
+                       <p>Your password has been reset by an administrator.</p>
+                       <p><b>New Password:</b> ${newPassword}</p>
+                       <p><a href="${process.env.FRONTEND_URL}/login">Login Here</a></p>`
+            });
+        } catch (emailErr) {
+            console.error("Failed to send password reset email:", emailErr);
+        }
+
+        res.json({ message: 'Password reset successfully', newEncryptedPassword: student.encryptedPassword });
+
+    } catch (error) {
+        console.error("Reset Password Error:", error);
+        res.status(500).json({ message: 'Failed to reset password' });
+    }
+};
+
 module.exports = {
     inviteStudent,
     getEnrollments,
     getStudentCredentials,
     resendCredentials,
+    resetStudentPassword,
     exportEnrollments,
     getDashboardStats,
     updateStudent,

@@ -322,8 +322,13 @@ export const getStudentCredentials = async (studentId, adminPassword) => {
 };
 
 export const resendStudentCredentials = async (studentId, adminPassword) => {
-    const res = await api.post('/admin/credentials/resend', { studentId, adminPassword });
-    return res.data;
+    const response = await api.post('/admin/credentials/resend', { studentId, adminPassword });
+    return response.data;
+};
+
+export const resetStudentPassword = async (studentId, newPassword, adminPassword) => {
+    const response = await api.post('/admin/credentials/reset', { studentId, newPassword, adminPassword });
+    return response.data;
 };
 
 export const getFeedbackForSubmission = async (id) => {
