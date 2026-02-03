@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProgram, createPaymentOrder, enrollFree } from '../lib/api';
 import { getImageUrl } from '../lib/utils';
-import { isRegistrationOpen } from '../lib/programUtils';
+import { isRegistrationOpen, getDurationString } from '../lib/programUtils';
 import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
@@ -100,23 +100,8 @@ export default function CourseDetails() {
                             </div>
                         ))}
                     </div>
-                </Card>
 
-                <Card>
-                    <h3 className="text-xl font-bold text-secondary mb-4 border-b border-gray-100 pb-2">Curriculum Overview</h3>
-                    <div className="space-y-4">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="flex gap-4 p-4 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-secondary flex items-center justify-center font-bold">
-                                    {i}
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-secondary">Module {i}</h4>
-                                    <p className="text-sm text-text-light mt-1">Detailed module content goes here.</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+
                 </Card>
             </div>
 
@@ -134,7 +119,7 @@ export default function CourseDetails() {
                                 <Icons.Duration size={20} className="text-primary" />
                                 <span>Duration</span>
                             </div>
-                            <span className="font-semibold text-secondary">{program.durationDays ? `${program.durationDays} Days` : 'Self-paced'}</span>
+                            <span className="font-semibold text-secondary">{getDurationString(program)}</span>
                         </div>
                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                             <div className="flex items-center gap-3 text-text-light">
@@ -169,10 +154,9 @@ export default function CourseDetails() {
                                 </span>
                             </div>
                         )}
-                    <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>
             </div>
 
-        </div>
+        </div >
     );
 }

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Icons } from './icons';
 import Button from './ui/Button';
+import { sendContactQuery } from '../lib/api';
 
 export default function ContactSection() {
     return (
@@ -66,38 +68,111 @@ export default function ContactSection() {
                     {/* Contact Form */}
                     <div className="bg-gray-50 p-8 rounded-2xl border border-gray-100 shadow-sm">
                         <h3 className="text-2xl font-bold text-gray-900 mb-6">Send us a Message</h3>
-                        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                                <input
-                                    type="text"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    placeholder="Your Name"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                <input
-                                    type="email"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    placeholder="you@example.com"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                                <textarea
-                                    rows="4"
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                                    placeholder="How can we help you?"
-                                ></textarea>
-                            </div>
-                            <Button className="w-full py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
-                                Send Message
-                            </Button>
-                        </form>
+                        <ContactForm />
                     </div>
                 </div>
             </div>
         </section>
+    );
+}
+
+function ContactForm() {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [status, setStatus] = useState(null); // 'success' | 'error' | null
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setStatus(null);
+
+        try {
+            await sendContactQuery(formData);
+            setStatus('success');
+            setFormData({ name: '', email: '', phone: '', message: '' });
+        } catch (error) {
+            console.error(error);
+            setStatus('error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <form className="space-y-6" onSubmit={handleSubmit}>
+            {status === 'success' && (
+                <div className="p-4 bg-green-50 text-green-700 rounded-lg">
+                    Message sent successfully! We will get back to you soon.
+                </div>
+            )}
+            {status === 'error' && (
+                <div className="p-4 bg-red-50 text-red-700 rounded-lg">
+                    Failed to send message. Please try again later.
+                </div>
+            )}
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <input
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="Your Name"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="you@example.com"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="+91 98765 43210"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <textarea
+                    rows="4"
+                    name="message"
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="How can we help you?"
+                ></textarea>
+            </div>
+            <Button
+                disabled={loading}
+                className="w-full py-3 text-lg bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                {loading ? 'Sending...' : 'Send Message'}
+            </Button>
+        </form>
     );
 }

@@ -57,10 +57,7 @@ export default function ProgramCard({ program, showStatus = false }) {
                     </span>
                     {badge}
                 </div>
-                <div className="flex items-center gap-1 text-orange-400 text-sm font-medium">
-                    <span>★</span>
-                    <span>{program.rating || '4.8'}</span>
-                </div>
+
             </div>
             <h3 className="text-xl font-bold text-secondary mb-2">{program.title}</h3>
             <p className="text-text-light text-sm mb-6 line-clamp-2 flex-grow">{program.description}</p>
@@ -88,20 +85,22 @@ export default function ProgramCard({ program, showStatus = false }) {
             </div>
 
             {/* Progress Bar (if available) */}
-            {typeof program.progress === 'number' && (
-                <div className="mb-4">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>Progress</span>
-                        <span className="font-semibold text-primary">{program.progress}%</span>
+            {
+                typeof program.progress === 'number' && (
+                    <div className="mb-4">
+                        <div className="flex justify-between text-xs text-gray-500 mb-1">
+                            <span>Progress</span>
+                            <span className="font-semibold text-primary">{program.progress}%</span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden border border-gray-100">
+                            <div
+                                className="bg-primary h-full rounded-full transition-all duration-1000"
+                                style={{ width: `${Math.min(100, Math.max(0, program.progress))}%` }}
+                            ></div>
+                        </div>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden border border-gray-100">
-                        <div
-                            className="bg-primary h-full rounded-full transition-all duration-1000"
-                            style={{ width: `${Math.min(100, Math.max(0, program.progress))}%` }}
-                        ></div>
-                    </div>
-                </div>
-            )}
+                )
+            }
 
             <Link to={`/programs/${id}`} className="w-full mt-auto">
                 <Button
@@ -112,6 +111,6 @@ export default function ProgramCard({ program, showStatus = false }) {
                     <Icons.ChevronRight size={16} className={`group-hover:translate-x-1 transition-transform ${regStatus === 'Closed' ? 'text-gray-500' : 'text-white'}`} />
                 </Button>
             </Link>
-        </Card>
+        </Card >
     );
 }

@@ -138,7 +138,6 @@ export default function InternshipDetails() {
                             </span>
                         </div>
                     )}
-                    <p className="text-xs text-center text-gray-400 mt-4">30-day money-back guarantee</p>
                 </Card>
             </div>
         </div>
