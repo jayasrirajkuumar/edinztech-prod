@@ -60,6 +60,7 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/gallery', require('./routes/galleryRoutes')); // Added Gallery Route
 app.use('/api/outsider-quiz', require('./routes/outsiderQuizRoutes'));
+app.use('/api/contact', require('./routes/contactRoutes')); // Added Contact Route
 // app.use('/api/me', meRoutes); // This line is removed as per the instruction's implied change
 
 // Static Folder for Uploads

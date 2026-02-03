@@ -484,4 +484,9 @@ export const deleteGalleryItem = async (id) => {
     return data;
 };
 
+export const sendContactQuery = async (data) => {
+    const { data: response } = await api.post('/contact', data);
+    return response;
+};
+
 export default api;
