@@ -80,6 +80,7 @@ function ContactForm() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phone: '',
         message: ''
     });
     const [loading, setLoading] = useState(false);
@@ -97,7 +98,7 @@ function ContactForm() {
         try {
             await sendContactQuery(formData);
             setStatus('success');
-            setFormData({ name: '', email: '', message: '' });
+            setFormData({ name: '', email: '', phone: '', message: '' });
         } catch (error) {
             console.error(error);
             setStatus('error');
@@ -141,6 +142,17 @@ function ContactForm() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                     placeholder="you@example.com"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="+91 98765 43210"
                 />
             </div>
             <div>
