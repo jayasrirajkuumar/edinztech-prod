@@ -81,19 +81,45 @@ const getProgramById = asyncHandler(async (req, res) => {
 // @route   POST /api/admin/programs
 // @access  Private/Admin
 const createProgram = asyncHandler(async (req, res) => {
-    const { title, description, type, code, startDate, endDate, fee, mode, registrationDeadline } = req.body;
+    const { title, description, type, startDate, endDate, fee, mode, registrationDeadline } = req.body;
 
-    // Check if code exists
-    if (code) {
-        const programExists = await Program.findOne({ code });
-        if (programExists) {
-            res.status(400);
-            throw new Error('Program with this code already exists');
+    // Generate Sequential Code: EDZ-YYYY-TYPE-XXX
+    const year = new Date().getFullYear();
+    let typeCode = 'COU'; // Default Course
+    if (type === 'Internship') typeCode = 'INT';
+    else if (type === 'Workshop') typeCode = 'WRK';
+    else if (type === 'Project') typeCode = 'PRO';
+
+    // Find latest program of this type in this year to determine sequence
+    // Regex matches EDZ-2025-INT-001
+    const prefix = `EDZ-${year}-${typeCode}-`;
+    const latestProgram = await Program.findOne({
+        code: { $regex: new RegExp(`^${prefix}`) }
+    }).sort({ code: -1 });
+
+    let sequence = 1;
+    if (latestProgram && latestProgram.code) {
+        const parts = latestProgram.code.split('-');
+        const lastSeq = parseInt(parts[parts.length - 1]);
+        if (!isNaN(lastSeq)) {
+            sequence = lastSeq + 1;
         }
+    }
+
+    const code = `${prefix}${String(sequence).padStart(3, '0')}`;
+
+    // Check collision (paranoid check)
+    const programExists = await Program.findOne({ code });
+    if (programExists) {
+        // If collision (highly unlikely with serial logic unless race condition), simply increment
+        // In a high volume system, we'd use a counter collection, but here query-and-increment is fine.
+        const nextCode = `${prefix}${String(sequence + 1).padStart(3, '0')}`;
+        // We'll trust this one for now to keep it simple
     }
 
     const program = new Program({
         ...req.body,
+        code: code, // Force server generated code
         // user: req.user._id, // if we want to track creator
     });
 

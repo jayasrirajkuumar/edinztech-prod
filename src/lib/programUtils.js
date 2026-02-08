@@ -78,7 +78,16 @@ export const getDurationString = (program) => {
         const end = new Date(program.endDate);
         const diffTime = Math.abs(end - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return `${diffDays} Days`;
+
+        if (diffDays >= 30) {
+            const months = Math.round(diffDays / 30);
+            return `${months} Month${months > 1 ? 's' : ''}`;
+        }
+        if (diffDays >= 7) {
+            const weeks = Math.round(diffDays / 7);
+            return `${weeks} Week${weeks > 1 ? 's' : ''}`;
+        }
+        return `${diffDays} Day${diffDays > 1 ? 's' : ''}`;
     }
 
     return 'Self-paced';

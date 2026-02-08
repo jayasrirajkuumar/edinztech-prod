@@ -219,7 +219,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
             type: 'Course',
             paymentMode: 'Paid',
             mode: 'Online',
-            code: '',
+            code: 'Auto-generated',
             // Default Time: Current Time
             startTime: new Date().toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' }),
             endTime: new Date(new Date().getTime() + 60 * 60 * 1000).toLocaleTimeString('en-GB', { hour12: false, hour: '2-digit', minute: '2-digit' })
@@ -465,17 +465,13 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
         }
     };
 
-    // Auto-generate Program Code if missing
+    // Auto-generate Program Code if missing - DISABLED (Server handles it now)
     const currentCode = watch('code');
     useEffect(() => {
-        if (programType && !currentCode) {
-            const date = new Date();
-            const typeCode = programType.toUpperCase().slice(0, 3);
-            const uniqueNum = Math.floor(100 + Math.random() * 900); // Random 3-digit number
-            const code = `EDZ-${date.getFullYear()}-${typeCode}-${uniqueNum}`;
-            setValue('code', code, { shouldDirty: true, shouldTouch: true });
+        if (!isEditing) {
+            setValue('code', 'Auto-generated on Save', { shouldDirty: true, shouldTouch: true });
         }
-    }, [programType, currentCode, setValue]);
+    }, [isEditing, setValue]);
 
     return (
         <div className="space-y-8 animate-in fade-in">
@@ -693,7 +689,8 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                                             {...register('templateType')}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2.5 border"
                                         >
-                                            <option value="edinz">Edinz (Default)</option>
+                                            <option value="">Select Branding...</option>
+                                            <option value="edinz">Edinz</option>
                                             <option value="inspire">Inspire</option>
                                             <option value="igreen">IGreen</option>
                                             <option value="ats">ATS</option>

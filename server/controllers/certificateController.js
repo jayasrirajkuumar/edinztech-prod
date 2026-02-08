@@ -56,7 +56,7 @@ const generateCertificateForEnrollment = async (enrollment, program, user, force
             id: program._id
         },
         certificateId: certificateId,
-        templateId: program.templateType || program.certificateTemplate || 'default',
+        templateId: program.templateType || program.certificateTemplate,
         templateUrl: program.certificateTemplate,
         qrCode: qrCodeImage,
         callbackUrl: CALLBACK_URL,
@@ -125,10 +125,10 @@ const publishCertificates = asyncHandler(async (req, res) => {
     // Actually, we use enrollment.isFeedbackSubmitted which is denormalized.
 
     // 2. Determine Template
-    const templateId = program.templateType || program.certificateTemplate || 'default';
+    const templateId = program.templateType || program.certificateTemplate;
     if (!templateId) {
         res.status(400);
-        throw new Error('Certificate Template not configured for Program');
+        throw new Error('Certificate Template/Branding is NOT selected for this Program. Please edit the program and select a template.');
     }
 
     // 3. Process Each Enrollment (ATOMICALLY)
@@ -620,7 +620,7 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
                 id: program._id
             },
             certificateId: certificateId,
-            templateId: program.templateType || program.certificateTemplate || 'default',
+            templateId: program.templateType || program.certificateTemplate,
             templateUrl: program.certificateTemplate,
             qrCode: qrCodeImage,
             callbackUrl: 'http://ignore.me',

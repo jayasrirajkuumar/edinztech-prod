@@ -169,7 +169,7 @@ const enrollFree = asyncHandler(async (req, res) => {
     await sendEmail({
         email: req.user.email,
         subject: 'Enrollment Confirmed - EdinzTech',
-        html: `Hi ${req.user.name}, you have been successfully enrolled in ${program.title} for free.${welcomeAddon}`
+        html: `Hi ${req.user.name}, you have been successfully enrolled in ${program.title} (Code: ${program.code}) for free.${welcomeAddon}`
     });
 
     res.json({ status: 'success', message: 'Enrolled successfully' });
@@ -338,13 +338,13 @@ const handleWebhook = asyncHandler(async (req, res) => {
                         await sendEmail({
                             to: user.email,
                             subject: 'Welcome to EdinzTech - Login Credentials',
-                            html: `Welcome ${user.name}!<br><br>You have successfully enrolled in the ${programType}. Here are your login details:<br><br>Email: ${user.email}<br>Password: ${autoPassword}<br><br>Please login at: <a href="${process.env.FRONTEND_URL}/login">${process.env.FRONTEND_URL}/login</a>${welcomeAddon}`
+                            html: `Welcome ${user.name}!<br><br>You have successfully enrolled in the ${programType} (Code: ${programId ? (await Program.findById(programId))?.code : 'N/A'}). Here are your login details:<br><br>Email: ${user.email}<br>Password: ${autoPassword}<br><br>Please login at: <a href="${process.env.FRONTEND_URL}/login">${process.env.FRONTEND_URL}/login</a>${welcomeAddon}`
                         });
                     } else {
                         await sendEmail({
                             to: user.email,
                             subject: 'Enrollment Confirmed - EdinzTech',
-                            html: `Hi ${user.name},<br><br>Your payment was successful and you have been enrolled in the ${programType}.${welcomeAddon}`
+                            html: `Hi ${user.name},<br><br>Your payment was successful and you have been enrolled in the ${programType} (Code: ${programId ? (await Program.findById(programId))?.code : 'N/A'}).${welcomeAddon}`
                         });
                     }
 
@@ -496,7 +496,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
                 sendEmail({
                     to: user.email,
                     subject: 'Welcome to EdinzTech - Login Credentials',
-                    html: `Welcome ${user.name}!<br><br>You have successfully enrolled. Login details:<br>Email: ${user.email}<br>Password: ${autoPassword}<br><a href="${process.env.FRONTEND_URL}/login">Login Here</a>${welcomeAddon}`
+                    html: `Welcome ${user.name}!<br><br>You have successfully enrolled. (Code: ${fullProgram?.code || 'N/A'}) Login details:<br>Email: ${user.email}<br>Password: ${autoPassword}<br><a href="${process.env.FRONTEND_URL}/login">Login Here</a>${welcomeAddon}`
                 }).catch(err => console.error("Email fail", err));
             } else if (!existingPayment) {
                 // Confirmation for existing user - WITH CREDENTIALS as requested
@@ -509,7 +509,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
                     to: user.email,
                     subject: 'Enrollment Confirmed - EdinzTech',
                     html: `Hi ${user.name},<br><br>
-                    Your payment was successful and you have been enrolled in the ${programType}.<br><br>
+                    Your payment was successful and you have been enrolled in the ${programType} (Code: ${fullProgram?.code || 'N/A'}).<br><br>
                     Here are your login credentials:<br>
                     <b>Username:</b> ${user.email}<br>
                     <b>Password:</b> ${decryptedPassword}<br><br>

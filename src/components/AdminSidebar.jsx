@@ -58,11 +58,9 @@ export default function AdminSidebar({ isOpen, onClose }) {
                     <SidebarItem to="/admin/outsider-quizzes" icon={Icons.Globe}>Outsider Quizzes</SidebarItem>
 
                     <SidebarItem to="/admin/feedbacks" icon={Icons.MessageSquare}>Feedbacks</SidebarItem>
-                    <SidebarItem to="/admin/certificates" icon={Icons.Certificate}>Certificates</SidebarItem>
                     <SidebarItem to="/admin/gallery" icon={Icons.History}>Gallery</SidebarItem>
 
                     <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-2">System</div>
-                    <SidebarItem to="/admin/notifications" icon={Icons.Info}>Notifications</SidebarItem>
                     <SidebarItem to="/admin/system/buffer" icon={Icons.Settings}>System Buffer</SidebarItem>
                 </nav>
 

@@ -16,6 +16,7 @@ export default function QuizAttempt() {
     const [error, setError] = useState(null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [uploading, setUploading] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(null); // Time in seconds
 
     useEffect(() => {
         const fetchQuiz = async () => {
@@ -36,6 +37,52 @@ export default function QuizAttempt() {
         };
         fetchQuiz();
     }, [id]);
+
+    // Timer Logic
+    useEffect(() => {
+        if (!quiz || !quiz.endTime || submitting || result) return;
+
+        const calculateTimeLeft = () => {
+            const end = new Date(quiz.endTime).getTime();
+            const now = new Date().getTime();
+            const diff = Math.floor((end - now) / 1000); // Seconds
+            return diff > 0 ? diff : 0;
+        };
+
+        // Initial set
+        if (timeLeft === null) {
+            setTimeLeft(calculateTimeLeft());
+        }
+
+        const timer = setInterval(() => {
+            const remaining = calculateTimeLeft();
+            setTimeLeft(remaining);
+
+            if (remaining <= 0) {
+                clearInterval(timer);
+                // Auto-submit
+                if (!submitting && !result) {
+                    alert("Time is up! Your quiz is being submitted.");
+                    handleSubmit(true); // pass true to skip confirm
+                }
+            }
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [quiz, submitting, result]);
+
+    // Format Time
+    const formatTime = (seconds) => {
+        if (seconds === null) return "--:--";
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        if (h > 0) {
+            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    };
 
     const handleOptionSelect = (optionIndex) => {
         setAnswers(prev => ({
@@ -79,8 +126,8 @@ export default function QuizAttempt() {
         });
     };
 
-    const handleSubmit = async () => {
-        if (!window.confirm("Are you sure you want to submit?")) return;
+    const handleSubmit = async (force = false) => {
+        if (!force && !window.confirm("Are you sure you want to submit?")) return;
 
         setSubmitting(true);
         try {
@@ -155,7 +202,9 @@ export default function QuizAttempt() {
                 </div>
                 <div className="text-right">
                     <span className="text-sm font-semibold text-primary block">Time Remaining</span>
-                    <span className="text-xl font-mono text-gray-700">--:--</span> {/* Todo: Timer */}
+                    <span className={`text-xl font-mono ${timeLeft < 60 ? 'text-red-600 animate-pulse' : 'text-gray-700'}`}>
+                        {formatTime(timeLeft)}
+                    </span>
                 </div>
             </header>
 

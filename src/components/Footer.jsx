@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.svg';
 
 export default function Footer() {
+    const location = useLocation();
     return (
         <footer className="bg-white border-t border-gray-200 pt-12 pb-8 mt-auto">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,9 +19,8 @@ export default function Footer() {
                                 Olympia Tech Park Plot No.1, SIDCO Industrial Estate,<br />
                                 Guindy, Tamil Nadu, Chennai- 600032
                             </p>
-                            <p>Phone: +91 44 6145 9000</p>
-                            <p>Mobile: +91 9042930169</p>
-                            <p>Email: info@edinztech.com</p>
+                            <p>Mobile: +91 8667493679 | 9360505768</p>
+                            <p>Email: projects@edinztech.com</p>
                         </div>
                     </div>
 
@@ -63,18 +63,21 @@ export default function Footer() {
                     </div>
 
                     {/* Verify Section */}
-                    <div className="flex flex-col items-start justify-start">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Verify</h3>
-                        <p className="text-sm text-gray-500 mb-4">
-                            Validate certificates issued by EdinzTech.
-                        </p>
-                        <Link
-                            to="/verify"
-                            className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-orange-600 transition-colors shadow-sm whitespace-nowrap"
-                        >
-                            Verify Certificate
-                        </Link>
-                    </div>
+                    {/* Verify Section */}
+                    {(location.pathname === '/' || location.pathname === '/contact' || location.pathname.startsWith('/dashboard')) && (
+                        <div className="flex flex-col items-start justify-start">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Verify</h3>
+                            <p className="text-sm text-gray-500 mb-4">
+                                Validate certificates issued by EdinzTech.
+                            </p>
+                            <Link
+                                to="/verify"
+                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-medium rounded-lg hover:bg-orange-600 transition-colors shadow-sm whitespace-nowrap"
+                            >
+                                Verify Certificate
+                            </Link>
+                        </div>
+                    )}
                 </div>
 
                 {/* Bottom Bar */}
