@@ -36,7 +36,7 @@ const programSchema = mongoose.Schema({
     templateType: {
         type: String,
         enum: ['edinz', 'inspire', 'igreen', 'ats'],
-        default: 'edinz'
+        // default: 'edinz' // Removed default to make it optional
     },
 
     // Certificate Configuration (For Auto-Generation)

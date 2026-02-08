@@ -48,7 +48,7 @@ export default function Home() {
                     </p>
 
                     <div className="animate-in slide-in-from-bottom-5 fade-in duration-700 delay-500 flex flex-col sm:flex-row justify-center gap-4 pt-8">
-                        <Link to="/contact">
+                        <Link to="/internships">
                             <Button size="lg" className="rounded-full px-8 py-4 text-lg w-full sm:w-auto shadow-xl !bg-blue-600 hover:!bg-blue-500 text-white border-none transition-all hover:scale-105">Get Started</Button>
                         </Link>
                         <Link to="/services">

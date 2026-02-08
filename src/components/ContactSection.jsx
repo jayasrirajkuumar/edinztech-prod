@@ -48,18 +48,15 @@ export default function ContactSection() {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-gray-900">Email Us</h4>
-                                    <p className="text-gray-600">info@edinztech.com</p>
+                                    <p className="text-gray-600">projects@edinztech.com</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4">
-                                <div className="mt-1 w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                                    <Icons.Rocket size={20} className="text-blue-600" />
-                                </div>
+                            <div className="flex items-start">
+                                <Icons.Phone className="w-6 h-6 text-primary mt-1 mr-4" />
                                 <div>
-                                    <h4 className="font-bold text-gray-900">Call Us</h4>
-                                    <p className="text-gray-600">Phone: +91 44 6145 9000</p>
-                                    <p className="text-gray-600">Mobile: +91 9042930169</p>
+                                    <h3 className="font-semibold text-gray-800">Phone</h3>
+                                    <p className="text-gray-600">+91 8667493679 | 9360505768</p>
                                 </div>
                             </div>
                         </div>

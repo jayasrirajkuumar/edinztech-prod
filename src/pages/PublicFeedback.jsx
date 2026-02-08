@@ -78,7 +78,9 @@ const PublicFeedback = () => {
                     >
                         <option value="">-- Choose a Program --</option>
                         {programs.map(p => (
-                            <option key={p._id} value={p._id}>{p.title}</option>
+                            <option key={p._id} value={p._id}>
+                                {p.code ? `${p.code} - ${p.title}` : p.title}
+                            </option>
                         ))}
                     </select>
                     {errors.programId && <p className="text-red-500 text-xs mt-1">{errors.programId.message}</p>}

@@ -31,15 +31,14 @@ export default function GalleryCarousel() {
                 <p className="text-gray-600 mt-2">Glimpses of our events, workshops, and team culture.</p>
             </div>
 
-            <div className="relative w-full overflow-hidden">
+            <div className="relative w-full">
                 {/* Gradient Masks */}
                 <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
                 <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
 
-                <div className="flex gap-4 animate-scroll whitespace-nowrap hover:pause">
-                    {/* Double the list for seamless looping */}
-                    {[...images, ...images].map((img, idx) => (
-                        <div key={idx} className="flex-shrink-0 w-72 h-48 rounded-xl overflow-hidden shadow-sm border border-gray-100">
+                <div className="flex gap-4 overflow-x-auto pb-6 px-4 snap-x">
+                    {images.map((img, idx) => (
+                        <div key={idx} className="flex-shrink-0 w-72 h-48 rounded-xl overflow-hidden shadow-sm border border-gray-100 snap-center">
                             <img
                                 src={getImageUrl(img)}
                                 alt="Gallery Moment"
@@ -49,19 +48,6 @@ export default function GalleryCarousel() {
                     ))}
                 </div>
             </div>
-
-            <style>{`
-                .animate-scroll {
-                    animation: scroll 40s linear infinite;
-                }
-                .hover\\:pause:hover {
-                    animation-play-state: paused;
-                }
-                @keyframes scroll {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
-            `}</style>
         </section>
     );
 }

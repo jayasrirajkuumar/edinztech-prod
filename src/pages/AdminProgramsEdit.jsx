@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ProgramForm from '../components/forms/ProgramForm';
-import QuizList from '../components/admin/QuizList';
 import { Icons } from '../components/icons';
 import { getProgram, updateProgram } from '../lib/api';
 
@@ -39,9 +38,6 @@ export default function AdminProgramsEdit() {
         }
     };
 
-    // Tab State
-    const [activeTab, setActiveTab] = useState('basic');
-
     if (isLoading) return <div className="p-8">Loading program...</div>;
     if (error) return <div className="p-8 text-red-500">{error}</div>;
     if (!program) return <div className="p-8">Program not found</div>;
@@ -78,38 +74,8 @@ export default function AdminProgramsEdit() {
                 </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex border-b border-gray-200 mb-6 overflow-x-auto">
-                {['Basic', 'Quizzes'].map((tab) => {
-                    const key = tab.toLowerCase();
-                    const isActive = activeTab === key;
-                    return (
-                        <button
-                            key={key}
-                            onClick={() => setActiveTab(key)}
-                            className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${isActive
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {/* Content */}
-            {activeTab === 'basic' && (
-                <ProgramForm programId={id} onSubmit={handleSubmit} defaultValues={defaultValues} isEditing />
-            )}
-
-            {activeTab === 'quizzes' && (
-                // Dynamic import or direct component? Direct is fine.
-                // Pass programId to list quizzes
-                <div className="animate-in slide-in-from-left-2 duration-300">
-                    <QuizList programId={id} />
-                </div>
-            )}
+            {/* Content - Removed Quizzes Tab as requested */}
+            <ProgramForm programId={id} onSubmit={handleSubmit} defaultValues={defaultValues} isEditing />
         </div>
     );
 }

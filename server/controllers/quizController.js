@@ -143,10 +143,11 @@ const publishQuiz = asyncHandler(async (req, res) => {
         throw new Error('Cannot publish: Start Time is missing');
     }
 
-    if (new Date(quiz.startTime) > new Date()) {
-        res.status(400);
-        throw new Error(`Cannot publish: Start Time is in the future (${new Date(quiz.startTime).toLocaleString()}). Quiz must remain Draft until then.`);
-    }
+    // Constraint Removed: Future quizzes can be published to schedule them.
+    // if (new Date(quiz.startTime) > new Date()) {
+    //     res.status(400);
+    //     throw new Error(`Cannot publish: Start Time is in the future (${new Date(quiz.startTime).toLocaleString()}). Quiz must remain Draft until then.`);
+    // }
 
     quiz.status = 'Published';
     await quiz.save();

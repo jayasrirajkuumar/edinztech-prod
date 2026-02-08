@@ -78,7 +78,7 @@ const inviteStudent = async (req, res) => {
         const emailSubject = `You’ve been invited to join your program at EdinzTech LMS`;
         const emailBody = `
             <h3>Hello ${user.name},</h3>
-            <p>You have been added to the program: <strong>${program.title}</strong></p>
+            <p>You have been added to the program: <strong>${program.title}</strong> (Code: ${program.code})</p>
             <p>Login here: <a href="${loginUrl}">${loginUrl}</a></p>
             ${isNewUser ? `
             <p><strong>Your Login Credentials:</strong></p>

@@ -32,9 +32,10 @@ export default function ProgramCard({ program, showStatus = false }) {
             badge = <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded">Completed</span>;
         } else if (regStatus === 'Closed') {
             badge = <span className="bg-red-50 text-red-600 text-xs font-bold px-2 py-1 rounded">reg. closed</span>;
-        } else if (regStatus === 'Extended' || isExtended) {
-            const extDate = formatDate(program.registrationDeadline, { day: 'numeric', month: 'short' });
-            badge = <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-1 rounded border border-purple-200">Extended till {extDate}</span>;
+            // Extended logic removed as per request
+            // } else if (regStatus === 'Extended' || isExtended) {
+            //     const extDate = formatDate(program.registrationDeadline, { day: 'numeric', month: 'short' });
+            //     badge = <span className="bg-purple-100 text-purple-600 text-xs font-bold px-2 py-1 rounded border border-purple-200">Extended till {extDate}</span>;
         } else if (regStatus === 'Closing Soon') {
             badge = <span className="bg-orange-50 text-orange-600 text-xs font-bold px-2 py-1 rounded">Closing Soon</span>;
         } else if (lifecycleStatus === 'Ongoing') {
@@ -59,6 +60,8 @@ export default function ProgramCard({ program, showStatus = false }) {
                 </div>
 
             </div>
+            {/* Program Code Badge */}
+            <div className="text-xs font-mono text-gray-400 mb-1">{program.code}</div>
             <h3 className="text-xl font-bold text-secondary mb-2">{program.title}</h3>
             <p className="text-text-light text-sm mb-6 line-clamp-2 flex-grow">{program.description}</p>
 
@@ -76,10 +79,13 @@ export default function ProgramCard({ program, showStatus = false }) {
                     <span className="font-semibold text-secondary">{price}</span>
                 </div>
                 {/* Show Start Date if relevant */}
-                {program.startDate && (
+                {/* Show Start and End Date */}
+                {program.startDate && program.endDate && (
                     <div className="flex items-center gap-3 text-sm text-text-light">
                         <Icons.Date size={16} className="text-primary" />
-                        <span>Starts {formatDate(program.startDate)}</span>
+                        <span className="text-xs">
+                            {formatDate(program.startDate)} - {formatDate(program.endDate)}
+                        </span>
                     </div>
                 )}
             </div>
