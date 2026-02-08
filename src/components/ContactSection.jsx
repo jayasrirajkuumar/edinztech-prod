@@ -53,7 +53,7 @@ export default function ContactSection() {
                             </div>
 
                             <div className="flex items-start">
-                                <Icons.Phone className="w-6 h-6 text-primary mt-1 mr-4" />
+                                <Icons.Contact className="w-6 h-6 text-primary mt-1 mr-4" />
                                 <div>
                                     <h3 className="font-semibold text-gray-800">Phone</h3>
                                     <p className="text-gray-600">+91 8667493679 | 9360505768</p>
