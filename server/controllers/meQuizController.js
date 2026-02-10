@@ -10,27 +10,34 @@ const getMyQuizzes = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
     // 1. Get all active program IDs for this user
+    // Fix: Allow open-ended enrollments (validUntil missing/null) OR future validUntil
     const enrollments = await Enrollment.find({
         user: userId,
         status: 'active',
-        validUntil: { $gte: new Date() }
+        $or: [
+            { validUntil: { $gte: new Date() } },
+            { validUntil: { $exists: false } }, // Field missing
+            { validUntil: null }                // Field is null
+        ]
     }).select('program');
 
     const programIds = enrollments.map(e => e.program);
+    console.log(`[DEBUG] User ${userId} has active enrollments in programs:`, programIds);
 
     if (programIds.length === 0) {
+        console.log(`[DEBUG] No active enrollments found for user ${userId}`);
         return res.json([]);
     }
 
-    // 2. Find published quizzes for these programs within time window
+    // 2. Find published quizzes for these programs (ALL)
     const quizzes = await Quiz.find({
         program: { $in: programIds },
-        status: 'Published',
-        startTime: { $lte: new Date() },
-        endTime: { $gte: new Date() }
+        status: 'Published'
     })
         .populate('program', 'title')
         .sort({ startTime: 1 });
+
+    console.log(`[DEBUG] Found ${quizzes.length} published quizzes for programs: ${programIds}`);
 
     // 3. Attach attempt status
     const quizzesWithStatus = await Promise.all(quizzes.map(async (quiz) => {
@@ -72,7 +79,11 @@ const getMyQuiz = asyncHandler(async (req, res) => {
         user: userId,
         program: quiz.program,
         status: 'active',
-        validUntil: { $gte: new Date() }
+        $or: [
+            { validUntil: { $gte: new Date() } },
+            { validUntil: { $exists: false } },
+            { validUntil: null }
+        ]
     });
 
     if (!enrollment) {
@@ -80,14 +91,21 @@ const getMyQuiz = asyncHandler(async (req, res) => {
         throw new Error('You are not enrolled in the program for this quiz or your enrollment has expired.');
     }
 
-    // Time Check
-    const now = new Date();
-    if (now < new Date(quiz.startTime) || now > new Date(quiz.endTime)) {
+    // Check Quiz Timing
+    const currentTime = new Date();
+    if (quiz.startTime && currentTime < new Date(quiz.startTime)) {
         res.status(403);
-        throw new Error('Quiz is not currently active');
+        throw new Error(`Quiz has not started yet. Starts at: ${new Date(quiz.startTime).toLocaleString()}`);
     }
 
-    // Check for existing attempt
+    if (quiz.endTime && currentTime < new Date(quiz.endTime)) {
+        // Allow access if end time is in future
+    } else if (quiz.endTime && currentTime > new Date(quiz.endTime)) {
+        res.status(403);
+        throw new Error('Quiz has ended.');
+    }
+
+    // Check for existing attempt first
     const attempt = await QuizAttempt.findOne({
         quiz: quiz._id,
         user: userId
@@ -96,6 +114,20 @@ const getMyQuiz = asyncHandler(async (req, res) => {
     const quizData = quiz.toObject();
     if (attempt) {
         quizData.attempt = attempt;
+    }
+
+    // Time Check (Only if not already attempted)
+    // If attempted, user can view results even if time is over.
+    const now = new Date();
+    if (!attempt) {
+        if (now < new Date(quiz.startTime)) {
+            res.status(403);
+            throw new Error(`Quiz has not started yet. Starts at ${new Date(quiz.startTime).toLocaleString()}`);
+        }
+        if (now > new Date(quiz.endTime)) {
+            res.status(403);
+            throw new Error('Quiz has ended.');
+        }
     }
 
     res.json(quizData);

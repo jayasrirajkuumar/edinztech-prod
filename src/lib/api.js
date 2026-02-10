@@ -35,9 +35,13 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Not authorized, clear token and redirect (optional)
-            localStorage.removeItem('userInfo');
-            window.location.href = '/login'; // Force login if needed
+            // Not authorized
+            // OLD: localStorage.removeItem('userInfo');
+            // OLD: window.location.href = '/login'; 
+
+            // FIX: Don't aggressively logout on single 401. 
+            // This prevents random logouts due to transient server glitches.
+            console.warn("401 Unauthorized - Request failed", error.config.url);
         }
         return Promise.reject(error);
     }

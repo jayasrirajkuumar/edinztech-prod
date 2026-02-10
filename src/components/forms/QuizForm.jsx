@@ -49,8 +49,9 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
         defaultValues: defaultValues ? {
             ...defaultValues,
             programId: programId || defaultValues.program,
-            startTime: defaultValues.startTime ? new Date(defaultValues.startTime).toISOString().slice(0, 16) : '',
-            endTime: defaultValues.endTime ? new Date(defaultValues.endTime).toISOString().slice(0, 16) : '',
+            // FIX: Use local time string for datetime-local input, NOT UTC
+            startTime: defaultValues.startTime ? new Date(defaultValues.startTime).toLocaleString('sv').slice(0, 16).replace(' ', 'T') : '',
+            endTime: defaultValues.endTime ? new Date(defaultValues.endTime).toLocaleString('sv').slice(0, 16).replace(' ', 'T') : '',
             questions: defaultValues.questions.map(q => ({
                 ...q,
                 type: q.type || 'mcq',
@@ -64,7 +65,8 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
             description: '',
             programId: programId || '',
             passingScore: 60,
-            startTime: new Date(new Date().getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16),
+            // Default start time: Now (Local)
+            startTime: new Date().toLocaleString('sv').slice(0, 16).replace(' ', 'T'),
             questions: [{ question: '', type: 'mcq', marks: 1, options: ['', '', '', ''], correctOption: 0 }]
         }
     });
