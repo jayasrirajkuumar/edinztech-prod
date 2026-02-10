@@ -386,11 +386,26 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
 
     // 2. Verify Program & Feedback Status
     const Program = require('../models/Program');
-    const program = await Program.findById(programId);
+    let program;
+
+    if (mongoose.Types.ObjectId.isValid(programId)) {
+        program = await Program.findById(programId);
+    }
+
+    // If no program found by ID, try searching by Program Code (Case-insensitive)
+    if (!program) {
+        program = await Program.findOne({
+            code: { $regex: new RegExp(`^${programId.trim()}$`, 'i') }
+        });
+    }
+
     if (!program) {
         res.status(404);
-        throw new Error('Program not found');
+        throw new Error(`Program not found with Code or ID: "${programId}". Please check the code (e.g., EDZ-202X-XXX-XXX).`);
     }
+
+    // Use the found program's ID for subsequent queries
+    const validProgramId = program._id;
 
     if (!program.enableFeedback) {
         res.status(403);
@@ -400,7 +415,7 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
     // 2. Verify Enrollment
     const enrollment = await Enrollment.findOne({
         user: user._id,
-        program: programId,
+        program: validProgramId,
         status: 'active'
     });
 
@@ -412,7 +427,7 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
     // 3. Check Duplicate Feedback
     const DefaultFeedbackResponse = require('../models/DefaultFeedbackResponse'); // Lazy load
     const existing = await DefaultFeedbackResponse.findOne({
-        programId,
+        programId: validProgramId,
         userId: user._id
     });
 
@@ -424,7 +439,7 @@ const submitPublicFeedback = asyncHandler(async (req, res) => {
     // 4. Create Feedback
     // 4. Create Feedback
     const response = await DefaultFeedbackResponse.create({
-        programId,
+        programId: validProgramId,
         userId: user._id,
         name: name || user.name,
         email: user.email,

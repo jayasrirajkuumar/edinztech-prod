@@ -191,7 +191,13 @@ export default function QuizAttempt() {
 
     const question = quiz.questions[currentQuestion];
     const isLastQuestion = currentQuestion === quiz.questions.length - 1;
-    const progress = ((currentQuestion + 1) / quiz.questions.length) * 100;
+
+    // Time Progress Logic
+    const totalDuration = new Date(quiz.endTime).getTime() - new Date(quiz.startTime).getTime();
+    // Clamp progress between 0 and 100
+    const progress = totalDuration > 0
+        ? Math.min(100, Math.max(0, (timeLeft * 1000 / totalDuration) * 100))
+        : 0;
 
     return (
         <div className="p-6 max-w-4xl mx-auto">

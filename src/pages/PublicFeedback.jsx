@@ -69,20 +69,16 @@ const PublicFeedback = () => {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
-                {/* Program Selection */}
+                {/* Program Code Manual Input */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Select Program</label>
-                    <select
-                        {...register("programId", { required: "Please select a program" })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:ring-blue-500 focus:border-blue-500"
-                    >
-                        <option value="">-- Choose a Program --</option>
-                        {programs.map(p => (
-                            <option key={p._id} value={p._id}>
-                                {p.code ? `${p.code} - ${p.title}` : p.title}
-                            </option>
-                        ))}
-                    </select>
+                    <label className="block text-sm font-medium text-gray-700">Program Code</label>
+                    <input
+                        {...register("programId", { required: "Program Code is required" })}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-3 border focus:ring-blue-500 focus:border-blue-500 font-mono uppercase"
+                        placeholder="e.g. EDZ-2025-INT-001"
+                        style={{ textTransform: 'uppercase' }}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Enter your unique Program Code (from your dashboard or offer letter).</p>
                     {errors.programId && <p className="text-red-500 text-xs mt-1">{errors.programId.message}</p>}
                 </div>
 

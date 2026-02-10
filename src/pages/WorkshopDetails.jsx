@@ -101,9 +101,16 @@ export default function WorkshopDetails() {
                         <div className="flex justify-between items-center py-2 border-b border-gray-50">
                             <div className="flex items-center gap-3 text-text-light">
                                 <Icons.Date size={20} className="text-primary" />
-                                <span>Date</span>
+                                <span>Start Date</span>
                             </div>
                             <span className="font-semibold text-secondary">{formatDate(program.startDate)}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                            <div className="flex items-center gap-3 text-text-light">
+                                <Icons.Date size={20} className="text-primary" />
+                                <span>End Date</span>
+                            </div>
+                            <span className="font-semibold text-secondary">{formatDate(program.endDate)}</span>
                         </div>
                         {program.extendedDate && (new Date() > new Date(program.registrationDeadline)) && (new Date() <= new Date(program.extendedDate)) && (
                             <div className="flex justify-between items-center py-2 border-b border-gray-50">

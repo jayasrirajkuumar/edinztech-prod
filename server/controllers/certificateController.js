@@ -128,7 +128,7 @@ const publishCertificates = asyncHandler(async (req, res) => {
     const templateId = program.templateType || program.certificateTemplate;
     if (!templateId) {
         res.status(400);
-        throw new Error('Certificate Template/Branding is NOT selected for this Program. Please edit the program and select a template.');
+        throw new Error('No certificate template updated. Please ask the admin to update the template.');
     }
 
     // 3. Process Each Enrollment (ATOMICALLY)
