@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDateTime } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import { getMyQuizzes } from '../lib/api';
@@ -96,13 +97,13 @@ export default function DashboardQuizzes() {
                                             {quiz.startTime && (
                                                 <div className="flex items-center gap-1">
                                                     <Icons.Date size={14} />
-                                                    <span>Start: {new Date(quiz.startTime).toLocaleString()}</span>
+                                                    <span>Start: {formatDateTime(quiz.startTime)}</span>
                                                 </div>
                                             )}
                                             {quiz.endTime && (
                                                 <div className="flex items-center gap-1">
                                                     <Icons.Date size={14} />
-                                                    <span>End: {new Date(quiz.endTime).toLocaleString()}</span>
+                                                    <span>End: {formatDateTime(quiz.endTime)}</span>
                                                 </div>
                                             )}
                                         </div>

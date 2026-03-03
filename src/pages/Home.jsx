@@ -28,19 +28,18 @@ export default function Home() {
     return (
         <div className="space-y-16">
             {/* Hero Section */}
-            {/* Hero Section */}
             <section className="relative pt-32 pb-64 overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#4b5563_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
                     <div className="animate-in slide-in-from-bottom-5 fade-in duration-700 delay-100 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-300 font-medium text-sm backdrop-blur-sm">
-                        <Icons.Rocket size={16} className="text-blue-400" />
+                        <Icons.Rocket size={16} className="text-blue-400 animate-float" />
                         <span>Innovative Tech Solutions</span>
                     </div>
 
                     <h1 className="animate-in slide-in-from-bottom-5 fade-in duration-700 delay-200 text-5xl md:text-7xl font-extrabold tracking-tight max-w-5xl mx-auto leading-tight">
-                        Powering Business Growth Through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Technology</span>
+                        Powering Business Growth Through <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 drop-shadow-sm">Technology</span>
                     </h1>
 
                     <p className="animate-in slide-in-from-bottom-5 fade-in duration-700 delay-300 text-xl text-blue-100/80 max-w-2xl mx-auto leading-relaxed">
@@ -49,10 +48,10 @@ export default function Home() {
 
                     <div className="animate-in slide-in-from-bottom-5 fade-in duration-700 delay-500 flex flex-col sm:flex-row justify-center gap-4 pt-8">
                         <Link to="/internships">
-                            <Button size="lg" className="rounded-full px-8 py-4 text-lg w-full sm:w-auto shadow-xl !bg-blue-600 hover:!bg-blue-500 text-white border-none transition-all hover:scale-105">Get Started</Button>
+                            <Button size="lg" className="rounded-full px-8 py-4 text-lg w-full sm:w-auto shadow-2xl !bg-blue-600 hover:!bg-blue-500 text-white border-none transition-all hover:scale-105 active:scale-95">Get Started</Button>
                         </Link>
                         <Link to="/services">
-                            <Button variant="ghost" size="lg" className="rounded-full px-8 py-4 text-lg w-full sm:w-auto border border-blue-400/30 !text-white hover:!bg-blue-800/50 hover:!text-white backdrop-blur-sm transition-all hover:scale-105">Our Services</Button>
+                            <Button variant="ghost" size="lg" className="rounded-full px-8 py-4 text-lg w-full sm:w-auto border border-blue-400/30 !text-white hover:!bg-blue-800/50 hover:!text-white backdrop-blur-sm transition-all hover:scale-105 active:scale-95">Our Services</Button>
                         </Link>
                     </div>
                 </div>
@@ -107,13 +106,16 @@ export default function Home() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { title: "Software Development", desc: "Custom web and mobile applications tailored to your business goals." },
-                            { title: "Cloud Strategy", desc: "Secure and scalable cloud migration and management services." },
-                            { title: "Data & AI", desc: "Actionable insights through advanced analytics and machine learning." },
+                            { title: "Software Development", desc: "Custom web and mobile applications tailored to your business goals.", icon: Icons.Code, color: "bg-blue-50 text-blue-600 group-hover:bg-blue-600" },
+                            { title: "Cloud Strategy", desc: "Secure and scalable cloud migration and management services.", icon: Icons.Globe, color: "bg-cyan-50 text-cyan-600 group-hover:bg-cyan-600" },
+                            { title: "Data & AI", desc: "Actionable insights through advanced analytics and machine learning.", icon: Icons.BarChart, color: "bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600" },
                         ].map((service, idx) => (
-                            <div key={idx} className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100">
+                            <div key={idx} className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all border border-gray-100 group hover:-translate-y-2 duration-300">
+                                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 transition-colors duration-300 ${service.color} group-hover:text-white`}>
+                                    <service.icon size={28} className="group-hover:text-white" />
+                                </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
-                                <p className="text-gray-600">{service.desc}</p>
+                                <p className="text-gray-600 leading-relaxed">{service.desc}</p>
                             </div>
                         ))}
                     </div>

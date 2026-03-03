@@ -70,6 +70,16 @@ export default function InternshipDetails() {
                         {program.type}
                     </span>
                     <h1 className="text-4xl font-bold text-secondary mb-4">{program.title}</h1>
+                    {(program.bannerImage || program.image) && (
+                        <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                            <img
+                                src={program.bannerImage || program.image}
+                                alt={program.title}
+                                className="w-full h-auto object-cover max-h-[400px]"
+                                onError={(e) => e.target.style.display = 'none'}
+                            />
+                        </div>
+                    )}
                     <p className="text-xl text-text-light">{program.description}</p>
                 </div>
 

@@ -335,13 +335,7 @@ export default function Navbar({ hideNavigation = false }) {
                             {hideNavigation && (
                                 <div className="ml-4 pl-4 border-l border-gray-200">
                                     <button
-                                        onClick={() => {
-                                            if (window.confirm('If you go back to the website, your account will be logged out. Are you sure?')) {
-                                                localStorage.removeItem('userInfo');
-                                                setUser(null);
-                                                navigate('/');
-                                            }
-                                        }}
+                                        onClick={() => navigate('/')}
                                         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary bg-primary/10 rounded-full hover:bg-primary/20 transition-colors"
                                     >
                                         <Icons.ArrowLeft size={16} />
@@ -451,13 +445,7 @@ export default function Navbar({ hideNavigation = false }) {
                                 </>
                             ) : (
                                 <button
-                                    onClick={() => {
-                                        if (window.confirm('If you go back to the website, your account will be logged out. Are you sure?')) {
-                                            localStorage.removeItem('userInfo');
-                                            setUser(null);
-                                            navigate('/');
-                                        }
-                                    }}
+                                    onClick={() => navigate('/')}
                                     className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/5 rounded-lg mb-2"
                                 >
                                     <Icons.ArrowLeft size={18} />

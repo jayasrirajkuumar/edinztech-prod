@@ -115,7 +115,7 @@ export default function AdminLogin() {
                             </div>
                             <div className="relative flex justify-center text-sm">
                                 <span className="px-2 bg-white text-gray-500">
-                                    Wrong place?
+                                    Looking for Student Login?
                                 </span>
                             </div>
                         </div>

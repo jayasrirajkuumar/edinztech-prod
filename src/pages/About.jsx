@@ -61,17 +61,20 @@ export default function About() {
             <Team />
 
             {/* Core Values */}
-            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pb-12">
                 <h2 className="text-3xl font-bold text-gray-900 mb-12">Our Core Values</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[
-                        { title: "Innovation", desc: "We constantly explore new technologies to stay ahead of the curve." },
-                        { title: "Quality", desc: "We are committed to excellence in every line of code we write." },
-                        { title: "Reliability", desc: "We build trusted relationships through consistent delivery and support." }
+                        { title: "Innovation", desc: "We constantly explore new technologies to stay ahead of the curve.", icon: Icons.Rocket, styles: "bg-blue-50 text-blue-600" },
+                        { title: "Quality", desc: "We are committed to excellence in every line of code we write.", icon: Icons.CheckCircle, styles: "bg-orange-50 text-orange-600" },
+                        { title: "Reliability", desc: "We build trusted relationships through consistent delivery and support.", icon: Icons.ShieldCheck, styles: "bg-green-50 text-green-600" }
                     ].map((value, idx) => (
-                        <div key={idx} className="p-6">
+                        <div key={idx} className="p-8 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
+                            <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 ${value.styles}`}>
+                                <value.icon size={32} />
+                            </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-3">{value.title}</h3>
-                            <p className="text-gray-600">{value.desc}</p>
+                            <p className="text-gray-600 leading-relaxed">{value.desc}</p>
                         </div>
                     ))}
                 </div>

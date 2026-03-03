@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Icons } from '../components/icons/index';
 import Button from '../components/ui/Button';
 import api from '../lib/api';
@@ -11,8 +12,7 @@ export default function DashboardCertificates() {
     useEffect(() => {
         const fetchCertificates = async () => {
             try {
-                const { data } = await api.get('/certificates/me'); // Changed from /me/certificates as defined in controller logic step
-                // Filter out offer letters (show only actual certificates)
+                const { data } = await api.get('/certificates/me');
                 const filtered = data.filter(item =>
                     item.certificateId &&
                     !item.certificateId.startsWith('OFFER-') &&
@@ -32,7 +32,15 @@ export default function DashboardCertificates() {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
-            <h1 className="text-2xl font-bold text-secondary">My Certificates</h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-secondary">My Certificates</h1>
+                <Link to="/verify">
+                    <Button size="sm" className="flex items-center gap-2">
+                        <Icons.Verify size={16} />
+                        Verify Certificate
+                    </Button>
+                </Link>
+            </div>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r">
                 <p className="text-xs text-yellow-800">

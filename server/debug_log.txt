@@ -7546,3 +7546,31 @@
 [AUTH 2026-02-10T14:10:04.439Z] Token found: eyJhbGciOi...
 [AUTH 2026-02-10T14:10:04.442Z] Token decoded ID: 698a060dc54e4b39ed189f83
 [AUTH 2026-02-10T14:10:04.452Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:36.054Z] Checking Auth for: POST /api/me/quizzes/698b3a40a97beddff8d47568/submit
+[AUTH 2026-02-10T14:14:36.057Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:36.062Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:36.073Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:40.735Z] Checking Auth for: GET /api/me/quizzes
+[AUTH 2026-02-10T14:14:40.739Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:40.743Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:40.751Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:40.898Z] Checking Auth for: GET /api/me/quizzes
+[AUTH 2026-02-10T14:14:40.900Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:40.902Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:40.909Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:43.006Z] Checking Auth for: GET /api/me/quizzes/698b3a40a97beddff8d47568
+[AUTH 2026-02-10T14:14:43.010Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:43.016Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:43.023Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:43.124Z] Checking Auth for: GET /api/me/quizzes/698b3a40a97beddff8d47568
+[AUTH 2026-02-10T14:14:43.125Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:43.127Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:43.133Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:44.351Z] Checking Auth for: GET /api/me/quizzes
+[AUTH 2026-02-10T14:14:44.353Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:44.356Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:44.373Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)
+[AUTH 2026-02-10T14:14:44.496Z] Checking Auth for: GET /api/me/quizzes
+[AUTH 2026-02-10T14:14:44.503Z] Token found: eyJhbGciOi...
+[AUTH 2026-02-10T14:14:44.508Z] Token decoded ID: 698a060dc54e4b39ed189f83
+[AUTH 2026-02-10T14:14:44.520Z] User Authenticated: dineshrajkumar2607@gmail.com (698a060dc54e4b39ed189f83)

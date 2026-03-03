@@ -62,8 +62,10 @@ export default function ProgramCard({ program, showStatus = false }) {
             </div>
             {/* Program Code Badge */}
             <div className="text-xs font-mono text-gray-400 mb-1">{program.code}</div>
-            <h3 className="text-xl font-bold text-secondary mb-2">{program.title}</h3>
-            <p className="text-text-light text-sm mb-6 line-clamp-2 flex-grow">{program.description}</p>
+            <h3 className="text-xl font-bold text-secondary mb-2 line-clamp-1">{program.title}</h3>
+            <div className="h-10 mb-4 overflow-hidden">
+                <p className="text-text-light text-sm line-clamp-2">{program.description}</p>
+            </div>
 
             <div className="space-y-3 mb-6 pb-6 border-b border-gray-100">
                 <div className="flex items-center gap-3 text-sm text-text-light">

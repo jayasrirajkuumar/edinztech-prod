@@ -82,7 +82,9 @@ export const router = createBrowserRouter([
             { path: '/contact', element: <Contact /> },
             { path: '/courses', element: <Courses /> },
             { path: '/internships', element: <Internships /> },
+            { path: '/internships/:id', element: <InternshipDetails /> },
             { path: '/workshops', element: <Workshops /> },
+            { path: '/workshops/:id', element: <WorkshopDetails /> },
             { path: '/gallery', element: <Gallery /> }, // Added
             { path: '/programs/:id', element: <CourseDetails /> },
             { path: '/verify', element: <Verify /> },
