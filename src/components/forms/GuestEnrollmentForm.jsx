@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import api, { createPaymentOrder, checkUser } from '../../lib/api';
+import Modal from '../ui/Modal';
+import { Icons } from '../icons';
 
 const GuestEnrollmentForm = ({ program, onClose }) => {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm();
     const [processing, setProcessing] = useState(false);
     const [userFound, setUserFound] = useState(false);
+    const [statusModal, setStatusModal] = useState({ isOpen: false, type: 'success', message: '' });
 
     const handleEmailBlur = async (email) => {
         if (!email || !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)) return;
@@ -75,13 +78,20 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature
                         }));
-                        alert('Payment Successful and Verified! Check your email for login credentials.');
-                        window.location.reload(); // Refresh to show enrollment
+                        setStatusModal({
+                            isOpen: true,
+                            type: 'success',
+                            message: 'Payment Successful and Verified! Check your email for login credentials.'
+                        });
                     } catch (e) {
                         console.error("Verification Call Failed", e);
-                        alert('Payment successful but verification failed. Please contact support.');
+                        setStatusModal({
+                            isOpen: true,
+                            type: 'error',
+                            message: 'Payment successful but verification failed. Please contact support.'
+                        });
                     }
-                    onClose();
+                    // onClose(); // Delay this until modal close?
                 },
                 theme: {
                     color: "#F37254"
@@ -90,15 +100,31 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
 
             const rzp1 = new window.Razorpay(options);
             rzp1.on('payment.failed', function (response) {
-                alert(response.error.description || "Payment Failed");
+                setStatusModal({
+                    isOpen: true,
+                    type: 'error',
+                    message: response.error.description || "Payment Failed"
+                });
             });
             rzp1.open();
 
         } catch (error) {
             console.error("Enrollment error:", error);
-            alert(error.response?.data?.message || "Failed to initiate payment. Please try again.");
+            setStatusModal({
+                isOpen: true,
+                type: 'error',
+                message: error.response?.data?.message || "Failed to initiate payment. Please try again."
+            });
         } finally {
             setProcessing(false);
+        }
+    };
+
+    const handleModalClose = () => {
+        const isSuccess = statusModal.type === 'success';
+        setStatusModal({ ...statusModal, isOpen: false });
+        if (isSuccess) {
+            window.location.reload();
         }
     };
 
@@ -218,6 +244,29 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
                     </div>
                 </form>
             </div>
+
+            {/* Status Modal */}
+            <Modal
+                isOpen={statusModal.isOpen}
+                onClose={handleModalClose}
+                title={statusModal.type === 'success' ? 'Success' : 'Attention'}
+            >
+                <div className="flex flex-col items-center text-center space-y-4">
+                    {statusModal.type === 'success' ? (
+                        <Icons.Success size={48} className="text-success" />
+                    ) : (
+                        <Icons.AlertCircle size={48} className="text-danger" />
+                    )}
+                    <p className="text-gray-600 font-medium">{statusModal.message}</p>
+                    <button
+                        onClick={handleModalClose}
+                        className={`px-6 py-2 rounded-lg text-white font-semibold transition-colors
+                            ${statusModal.type === 'success' ? 'bg-success hover:bg-success/90' : 'bg-danger hover:bg-danger/90'}`}
+                    >
+                        {statusModal.type === 'success' ? 'OK' : 'Try Again'}
+                    </button>
+                </div>
+            </Modal>
         </div>
     );
 };

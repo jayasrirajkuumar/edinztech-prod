@@ -210,7 +210,11 @@ export default function Dashboard() {
                                                 <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
                                                     <Icons.MessageSquare size={18} /> Feedback
                                                 </h3>
-                                                {prog.feedbacks && prog.feedbacks.length > 0 ? (
+                                                {!prog.enableFeedback ? (
+                                                    <p className="text-sm text-gray-400 italic flex items-center gap-2">
+                                                        <Icons.Clock size={14} /> Feedback not yet available.
+                                                    </p>
+                                                ) : prog.feedbacks && prog.feedbacks.length > 0 ? (
                                                     <ul className="space-y-2">
                                                         {prog.feedbacks.map(f => (
                                                             <li key={f._id} className="bg-white p-3 rounded shadow-sm border border-gray-100 flex justify-between items-center">

@@ -1,1 +1,1 @@
-[2026-02-10T13:54:50.292Z] First Enrollment CertStatus: PENDING_FEEDBACK | ID: undefined
+[2026-03-04T11:05:28.340Z] First Enrollment CertStatus: NOT_PUBLISHED | ID: undefined

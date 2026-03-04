@@ -4,8 +4,10 @@ import { useForm } from 'react-hook-form';
 import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import { getFeedbackForSubmission, submitFeedback } from '../lib/api';
+import { useConfirm } from '../context/ConfirmContext';
 
 export default function FeedbackAttempt() {
+    const { showAlert } = useConfirm();
     const { id } = useParams();
     const navigate = useNavigate();
     const [feedback, setFeedback] = useState(null);
@@ -19,7 +21,11 @@ export default function FeedbackAttempt() {
                 setFeedback(data);
             } catch (error) {
                 console.error("Failed to load feedback", error);
-                alert("Failed to load feedback. You might have already submitted it or it is not available.");
+                showAlert({
+                    title: "Access Denied",
+                    message: "Failed to load feedback. You might have already submitted it or it is not available.",
+                    severity: "warning"
+                });
                 navigate('/dashboard/feedbacks');
             } finally {
                 setLoading(false);
@@ -46,7 +52,11 @@ export default function FeedbackAttempt() {
             });
         } catch (error) {
             console.error("Submission failed", error);
-            alert("Failed to submit feedback");
+            showAlert({
+                title: "Submission Error",
+                message: "Failed to submit feedback",
+                severity: "danger"
+            });
         }
     };
 

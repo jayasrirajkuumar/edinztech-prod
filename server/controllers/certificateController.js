@@ -56,7 +56,7 @@ const generateCertificateForEnrollment = async (enrollment, program, user, force
             id: program._id
         },
         certificateId: certificateId,
-        templateId: program.templateType || program.certificateTemplate,
+        templateId: program.certificateTemplate,
         templateUrl: program.certificateTemplate,
         qrCode: qrCodeImage,
         callbackUrl: CALLBACK_URL,
@@ -124,11 +124,10 @@ const publishCertificates = asyncHandler(async (req, res) => {
     // 1. Fetch Feedback Status Map (Optimization)
     // Actually, we use enrollment.isFeedbackSubmitted which is denormalized.
 
-    // 2. Determine Template
-    const templateId = program.templateType || program.certificateTemplate;
-    if (!templateId) {
+    // 2. Check Template existence
+    if (!program.certificateTemplate) {
         res.status(400);
-        throw new Error('No certificate template updated. Please ask the admin to update the template.');
+        throw new Error('⚠️ No certificate template uploaded for this program. Please upload a template before publishing.');
     }
 
     // 3. Process Each Enrollment (ATOMICALLY)
@@ -620,7 +619,7 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
                 id: program._id
             },
             certificateId: certificateId,
-            templateId: program.templateType || program.certificateTemplate,
+            templateId: program.certificateTemplate,
             templateUrl: program.certificateTemplate,
             qrCode: qrCodeImage,
             callbackUrl: 'http://ignore.me',
@@ -664,6 +663,12 @@ const publishSingleCertificate = asyncHandler(async (req, res) => {
 
     const program = enrollment.program;
     const user = enrollment.user;
+
+    // Check Template existence
+    if (!program.certificateTemplate) {
+        res.status(400);
+        throw new Error('⚠️ No certificate template uploaded for this program. Please upload a template before publishing.');
+    }
 
     // Check Gating
     // If feedback enabled AND feedback not submitted AND not forced

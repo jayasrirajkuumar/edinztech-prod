@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import api, { getPrograms, submitPublicFeedback } from '../lib/api';
+import { useConfirm } from '../context/ConfirmContext';
 
 const PublicFeedback = () => {
+    const { showAlert } = useConfirm();
     const [programs, setPrograms] = useState([]);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -33,7 +35,11 @@ const PublicFeedback = () => {
             setSuccess(true);
         } catch (error) {
             console.error(error);
-            alert(error.response?.data?.message || 'Failed to submit feedback. Check your email and enrollment.');
+            showAlert({
+                title: "Feedback Error",
+                message: error.response?.data?.message || 'Failed to submit feedback. Check your email and enrollment.',
+                severity: "danger"
+            });
         } finally {
             setLoading(false);
         }

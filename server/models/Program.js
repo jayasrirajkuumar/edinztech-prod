@@ -37,7 +37,7 @@ const programSchema = mongoose.Schema({
         type: String,
         enum: ['edinz', 'inspire', 'igreen', 'ats'],
         set: (v) => v === '' ? undefined : v
-    },
+    }, // System Branding (e.g. for Letters, not Certificates)
 
     // Certificate Configuration (For Auto-Generation)
     certificateConfig: {

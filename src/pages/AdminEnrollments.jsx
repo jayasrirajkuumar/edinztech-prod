@@ -3,8 +3,10 @@ import { getAdminEnrollments, getStudentCredentials, resendStudentCredentials, r
 import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
 import Card from '../components/ui/Card';
+import { useConfirm } from '../context/ConfirmContext';
 
 export default function AdminEnrollments() {
+    const { showAlert, showConfirm } = useConfirm();
     const [enrollments, setEnrollments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterType, setFilterType] = useState('All');
@@ -37,31 +39,85 @@ export default function AdminEnrollments() {
 
     // Single Publish
     const handlePublishSingle = async (enrollment) => {
-        if (!enrollment.isFeedbackSubmitted) {
-            if (!window.confirm(`⚠️ Warning: ${enrollment.studentName} has NOT submitted feedback.\nDo you want to force publish?`)) return;
-            // Force publish logic if needed (add force param logic later if authorized)
-            // Currently backend blocks it. So we warn user.
+        if (!enrollment.hasTemplate) {
+            showAlert({
+                title: "Template Required",
+                message: "Please update/upload the certificate template for this program before publishing.",
+                severity: "warning"
+            });
+            return;
         }
 
-        if (!window.confirm(`Publish certificate for ${enrollment.studentName}?`)) return;
+        if (!enrollment.isFeedbackSubmitted) {
+            const force = await showConfirm({
+                title: "Feedback Pending",
+                message: `Warning: ${enrollment.studentName} has NOT submitted feedback.\nDo you want to force publish?`,
+                severity: "warning"
+            });
+            if (!force) return;
+        }
+
+        const confirmed = await showConfirm({
+            title: "Confirm Publication",
+            message: `Publish certificate for ${enrollment.studentName}?`,
+            severity: "info"
+        });
+        if (!confirmed) return;
 
         try {
             await publishSingleCertificate(enrollment._id, !enrollment.isFeedbackSubmitted); // Pass force=true if confirmed despite pending
-            alert("Certificate Published!");
+            showAlert({
+                title: "Success",
+                message: "Certificate Published!",
+                severity: "success"
+            });
             fetchEnrollments();
         } catch (error) {
-            alert(error.response?.data?.message || "Failed to publish");
+            showAlert({
+                title: "Failed",
+                message: error.response?.data?.message || "Failed to publish",
+                severity: "danger"
+            });
         }
     };
 
     // Bulk Publish
     const handleBulkPublish = async () => {
-        if (!window.confirm(`Publish certificates for ${selectedEnrollments.size} students?`)) return;
+        const withTemplate = Array.from(selectedEnrollments).filter(id => {
+            const e = enrollments.find(enroll => enroll._id === id);
+            return e?.hasTemplate;
+        });
+
+        if (withTemplate.length === 0) {
+            showAlert({
+                title: "No Templates",
+                message: "None of the selected students have a certificate template uploaded for their program.",
+                severity: "warning"
+            });
+            return;
+        }
+
+        if (withTemplate.length < selectedEnrollments.size) {
+            const proceed = await showConfirm({
+                title: "Mixed Templates",
+                message: `${selectedEnrollments.size - withTemplate.length} selected students belong to programs WITHOUT a certificate template.\nThey will be skipped. Proceed with the remaining ${withTemplate.length}?`,
+                severity: "warning"
+            });
+            if (!proceed) return;
+        }
+
+        const confirmed = await showConfirm({
+            title: "Bulk Publish",
+            message: `Publish certificates for ${withTemplate.length} students?`,
+            severity: "info"
+        });
+        if (!confirmed) return;
+
         setIsBulkPublishing(true);
         let success = 0;
         let diff = 0; // failed
 
-        for (const id of selectedEnrollments) {
+        for (const id of withTemplate) {
             try {
                 await publishSingleCertificate(id); // Standard publish (obeys gating)
                 success++;
@@ -70,19 +126,35 @@ export default function AdminEnrollments() {
             }
         }
         setIsBulkPublishing(false);
-        alert(`Bulk Process Completed.\nSuccess: ${success}\nFailed/Skipped (Pending Feedback): ${diff}`);
+        showAlert({
+            title: "Bulk Process Completed",
+            message: `Success: ${success}\nFailed/Skipped (Pending Feedback): ${diff}`,
+            severity: success > 0 ? "success" : "info"
+        });
         fetchEnrollments();
         setSelectedEnrollments(new Set());
     };
 
     const handleResendCertificate = async (enrollmentId) => {
-        if (!window.confirm("Are you sure you want to regenerate and resend this certificate?")) return;
+        const confirmed = await showConfirm({
+            title: "Regenerate Certificate",
+            message: "Are you sure you want to regenerate and resend this certificate?",
+            severity: "warning"
+        });
+        if (!confirmed) return;
         try {
             await regenerateCertificate(enrollmentId);
-            alert("Certificate resent successfully!");
-        } catch (error) {
-            console.error(error);
-            alert(error.response?.data?.message || "Failed to resend");
+            showAlert({
+                title: "Success",
+                message: "Certificate Regenerated and Sent!",
+                severity: "success"
+            });
+        } catch (e) {
+            showAlert({
+                title: "Failed",
+                message: e.response?.data?.message || "Failed to resend certificate",
+                severity: "danger"
+            });
         }
     };
 

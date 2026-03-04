@@ -150,7 +150,7 @@ const getEnrollments = async (req, res) => {
         // We need deep population: user, program, and payment info
         const enrollments = await Enrollment.find(query)
             .populate('user', 'name email phone userCode year department registerNumber institutionName state city pincode')
-            .populate('program', 'title type fee')
+            .populate('program', 'title type fee certificateTemplate templateType')
             .populate('paymentId', 'amount status')
             .sort({ createdAt: -1 });
 
@@ -266,7 +266,8 @@ const getEnrollments = async (req, res) => {
             certificateStatus: e.certificateStatus || 'NOT_PUBLISHED',
             isFeedbackSubmitted: e.isFeedbackSubmitted || false,
             certificateId: e.certificateId || '-',
-            enrolledAt: e.enrolledAt
+            enrolledAt: e.enrolledAt,
+            hasTemplate: !!e.program?.certificateTemplate
         }));
 
         res.json(formatted);
@@ -384,7 +385,7 @@ const exportEnrollments = async (req, res) => {
         // Fetch Enrollments
         const enrollments = await Enrollment.find(query)
             .populate('user', 'name email phone userCode year department registerNumber institutionName state city pincode')
-            .populate('program', 'title type fee')
+            .populate('program', 'title type fee certificateTemplate templateType')
             .populate('paymentId', 'amount status')
             .sort({ createdAt: -1 });
 

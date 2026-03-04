@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { getPublicOutsiderQuiz, submitPublicOutsiderQuiz } from '../lib/api';
+import { useConfirm } from '../context/ConfirmContext';
 import Navbar from '../components/Navbar'; // Re-use main navbar or specific one? Public pages usually have main navbar.
 import Footer from '../components/Footer';
 
 export default function PublicOutsiderQuiz() {
+    const { showAlert, showConfirm } = useConfirm();
     const { id } = useParams();
     const [quiz, setQuiz] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -51,11 +53,20 @@ export default function PublicOutsiderQuiz() {
         // Validate all answers? Or allow partial? Usually require all.
         const unanswered = quiz.questions.filter(q => !userAnswers[q._id]);
         if (unanswered.length > 0) {
-            alert(`Please answer all questions. (${unanswered.length} remaining)`);
+            showAlert({
+                title: "Answers Required",
+                message: `Please answer all questions. (${unanswered.length} remaining)`,
+                severity: "warning"
+            });
             return;
         }
 
-        if (!window.confirm("Are you sure you want to submit?")) return;
+        const confirmed = await showConfirm({
+            title: "Submit Quiz",
+            message: "Are you sure you want to submit your answers?",
+            severity: "info"
+        });
+        if (!confirmed) return;
 
         setSubmitting(true);
         try {
@@ -79,7 +90,11 @@ export default function PublicOutsiderQuiz() {
             setStep('success');
             window.scrollTo(0, 0);
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to submit quiz');
+            showAlert({
+                title: "Submission Failed",
+                message: err.response?.data?.message || 'Failed to submit quiz',
+                severity: "danger"
+            });
         } finally {
             setSubmitting(false);
         }

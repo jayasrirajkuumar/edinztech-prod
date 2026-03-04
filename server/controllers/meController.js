@@ -27,7 +27,7 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
 
     // 1. Fetch User's Enrollments (with Program details)
     const enrollments = await Enrollment.find({ user: userId })
-        .populate('program', 'title type validUntil isFeedbackEnabled')
+        .populate('program', 'title type validUntil enableFeedback')
         .sort('-enrolledAt');
 
     // 2. Aggregate Data per Enrollment
@@ -70,7 +70,7 @@ const getDashboardOverview = asyncHandler(async (req, res) => {
             validUntil: enrollment.validUntil || program.validUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Default 1 year if missing
             quizzes: quizzes,
             feedbacks: feedbacksWithStatus,
-            isFeedbackEnabled: program.isFeedbackEnabled
+            enableFeedback: program.enableFeedback
         };
     }));
 

@@ -17,6 +17,7 @@ module.exports = {
                 },
                 success: "#28A745",
                 danger: "#DC3545",
+                warning: "#FBBF24",
             },
             fontFamily: {
                 sans: ['Outfit', 'sans-serif'],

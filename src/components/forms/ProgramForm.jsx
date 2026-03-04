@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,6 +10,10 @@ import { Icons } from '../icons/index';
 import { createProgram, uploadProgramTemplate, getWhatsAppTemplates, registerWhatsAppTemplate, uploadProgramBanner } from '../../lib/api';
 import Modal from '../ui/Modal';
 import { useNavigate } from 'react-router-dom';
+import { useConfirm } from '../../context/ConfirmContext';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const SERVER_URL = API_URL.replace('/api', '');
 
 // Helper Component for Template Upload
 const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
@@ -184,12 +188,35 @@ const step4Schema = z.object({
 const fullSchema = z.any(); // We validate per step
 
 export default function ProgramForm({ defaultValues: initialValues, onSubmit: parentSubmit, isEditing = false, programId }) {
+    const { showAlert, showConfirm } = useConfirm();
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(0); // 0: Basic, 1: Payment, 2: Templates, 3: Communication
     const [bannerFile, setBannerFile] = useState(null); // New State
     const [offerLetterFile, setOfferLetterFile] = useState(null);
     const [certificateFile, setCertificateFile] = useState(null);
     const [waTemplates, setWaTemplates] = useState([]);
+
+    // Helper for Live Preview Image URL
+    const certPreviewUrl = React.useMemo(() => {
+        if (certificateFile) {
+            return URL.createObjectURL(certificateFile);
+        }
+        if (initialValues?.certificateTemplate) {
+            const url = initialValues.certificateTemplate.replace(/\\/g, '/');
+            if (url.startsWith('http')) return url;
+            return url.startsWith('/') ? `${SERVER_URL}${url}` : `${SERVER_URL}/${url}`;
+        }
+        return '';
+    }, [certificateFile, initialValues?.certificateTemplate]);
+
+    // Cleanup blob URLs to avoid memory leaks
+    useEffect(() => {
+        return () => {
+            if (certPreviewUrl && certPreviewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(certPreviewUrl);
+            }
+        };
+    }, [certPreviewUrl]);
 
     useEffect(() => {
         const fetchTemplates = async () => {
@@ -326,19 +353,31 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
             const end = new Date(data.endDate);
 
             if (!data.startDate || isNaN(start.getTime())) {
-                alert("Start Date is invalid or missing. Please check Basic Info.");
+                showAlert({
+                    title: "Missing Information",
+                    message: "Start Date is invalid or missing. Please check Basic Info.",
+                    severity: "warning"
+                });
                 setCurrentStep(0);
                 return;
             }
             if (!data.endDate || isNaN(end.getTime())) {
-                alert("End Date is invalid or missing. Please check Basic Info.");
+                showAlert({
+                    title: "Missing Information",
+                    message: "End Date is invalid or missing. Please check Basic Info.",
+                    severity: "warning"
+                });
                 setCurrentStep(0);
                 return;
             }
 
             // CRITICAL: Validate End Date must be after Start Date
             if (end < start) {
-                alert("Invalid Date Range: End Date cannot be before Start Date.");
+                showAlert({
+                    title: "Invalid Dates",
+                    message: "Invalid Date Range: End Date cannot be before Start Date.",
+                    severity: "warning"
+                });
                 setCurrentStep(0);
                 return;
             }
@@ -400,7 +439,11 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                             }
                         } catch (err) {
                             console.error("Failed to upload certificate", err);
-                            alert("Certificate Upload Failed: " + (err.response?.data?.message || err.message));
+                            showAlert({
+                                title: "Upload Failed",
+                                message: "Certificate Upload Failed: " + (err.response?.data?.message || err.message),
+                                severity: "danger"
+                            });
                             return; // Stop submission
                         }
                     }
@@ -461,7 +504,11 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
             navigate('/admin/programs');
         } catch (error) {
             console.error("Submission Error:", error);
-            alert("Failed to save program: " + (error.response?.data?.message || error.message));
+            showAlert({
+                title: "Saved Failed",
+                message: "Failed to save program: " + (error.response?.data?.message || error.message),
+                severity: "danger"
+            });
         }
     };
 
@@ -677,14 +724,14 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                             {(programType === 'Internship' || programType === 'Project') && (
                                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                                     <h4 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
-                                        <Icons.Settings size={16} /> Document Branding
+                                        <Icons.Settings size={16} /> Letter Branding Template
                                     </h4>
                                     <p className="text-sm text-gray-500 mb-4">
-                                        Select the underlying branding template for Offer/Acceptance Letters.
-                                        (Used if no custom file is uploaded)
+                                        Select the underlying branding for Offer/Acceptance Letters.
+                                        <b> (Note: This does NOT apply to Certificates)</b>
                                     </p>
                                     <div className="space-y-1">
-                                        <label className="block text-sm font-medium text-gray-700">Template Branding</label>
+                                        <label className="block text-sm font-medium text-gray-700">System Template</label>
                                         <select
                                             {...register('templateType')}
                                             className="w-full rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2.5 border"
@@ -695,7 +742,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                                             <option value="igreen">IGreen</option>
                                             <option value="ats">ATS</option>
                                         </select>
-                                        <p className="text-xs text-gray-500">Auto-selects background for generated PDFs.</p>
+                                        <p className="text-xs text-gray-500">Determines the background layout for generated Letter PDFs.</p>
                                     </div>
                                 </div>
                             )}
@@ -711,7 +758,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
                                             Ideally, TemplateUploader should lift the preview URL up, but for now duplicate logic for preview:
                                         */}
                                         <img
-                                            src={certificateFile ? URL.createObjectURL(certificateFile) : (initialValues?.certificateTemplate?.startsWith('http') ? initialValues.certificateTemplate : (initialValues?.certificateTemplate ? (initialValues.certificateTemplate.replace(/\\/g, '/').startsWith('/') ? initialValues.certificateTemplate.replace(/\\/g, '/') : '/' + initialValues.certificateTemplate.replace(/\\/g, '/')) : ''))}
+                                            src={certPreviewUrl}
                                             alt="Certificate Preview"
                                             className="w-full h-full object-contain"
                                         />

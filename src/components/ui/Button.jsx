@@ -7,6 +7,8 @@ export default function Button({ children, variant = 'primary', size = 'md', cla
         outline: "border border-gray-300 bg-white text-text hover:bg-gray-50 focus:ring-primary",
         ghost: "bg-transparent text-text hover:bg-gray-100 focus:ring-gray-400",
         danger: "bg-danger text-white hover:bg-red-700 focus:ring-danger",
+        warning: "bg-warning text-white hover:bg-yellow-600 focus:ring-warning",
+        success: "bg-success text-white hover:bg-green-700 focus:ring-success",
     };
 
     const sizes = {

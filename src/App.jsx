@@ -1,9 +1,12 @@
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
+import { ConfirmProvider } from './context/ConfirmContext';
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <ConfirmProvider>
+      <RouterProvider router={router} />
+    </ConfirmProvider>
   );
 }
 

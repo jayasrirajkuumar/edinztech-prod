@@ -4,8 +4,10 @@ import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import api, { uploadQuizFile } from '../lib/api';
+import { useConfirm } from '../context/ConfirmContext';
 
 export default function QuizAttempt() {
+    const { showAlert, showConfirm } = useConfirm();
     const { id } = useParams();
     const navigate = useNavigate();
     const [quiz, setQuiz] = useState(null);
@@ -62,7 +64,11 @@ export default function QuizAttempt() {
                 clearInterval(timer);
                 // Auto-submit
                 if (!submitting && !result) {
-                    alert("Time is up! Your quiz is being submitted.");
+                    showAlert({
+                        title: "Time is up!",
+                        message: "Time is up! Your quiz is being submitted automatically.",
+                        severity: "warning"
+                    });
                     handleSubmit(true); // pass true to skip confirm
                 }
             }
@@ -97,7 +103,11 @@ export default function QuizAttempt() {
 
         // 5MB Validation
         if (file.size > 5 * 1024 * 1024) {
-            alert("File size exceeds 5MB limit.");
+            showAlert({
+                title: "File Too Large",
+                message: "File size exceeds 5MB limit.",
+                severity: "warning"
+            });
             e.target.value = null;
             return;
         }
@@ -112,7 +122,11 @@ export default function QuizAttempt() {
             }));
         } catch (err) {
             console.error(err);
-            alert("Upload failed: " + (err.response?.data?.message || err.message));
+            showAlert({
+                title: "Upload Failed",
+                message: "Upload failed: " + (err.response?.data?.message || err.message),
+                severity: "danger"
+            });
         } finally {
             setUploading(false);
         }
@@ -127,7 +141,14 @@ export default function QuizAttempt() {
     };
 
     const handleSubmit = async (force = false) => {
-        if (!force && !window.confirm("Are you sure you want to submit?")) return;
+        if (!force) {
+            const confirmed = await showConfirm({
+                title: "Submit Quiz",
+                message: "Are you sure you want to submit your answers?",
+                severity: "info"
+            });
+            if (!confirmed) return;
+        }
 
         setSubmitting(true);
         try {
