@@ -79,8 +79,7 @@ eventBus.on('PROGRAM_COMPLETED', async ({ user, programId, quizAttempt }) => {
         const html = `
             <h1>Great Job, ${user.name}!</h1>
             <p>You have successfully completed ${program.title} with a score of ${quizAttempt.score}%.</p>
-            <p>Your certificate is attached.</p>
-            <p>Verify at: ${process.env.FRONTEND_URL}/verify/${certificateCode}</p>
+            <p>Your certificate will be available in your dashboard shortly.</p>
         `;
         // Nodemailer attachments support
         // await emailService.sendEmailWithAttachment(...) // Simple sendEmail doesn't have it yet.

@@ -18,6 +18,7 @@ export default function Login() {
     const navigate = useNavigate();
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [forgotMessage, setForgotMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const {
         register,
@@ -142,11 +143,20 @@ export default function Login() {
                                 <Input
                                     label="Password"
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     autoComplete="current-password"
                                     placeholder="••••••••"
                                     {...register('password')}
                                     error={errors.password?.message}
+                                    rightElement={
+                                        <button
+                                            type="button"
+                                            className="focus:outline-none"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <Icons.EyeOff size={20} /> : <Icons.Eye size={20} />}
+                                        </button>
+                                    }
                                 />
                             </div>
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ProgramGrid from '../components/dashboard/ProgramGrid';
+import Tabs from '../components/ui/Tabs';
 import { getMyEnrollments } from '../lib/api';
 import { getProgramStatus } from '../lib/programUtils';
 
@@ -50,43 +51,59 @@ export default function DashboardInternships() {
     const upcoming = internships.filter(i => i.derivedStatus === 'Upcoming');
     const completed = internships.filter(i => i.derivedStatus === 'Completed');
 
-    // If no internships at all
-    if (internships.length === 0) {
-        return (
-            <ProgramGrid
-                title="My Internships"
-                programs={[]}
-                type="internships"
-                emptyMessage="You haven't enrolled in any internships yet."
-            />
-        );
-    }
-
-    return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {ongoing.length > 0 && (
+    const tabs = [
+        {
+            label: `All (${internships.length})`,
+            content: (
+                <ProgramGrid
+                    title="All Internships"
+                    programs={internships}
+                    type="internships"
+                    emptyMessage="You haven't enrolled in any internships yet."
+                />
+            )
+        },
+        {
+            label: `Ongoing (${ongoing.length})`,
+            content: (
                 <ProgramGrid
                     title="Ongoing Internships"
                     programs={ongoing}
                     type="internships"
+                    emptyMessage="You have no ongoing internships."
                 />
-            )}
-
-            {upcoming.length > 0 && (
+            )
+        },
+        {
+            label: `Upcoming (${upcoming.length})`,
+            content: (
                 <ProgramGrid
                     title="Upcoming Internships"
                     programs={upcoming}
                     type="internships"
+                    emptyMessage="You have no upcoming internships."
                 />
-            )}
-
-            {completed.length > 0 && (
+            )
+        },
+        {
+            label: `Completed (${completed.length})`,
+            content: (
                 <ProgramGrid
                     title="Completed Internships"
                     programs={completed}
                     type="internships"
+                    emptyMessage="You have no completed internships yet."
                 />
-            )}
+            )
+        }
+    ];
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold text-secondary">My Internships</h1>
+            </div>
+            <Tabs tabs={tabs} />
         </div>
     );
 }

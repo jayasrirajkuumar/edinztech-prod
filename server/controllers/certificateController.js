@@ -577,6 +577,12 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
     const user = enrollment.user;
     const program = enrollment.program;
 
+    // Check Template existence
+    if (!program.certificateTemplate) {
+        res.status(400);
+        throw new Error('⚠️ No certificate template uploaded for this program. Please upload a template before regenerating.');
+    }
+
     // DEBUG LOGGING
     const fs = require('fs');
     const path = require('path');

@@ -131,9 +131,9 @@ export default function AdminTempFiles() {
 
             {/* File List Table */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto h-[400px] overflow-y-auto">
                     <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b">
+                        <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b sticky top-0 z-10 shadow-sm">
                             <tr>
                                 <th className="px-6 py-3 w-10">
                                     <input

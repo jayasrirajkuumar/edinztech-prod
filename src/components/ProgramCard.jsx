@@ -5,7 +5,7 @@ import Card from './ui/Card';
 import { getProgramStatus, getRegistrationStatus, getDurationString } from '../lib/programUtils';
 import { formatDate } from '../lib/dateUtils';
 
-export default function ProgramCard({ program, showStatus = false }) {
+export default function ProgramCard({ program, showStatus = false, isDashboard = false }) {
     // Backend API uses _id, type (instead of category)
     const id = program._id || program.id;
     const category = program.type || program.category || 'Course';
@@ -110,7 +110,7 @@ export default function ProgramCard({ program, showStatus = false }) {
                 )
             }
 
-            <Link to={`/programs/${id}`} className="w-full mt-auto">
+            <Link to={isDashboard ? `/dashboard/programs/${id}` : `/programs/${id}`} className="w-full mt-auto">
                 <Button
                     className={`w-full justify-between group ${regStatus === 'Closed' && lifecycleStatus !== 'Completed' ? 'opacity-80' : ''}`}
                     variant={regStatus === 'Closed' ? 'outline' : 'primary'}

@@ -182,7 +182,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
         }
 
         // Reset input
-        e.target.value = null;
+        e.target.value = '';
     };
 
     return (
@@ -263,7 +263,7 @@ export default function QuizForm({ programId, programs, defaultValues, onSubmit,
                             <label className="cursor-pointer inline-flex items-center px-3 py-2 border border-blue-500 border-dashed text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100">
                                 <Icons.Upload size={16} className="mr-2" />
                                 Import CSV/Excel
-                                <input type="file" className="hidden" accept=".csv, .xlsx, .xls" onChange={handleFileUpload} />
+                                <input type="file" className="hidden" accept=".csv, .xlsx, .xls" onChange={handleFileUpload} onClick={(e) => { e.target.value = ''; }} />
                             </label>
                             <Button type="button" variant="outline" size="sm" onClick={() => append({ question: '', type: 'mcq', marks: 1, options: ['', '', '', ''], correctOption: 0 })}>
                                 <Icons.Plus size={16} className="mr-1" /> Add Question

@@ -341,145 +341,147 @@ export default function AdminEnrollments() {
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
-                <table className="min-w-full">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left">
-                                <input
-                                    type="checkbox"
-                                    onChange={() => toggleSelectAll(enrollments.filter(e => filterProgram === 'All' || e.programName === filterProgram))}
-                                    checked={enrollments.length > 0 && selectedEnrollments.size === enrollments.filter(e => filterProgram === 'All' || e.programName === filterProgram).length}
-                                />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email / Phone</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Feedback</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cert Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cert ID</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {loading ? (
-                            <tr><td colSpan="9" className="text-center py-4">Loading...</td></tr>
-                        ) : enrollments.length === 0 ? (
-                            <tr><td colSpan="9" className="text-center py-4">No enrollments found.</td></tr>
-                        ) : (
-                            enrollments
-                                .filter(e => filterProgram === 'All' || e.programName === filterProgram)
-                                .map((enrollment, index) => {
-                                    if (index === 0) console.log('DEBUG FRONTEND:', enrollment);
-                                    return (
-                                        <tr key={enrollment._id} className={selectedEnrollments.has(enrollment._id) ? 'bg-blue-50' : ''}>
-                                            <td className="px-6 py-4">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedEnrollments.has(enrollment._id)}
-                                                    onChange={() => toggleSelection(enrollment._id)}
-                                                />
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {enrollment.userCode || 'N/A'}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                                {enrollment.studentName}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                <div>{enrollment.email}</div>
-                                                <div className="text-xs">{enrollment.phone}</div>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">
-                                                {enrollment.programName}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+                <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
+                    <table className="min-w-full relative">
+                        <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th className="px-6 py-3 text-left bg-gray-50">
+                                    <input
+                                        type="checkbox"
+                                        onChange={() => toggleSelectAll(enrollments.filter(e => filterProgram === 'All' || e.programName === filterProgram))}
+                                        checked={enrollments.length > 0 && selectedEnrollments.size === enrollments.filter(e => filterProgram === 'All' || e.programName === filterProgram).length}
+                                    />
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">User ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Student Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Email / Phone</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Program</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Type</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Amount</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Feedback</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Cert Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Cert ID</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Date</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {loading ? (
+                                <tr><td colSpan="9" className="text-center py-4">Loading...</td></tr>
+                            ) : enrollments.length === 0 ? (
+                                <tr><td colSpan="9" className="text-center py-4">No enrollments found.</td></tr>
+                            ) : (
+                                enrollments
+                                    .filter(e => filterProgram === 'All' || e.programName === filterProgram)
+                                    .map((enrollment, index) => {
+                                        if (index === 0) console.log('DEBUG FRONTEND:', enrollment);
+                                        return (
+                                            <tr key={enrollment._id} className={selectedEnrollments.has(enrollment._id) ? 'bg-blue-50' : ''}>
+                                                <td className="px-6 py-4">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedEnrollments.has(enrollment._id)}
+                                                        onChange={() => toggleSelection(enrollment._id)}
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {enrollment.userCode || 'N/A'}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                                                    {enrollment.studentName}
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-500">
+                                                    <div>{enrollment.email}</div>
+                                                    <div className="text-xs">{enrollment.phone}</div>
+                                                </td>
+                                                <td className="px-6 py-4 text-sm text-gray-500">
+                                                    {enrollment.programName}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                             ${enrollment.programType === 'Internship' ? 'bg-purple-100 text-purple-800' :
-                                                        enrollment.programType === 'Workshop' ? 'bg-orange-100 text-orange-800' :
-                                                            'bg-blue-100 text-blue-800'}`}>
-                                                    {enrollment.programType}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {enrollment.amount}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <span className="capitalize">{enrollment.status}</span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {enrollment.isFeedbackSubmitted ? (
-                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        Submitted
+                                                            enrollment.programType === 'Workshop' ? 'bg-orange-100 text-orange-800' :
+                                                                'bg-blue-100 text-blue-800'}`}>
+                                                        {enrollment.programType}
                                                     </span>
-                                                ) : (
-                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                        Pending
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {enrollment.amount}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <span className="capitalize">{enrollment.status}</span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {enrollment.isFeedbackSubmitted ? (
+                                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            Submitted
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                            Pending
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${enrollment.certificateStatus === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                                                        {enrollment.certificateStatus === 'PUBLISHED' ? 'Published' : 'Yet to Publish'}
                                                     </span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${enrollment.certificateStatus === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                                                    {enrollment.certificateStatus === 'PUBLISHED' ? 'Published' : 'Yet to Publish'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                                                {enrollment.certificateStatus === 'PUBLISHED' ? (
-                                                    <span
-                                                        className="cursor-pointer hover:bg-gray-100 px-1 rounded"
-                                                        onClick={() => navigator.clipboard.writeText(enrollment.certificateId)}
-                                                        title="Click to copy"
-                                                    >
-                                                        {enrollment.certificateId}
-                                                    </span>
-                                                ) : '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {formatDate(enrollment.enrolledAt)}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                                                <button
-                                                    onClick={() => handleViewCredentials(enrollment)}
-                                                    className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded"
-                                                >
-                                                    View Credentials
-                                                </button>
-                                                <button
-                                                    onClick={() => handleEditStudent(enrollment)}
-                                                    className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded"
-                                                >
-                                                    Edit
-                                                </button>
-                                                {enrollment.certificateStatus === 'PUBLISHED' && (
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                                                    {enrollment.certificateStatus === 'PUBLISHED' ? (
+                                                        <span
+                                                            className="cursor-pointer hover:bg-gray-100 px-1 rounded"
+                                                            onClick={() => navigator.clipboard.writeText(enrollment.certificateId)}
+                                                            title="Click to copy"
+                                                        >
+                                                            {enrollment.certificateId}
+                                                        </span>
+                                                    ) : '-'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {formatDate(enrollment.enrolledAt)}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
                                                     <button
-                                                        onClick={() => handleResendCertificate(enrollment._id)}
-                                                        className="text-purple-600 hover:text-purple-900 bg-purple-50 px-3 py-1 rounded"
-                                                        title="Re-Generate PDF & Resend Email"
+                                                        onClick={() => handleViewCredentials(enrollment)}
+                                                        className="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded"
                                                     >
-                                                        Re-Send
+                                                        View Credentials
                                                     </button>
-                                                )}
-                                                {enrollment.certificateStatus !== 'PUBLISHED' && (
                                                     <button
-                                                        onClick={() => handlePublishSingle(enrollment)}
-                                                        className="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1 rounded"
-                                                        title="Publish Certificate"
+                                                        onClick={() => handleEditStudent(enrollment)}
+                                                        className="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded"
                                                     >
-                                                        Publish
+                                                        Edit
                                                     </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                        )}
-                    </tbody>
-                </table>
+                                                    {enrollment.certificateStatus === 'PUBLISHED' && (
+                                                        <button
+                                                            onClick={() => handleResendCertificate(enrollment._id)}
+                                                            className="text-purple-600 hover:text-purple-900 bg-purple-50 px-3 py-1 rounded"
+                                                            title="Re-Generate PDF & Resend Email"
+                                                        >
+                                                            Re-Send
+                                                        </button>
+                                                    )}
+                                                    {enrollment.certificateStatus !== 'PUBLISHED' && (
+                                                        <button
+                                                            onClick={() => handlePublishSingle(enrollment)}
+                                                            className="text-green-600 hover:text-green-900 bg-green-50 px-3 py-1 rounded"
+                                                            title="Publish Certificate"
+                                                        >
+                                                            Publish
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Edit Student Modal */}

@@ -23,8 +23,22 @@ const getDashboard = asyncHandler(async (req, res) => {
         const quizzes = await Quiz.find({
             program: enrollment.program._id,
             status: 'Published',
-            startTime: { $lte: new Date() },
-            endTime: { $gte: new Date() }
+            $and: [
+                {
+                    $or: [
+                        { startTime: { $lte: new Date() } },
+                        { startTime: null },
+                        { startTime: { $exists: false } }
+                    ]
+                },
+                {
+                    $or: [
+                        { endTime: { $gte: new Date() } },
+                        { endTime: null },
+                        { endTime: { $exists: false } }
+                    ]
+                }
+            ]
         }).select('title description duration totalMarks startTime endTime');
 
         // Fetch visible Feedbacks

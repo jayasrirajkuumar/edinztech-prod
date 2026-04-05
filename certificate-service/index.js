@@ -109,6 +109,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
             }
 
             // Fallbacks for Offer/Acceptance specific defaults
+            // Fallbacks for Offer/Acceptance specific defaults
             else if (isOfferLetter || isAcceptance) {
                 if (fs.existsSync(path.join(templatesDir, 'offer-letter.png'))) {
                     templatePath = path.join(templatesDir, 'offer-letter.png');
@@ -116,8 +117,7 @@ async function processCertificate({ studentData, courseData, certificateId, call
                     templatePath = path.join(templatesDir, 'edinz.png');
                 }
             } else {
-                // Standard Certificate Default
-                templatePath = path.join(templatesDir, 'default.jpg');
+                throw new Error('No certificate template provided.');
             }
             console.log(`[Template] Selected Local Template: ${templatePath}`);
         }

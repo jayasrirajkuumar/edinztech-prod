@@ -13,7 +13,7 @@ const getMyQuizzes = asyncHandler(async (req, res) => {
     // Fix: Allow open-ended enrollments (validUntil missing/null) OR future validUntil
     const enrollments = await Enrollment.find({
         user: userId,
-        status: 'active',
+        status: { $in: ['active', 'completed'] },
         $or: [
             { validUntil: { $gte: new Date() } },
             { validUntil: { $exists: false } }, // Field missing
@@ -78,7 +78,7 @@ const getMyQuiz = asyncHandler(async (req, res) => {
     const enrollment = await Enrollment.findOne({
         user: userId,
         program: quiz.program,
-        status: 'active',
+        status: { $in: ['active', 'completed'] },
         $or: [
             { validUntil: { $gte: new Date() } },
             { validUntil: { $exists: false } },

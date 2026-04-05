@@ -58,6 +58,12 @@ const GuestEnrollmentForm = ({ program, onClose }) => {
 
             const order = await createPaymentOrder(orderData);
 
+            if (order.isFree) {
+                setStatusModal({ isOpen: true, type: 'success', message: 'Enrolled successfully for free! Check your email for login credentials.' });
+                setProcessing(false);
+                return;
+            }
+
             // 2. Open Razorpay
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,

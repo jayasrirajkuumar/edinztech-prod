@@ -497,11 +497,10 @@ const getDashboardStats = async (req, res) => {
         const totalStudents = await User.countDocuments({ role: 'student' });
         const invitedStudents = await User.countDocuments({ role: 'student', lastLoginAt: null });
 
-        // Enrolled: Unique students in currently ACTIVE programs (using strict ID list)
-        // This is "Active Students" who are currently learning
+        // Enrolled: Unique students in any ACTIVE enrollment (not just ongoing programs)
+        // This is "Active Students" based on enrollment status, matching the table view.
         const activeEnrolledIds = await Enrollment.distinct('user', {
-            status: 'active',
-            program: { $in: activeProgramIds }
+            status: 'active'
         });
         const activeStudents = activeEnrolledIds.length;
 

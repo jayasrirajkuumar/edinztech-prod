@@ -250,7 +250,7 @@ export default function AdminOutsiderQuizForm() {
                 alert("Failed to parse CSV: " + err.message);
             }
         });
-        e.target.value = null;
+        e.target.value = '';
     };
 
     const onSubmit = async (data) => {
@@ -360,7 +360,7 @@ export default function AdminOutsiderQuizForm() {
                                 <label className="cursor-pointer inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                                     <Icons.Upload size={16} className="mr-2" />
                                     Import CSV
-                                    <input type="file" className="hidden" accept=".csv" onChange={handleCSVUpload} />
+                                    <input type="file" className="hidden" accept=".csv" onChange={handleCSVUpload} onClick={(e) => { e.target.value = ''; }} />
                                 </label>
                                 <Button type="button" variant="outline" size="sm" onClick={() => append({ questionText: '', options: ['', '', '', ''], correctOptionIndex: '0', marks: 1 })}>
                                     <Icons.Plus size={16} className="mr-1" /> Add Question

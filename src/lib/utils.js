@@ -6,6 +6,9 @@ export const getImageUrl = (path) => {
     if (!path) return '';
     if (path.startsWith('http')) return path; // Already absolute
 
+    // Fix backslashes for Windows compatibility
+    path = path.replace(/\\/g, '/');
+
     // Remove leading slash if present to avoid double slashes
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 

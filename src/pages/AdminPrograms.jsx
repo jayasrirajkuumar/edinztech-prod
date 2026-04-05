@@ -303,7 +303,7 @@ export default function AdminPrograms() {
                     <h1 className="text-2xl font-bold text-secondary">All Programs</h1>
                     <div className="flex gap-2">
                         <Button variant="outline" onClick={() => {
-                            navigator.clipboard.writeText(`${window.location.origin} /feedback/public`);
+                            navigator.clipboard.writeText(`${window.location.origin}/feedback/public`);
                             showAlert({
                                 title: "Copied",
                                 message: "Public Feedback Link copied to clipboard!",
@@ -349,7 +349,7 @@ export default function AdminPrograms() {
                 <h1 className="text-2xl font-bold text-secondary">All Programs</h1>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin} /feedback/public`);
+                        navigator.clipboard.writeText(`${window.location.origin}/feedback/public`);
                         alert("Public Feedback Link copied to clipboard!");
                     }} className="gap-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                         <Icons.Link size={18} /> Feedback Link
@@ -515,11 +515,11 @@ export default function AdminPrograms() {
 
                             <td className="px-6 py-4">
                                 <div className="flex gap-2">
-                                    <Link to={`/ admin / programs / ${program._id || program.id}/edit`}>
+                                    <Link to={`/admin/programs/${program._id || program.id}/edit`}>
                                         <button className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100" title="Edit Program">
                                             <Icons.Edit size={14} /> Edit
                                         </button>
-                                    </Link >
+                                    </Link>
 
                                     <button
                                         onClick={() => handleDelete(program._id || program.id, program.title)}

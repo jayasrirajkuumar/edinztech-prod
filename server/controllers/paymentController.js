@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Program = require('../models/Program');
 const { createOrUpdateEnrollment } = require('../services/enrollmentService');
 const { sendEmail } = require('../services/emailService');
+const { getEnrollmentEmailTemplate } = require('../utils/emailTemplates');
 const whatsappService = require('../services/whatsappService');
 
 const razorpay = new Razorpay({
@@ -65,9 +66,64 @@ const createOrder = asyncHandler(async (req, res) => {
         }
         // --- DUPLICATE CHECK END ---
 
-        if (program.paymentMode !== 'Paid') {
-            res.status(400);
-            throw new Error('This program does not require payment');
+        if (program.paymentMode !== 'Paid' || program.fee === 0) {
+            // It's a free program. We should enroll them directly.
+            let user = existingUser;
+            let isNewUser = false;
+            let autoPassword = '';
+
+            if (!user) {
+                isNewUser = true;
+                autoPassword = crypto.randomBytes(8).toString('hex');
+                user = await User.create({
+                    name, email, phone, year, department, registerNumber, institutionName, state, city, pincode,
+                    password: autoPassword, encryptedPassword: encrypt(autoPassword), userCode: generateUserCode(), role: 'student', isActive: true
+                });
+            } else if (!user.userCode) {
+                user.userCode = generateUserCode();
+                await user.save();
+            }
+
+            // Create Free Payment Record
+            const newPayment = await Payment.create({
+                razorpayOrderId: `free_order_${Date.now()}`,
+                razorpayPaymentId: `free_${crypto.randomBytes(4).toString('hex')}`,
+                user: user._id, program: programId, programType: programType || program.type, amount: 0, status: 'captured'
+            });
+
+            // Enroll
+            const EnrollmentModel = require('../models/Enrollment');
+            await EnrollmentModel.findOneAndUpdate(
+                { user: user._id, program: programId },
+                { user: user._id, program: programId, programType: programType || program.type, userCode: user.userCode, paymentId: newPayment._id, status: 'active', source: 'free', enrolledAt: new Date(), validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) },
+                { upsert: true, new: true }
+            );
+
+            // Send Email
+            // Send Email
+            const welcomeAddon = program.welcomeEmailContent || null;
+            const programCode = program.code || 'N/A';
+
+            const emailHtml = getEnrollmentEmailTemplate({
+                isNewUser,
+                name: user.name,
+                email: user.email,
+                password: isNewUser ? autoPassword : 'Not Available (Login with existing password)',
+                programType: programType || program.type,
+                programCode: programCode,
+                loginUrl: `${process.env.FRONTEND_URL}/login`,
+                welcomeAddon
+            });
+
+            await sendEmail({
+                to: user.email,
+                subject: isNewUser ? 'Welcome to EdinzTech - Login Credentials' : 'Enrollment Confirmed - EdinzTech',
+                html: emailHtml
+            });
+
+            try { await whatsappService.sendTemplate(user, program, 'onEnrolled'); } catch (e) { }
+
+            return res.json({ id: 'free', amount: 0, isFree: true, message: 'Successfully enrolled for free' });
         }
 
         const fee = program.fee;
@@ -332,21 +388,26 @@ const handleWebhook = asyncHandler(async (req, res) => {
                     console.log(`[Webhook] Enrolled user in program: ${programId}`);
 
                     // 4. Send Email
-                    const welcomeAddon = fullProgram?.welcomeEmailContent ? `<br><br><div style="background:#f9f9f9;padding:15px;border-left:4px solid #4f46e5;margin-top:20px;"><strong>Additional Information:</strong><br>${fullProgram.welcomeEmailContent.replace(/\n/g, '<br>')}</div>` : '';
+                    const fullProg = await Program.findById(programId).lean();
+                    const welcomeAddon = fullProg?.welcomeEmailContent || null;
+                    const programCode = fullProg?.code || 'N/A';
 
-                    if (isNewUser) {
-                        await sendEmail({
-                            to: user.email,
-                            subject: 'Welcome to EdinzTech - Login Credentials',
-                            html: `Welcome ${user.name}!<br><br>You have successfully enrolled in the ${programType} (Code: ${programId ? (await Program.findById(programId))?.code : 'N/A'}). Here are your login details:<br><br>Email: ${user.email}<br>Password: ${autoPassword}<br><br>Please login at: <a href="${process.env.FRONTEND_URL}/login">${process.env.FRONTEND_URL}/login</a>${welcomeAddon}`
-                        });
-                    } else {
-                        await sendEmail({
-                            to: user.email,
-                            subject: 'Enrollment Confirmed - EdinzTech',
-                            html: `Hi ${user.name},<br><br>Your payment was successful and you have been enrolled in the ${programType} (Code: ${programId ? (await Program.findById(programId))?.code : 'N/A'}).${welcomeAddon}`
-                        });
-                    }
+                    const emailHtml = getEnrollmentEmailTemplate({
+                        isNewUser,
+                        name: user.name,
+                        email: user.email,
+                        password: isNewUser ? autoPassword : 'Not Available (Login with existing password)',
+                        programType: programType,
+                        programCode: programCode,
+                        loginUrl: `${process.env.FRONTEND_URL}/login`,
+                        welcomeAddon
+                    });
+
+                    await sendEmail({
+                        to: user.email,
+                        subject: isNewUser ? 'Welcome to EdinzTech - Login Credentials' : 'Enrollment Confirmed - EdinzTech',
+                        html: emailHtml
+                    });
 
                     // 5. WhatsApp Notification (Non-blocking / Safe)
                     try {
@@ -489,31 +550,30 @@ const verifyPayment = asyncHandler(async (req, res) => {
             // Send Email (Only if new user or new payment? Email service might handle duplicate checks or we accept minor spam on retry)
             // Ideally only if !existingPayment
 
-            const fullProgram = await Program.findById(programId); // Re-fetch to be sure (already fetched in webhook logic, but safe here)
-            const welcomeAddon = fullProgram?.welcomeEmailContent ? `<br><br><div style="background:#f9f9f9;padding:15px;border-left:4px solid #4f46e5;margin-top:20px;"><strong>Additional Information:</strong><br>${fullProgram.welcomeEmailContent.replace(/\n/g, '<br>')}</div>` : '';
+            const welcomeAddon = fullProgram?.welcomeEmailContent || null;
+            const programCode = fullProgram?.code || 'N/A';
 
-            if (!existingPayment && isNewUser) {
+            let decryptedPassword = 'Not Available (Login with existing password)';
+            if (!isNewUser && user.encryptedPassword) {
+                decryptedPassword = decrypt(user.encryptedPassword);
+            }
+
+            const emailHtml = getEnrollmentEmailTemplate({
+                isNewUser,
+                name: user.name,
+                email: user.email,
+                password: isNewUser ? autoPassword : decryptedPassword,
+                programType: programType,
+                programCode: programCode,
+                loginUrl: `${process.env.FRONTEND_URL}/login`,
+                welcomeAddon
+            });
+
+            if (!existingPayment) {
                 sendEmail({
                     to: user.email,
-                    subject: 'Welcome to EdinzTech - Login Credentials',
-                    html: `Welcome ${user.name}!<br><br>You have successfully enrolled. (Code: ${fullProgram?.code || 'N/A'}) Login details:<br>Email: ${user.email}<br>Password: ${autoPassword}<br><a href="${process.env.FRONTEND_URL}/login">Login Here</a>${welcomeAddon}`
-                }).catch(err => console.error("Email fail", err));
-            } else if (!existingPayment) {
-                // Confirmation for existing user - WITH CREDENTIALS as requested
-                let decryptedPassword = 'Not Available (Login with existing password)';
-                if (user.encryptedPassword) {
-                    decryptedPassword = decrypt(user.encryptedPassword);
-                }
-
-                sendEmail({
-                    to: user.email,
-                    subject: 'Enrollment Confirmed - EdinzTech',
-                    html: `Hi ${user.name},<br><br>
-                    Your payment was successful and you have been enrolled in the ${programType} (Code: ${fullProgram?.code || 'N/A'}).<br><br>
-                    Here are your login credentials:<br>
-                    <b>Username:</b> ${user.email}<br>
-                    <b>Password:</b> ${decryptedPassword}<br><br>
-                    <a href="${process.env.FRONTEND_URL}/login">Login Here</a>${welcomeAddon}`
+                    subject: isNewUser ? 'Welcome to EdinzTech - Login Credentials' : 'Enrollment Confirmed - EdinzTech',
+                    html: emailHtml
                 }).catch(err => console.error("Email fail", err));
             }
 

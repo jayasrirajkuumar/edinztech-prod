@@ -151,6 +151,54 @@ const publishQuiz = asyncHandler(async (req, res) => {
 
     quiz.status = 'Published';
     await quiz.save();
+
+    // --- NOFITY ENROLLED STUDENTS ---
+    try {
+        const Enrollment = require('../models/Enrollment');
+        const { sendEmail } = require('../services/emailService');
+        
+        // Find all active students in this program and populate their user data for the email
+        const enrollments = await Enrollment.find({ program: quiz.program, status: 'active' }).populate('user', 'email name');
+        
+        if (enrollments && enrollments.length > 0) {
+            // Format dates
+            const startDateStr = quiz.startTime ? new Date(quiz.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'No strict start time';
+            const endDateStr = quiz.endTime ? new Date(quiz.endTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'No strict end time';
+
+            const summaryStr = (quiz.startTime && quiz.endTime) 
+                ? `${startDateStr} to ${endDateStr}`
+                : `From: ${startDateStr} <br> To: ${endDateStr}`;
+
+            // We can send emails sequentially or batched to not crash the thread
+            for (let enrollment of enrollments) {
+                if (enrollment.user && enrollment.user.email) {
+                    const emailHtml = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                        <h2>New Quiz Published!</h2>
+                        <p>Hi ${enrollment.user.name || 'Student'},</p>
+                        <p>A new quiz titled <strong>"${quiz.title}"</strong> has been published for your enrolled course.</p>
+                        <div style="background-color: #f3f4f6; padding: 15px; border-left: 4px solid #4f46e5; margin: 20px 0;">
+                            <strong>Valid Hours to Attend:</strong><br>
+                            ${summaryStr}
+                        </div>
+                        <p>Please log in to your student dashboard to attempt the quiz before the deadline.</p>
+                        <p>Best regards,<br>EdinzTech Team</p>
+                    </div>
+                    `;
+                    
+                    await sendEmail({
+                        to: enrollment.user.email,
+                        subject: `New Quiz Available: ${quiz.title}`,
+                        html: emailHtml
+                    });
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Failed to dispatch quiz publication emails:", err.message);
+    }
+    // ---------------------------------
+
     res.json(quiz);
 });
 

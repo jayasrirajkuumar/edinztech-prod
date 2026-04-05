@@ -54,6 +54,8 @@ import {
     Power, // Added
     Copy, // Added
     Database, // Added
+    Eye,
+    EyeOff,
 } from 'lucide-react';
 
 export const Icons = {
@@ -133,4 +135,6 @@ export const Icons = {
     Power: (props) => <Power className="text-secondary" {...props} />, // Added
     Globe: (props) => <Globe className="text-secondary" {...props} />, // Added
     Copy: (props) => <Copy className="text-secondary" {...props} />, // Added
+    Eye: (props) => <Eye className="text-secondary" {...props} />,
+    EyeOff: (props) => <EyeOff className="text-secondary" {...props} />,
 };
