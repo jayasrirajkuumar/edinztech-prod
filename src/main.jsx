@@ -6,6 +6,18 @@ import App from './App.jsx';
 
 console.log('Main.jsx is executing...');
 
+// Debug: Log environment configuration
+if (typeof window !== 'undefined') {
+    window.__ENV_CONFIG__ = {
+        API_URL: import.meta.env.VITE_API_URL,
+        BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
+        FRONTEND_URL: import.meta.env.VITE_FRONTEND_URL,
+        DEV: import.meta.env.DEV,
+        PROD: import.meta.env.PROD,
+    };
+    console.log('[ENV CONFIG]', window.__ENV_CONFIG__);
+}
+
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

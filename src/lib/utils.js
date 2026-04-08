@@ -57,5 +57,12 @@ export const getImageUrl = (path) => {
     const normalizedPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
     const backendUrl = getBackendUrl();
 
-    return `${backendUrl}/${normalizedPath}`;
+    const imageUrl = `${backendUrl}/${normalizedPath}`;
+    
+    // Debug log in development
+    if (import.meta.env.DEV) {
+        console.log('[IMAGE URL DEBUG]', { path, imageUrl, backend: backendUrl });
+    }
+    
+    return imageUrl;
 };

@@ -105,17 +105,6 @@ export default function PublicOutsiderQuiz() {
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
-            {/* Not using Navbar here to keep it focused or use minimal header? 
-               User requested "Outsider Quiz" - usually standalone. 
-               But let's include Navbar for branding consistency if desired. 
-               Let's include it but maybe simpler. */}
-            <div className="bg-white shadow py-4 px-6 mb-4">
-                <div className="max-w-4xl mx-auto flex justify-between items-center">
-                    <img src="/logo.png" alt="Logo" className="h-10" />
-                    <h1 className="text-xl font-bold text-gray-800">{quiz.title}</h1>
-                </div>
-            </div>
-
             <main className="flex-grow container mx-auto px-4 py-8 max-w-3xl">
 
                 {step === 'details' && (
