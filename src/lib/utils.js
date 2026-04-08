@@ -2,29 +2,42 @@ export function cn(...classes) {
     return classes.filter(Boolean).join(' ');
 }
 
-export const getImageUrl = (path) => {
-    if (!path) return '';
-    if (/^https?:\/\//i.test(path)) return path; // Already absolute
+const getApiBaseUrl = () => {
+    const envUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '');
 
-    // Fix backslashes for Windows compatibility
-    path = path.replace(/\\/g, '/');
+    if (envUrl) {
+        return envUrl;
+    }
 
-    // Remove leading slash if present to avoid double slashes
-    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    if (typeof window !== 'undefined') {
+        return `${window.location.origin.replace(/\/+$/, '')}/api`;
+    }
 
-    // Get base URL and remove /api if present (since uploads are usually served from root)
-    let baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+    return 'http://localhost:5000/api';
+};
 
-    // If baseUrl ends with /api, remove it to get the server root
-    // Example: http://localhost:5000/api -> http://localhost:5000
+const getServerRoot = () => {
+    let baseUrl = getApiBaseUrl();
+
     if (baseUrl.endsWith('/api')) {
         baseUrl = baseUrl.slice(0, -4);
     }
 
-    // Ensure baseUrl doesn't end with slash
-    if (baseUrl.endsWith('/')) {
-        baseUrl = baseUrl.slice(0, -1);
-    }
+    return baseUrl.replace(/\/+$/, '');
+};
 
-    return `${baseUrl}/${cleanPath}`;
+export const getImageUrl = (path) => {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path; // Already absolute
+
+    path = path.replace(/\\/g, '/').trim();
+
+    // Normalize any existing uploads path inside an absolute filesystem or relative path
+    const uploadsIndex = path.toLowerCase().indexOf('uploads/');
+    const cleanPath = uploadsIndex >= 0 ? path.slice(uploadsIndex) : path;
+
+    const normalizedPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
+    const serverRoot = getServerRoot();
+
+    return `${serverRoot}/${normalizedPath}`;
 };
