@@ -12,7 +12,23 @@ const api = axios.create({
 });
 
 const getStoredToken = () => {
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    if (token) {
+        return token;
+    }
+
+    const storedUserInfo = localStorage.getItem('userInfo');
+    if (!storedUserInfo) {
+        return null;
+    }
+
+    try {
+        const parsed = JSON.parse(storedUserInfo);
+        return parsed?.token || parsed?.accessToken || parsed?.data?.token || parsed?.data?.accessToken || null;
+    } catch (error) {
+        console.warn('Unable to parse stored userInfo for auth token', error);
+        return null;
+    }
 };
 
 // Request Interceptor: Add Token

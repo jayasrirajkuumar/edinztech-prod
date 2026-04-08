@@ -8584,3 +8584,15 @@
 [AUTH 2026-04-08T10:07:43.672Z] Checking Auth for: GET /api/outsider-quiz/admin
 [AUTH 2026-04-08T10:07:43.674Z] Token found: eyJhbGciOi...
 [AUTH 2026-04-08T10:07:43.678Z] Auth Error: invalid signature
+[AUTH 2026-04-08T10:47:06.000Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-04-08T10:47:06.003Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T10:47:06.007Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T10:47:06.031Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T10:47:06.170Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-04-08T10:47:06.173Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T10:47:06.176Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T10:47:06.185Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T10:47:12.225Z] Checking Auth for: DELETE /api/gallery/697f71ce87409ab55442ea0d
+[AUTH 2026-04-08T10:47:12.231Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T10:47:12.234Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T10:47:12.244Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
