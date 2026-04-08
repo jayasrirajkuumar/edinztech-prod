@@ -7,16 +7,6 @@ export default function PublicLayout() {
     const { pathname } = useLocation();
 
     useEffect(() => {
-        // Auto-logout when visiting public pages
-        const userInfo = localStorage.getItem('userInfo');
-        if (userInfo) {
-            localStorage.removeItem('userInfo');
-            // Dispatch event to update Navbar state immediately
-            window.dispatchEvent(new Event('storage'));
-        }
-    }, []);
-
-    useEffect(() => {
         window.scrollTo({
             top: 0,
             left: 0,

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProgram, createPaymentOrder, enrollFree } from '../lib/api';
+import { getImageUrl } from '../lib/utils';
 import { isRegistrationOpen } from '../lib/programUtils';
 import { formatDate } from '../lib/dateUtils';
 import { Icons } from '../components/icons';
@@ -73,10 +74,10 @@ export default function InternshipDetails() {
                     {(program.bannerImage || program.image) && (
                         <div className="mb-6 rounded-xl overflow-hidden border border-gray-100 shadow-sm">
                             <img
-                                src={program.bannerImage || program.image}
+                                src={getImageUrl(program.bannerImage || program.image)}
                                 alt={program.title}
                                 className="w-full h-auto object-cover max-h-[400px]"
-                                onError={(e) => e.target.style.display = 'none'}
+                                onError={(e) => { e.target.style.display = 'none'; }}
                             />
                         </div>
                     )}

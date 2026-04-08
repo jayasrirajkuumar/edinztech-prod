@@ -4,7 +4,7 @@ export function cn(...classes) {
 
 export const getImageUrl = (path) => {
     if (!path) return '';
-    if (path.startsWith('http')) return path; // Already absolute
+    if (/^https?:\/\//i.test(path)) return path; // Already absolute
 
     // Fix backslashes for Windows compatibility
     path = path.replace(/\\/g, '/');
@@ -13,7 +13,7 @@ export const getImageUrl = (path) => {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
 
     // Get base URL and remove /api if present (since uploads are usually served from root)
-    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    let baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
 
     // If baseUrl ends with /api, remove it to get the server root
     // Example: http://localhost:5000/api -> http://localhost:5000
