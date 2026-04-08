@@ -31,12 +31,19 @@ const getStoredToken = () => {
     }
 };
 
+const storedToken = typeof window !== 'undefined' ? getStoredToken() : null;
+if (storedToken) {
+    api.defaults.headers.common.Authorization = `Bearer ${storedToken}`;
+}
+
 // Request Interceptor: Add Token
 api.interceptors.request.use(
     (config) => {
         const token = getStoredToken();
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        } else if (config.url && config.url.startsWith('/admin')) {
+            console.warn('[API] No auth token found for admin request:', config.url);
         }
         return config;
     },

@@ -36,6 +36,7 @@ export default function AdminNavbar({ onToggleSidebar }) {
 
     const handleLogout = () => {
         localStorage.removeItem('userInfo');
+        localStorage.removeItem('token');
         setUser(null);
         setIsProfileOpen(false);
         navigate('/login');
@@ -100,6 +101,7 @@ export default function AdminNavbar({ onToggleSidebar }) {
                                 onClick={() => {
                                     if (window.confirm('If you go back to the website, your account will be logged out. Are you sure?')) {
                                         localStorage.removeItem('userInfo');
+                                        localStorage.removeItem('token');
                                         setUser(null);
                                         navigate('/');
                                     }
