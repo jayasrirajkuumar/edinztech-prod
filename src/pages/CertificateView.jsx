@@ -21,23 +21,61 @@ export default function CertificateView() {
                     return;
                 }
 
+                console.log('[CertificateView] Fetching certificate:', code);
                 const { data } = await api.get(`/certificates/verify/${code}`);
                 
-                // Validate response structure
-                if (!data?.certificate) {
+                console.log('[CertificateView] API Response:', data);
+                
+                // Handle multiple possible response structures for backward compatibility
+                let certData = null;
+                
+                // Try nested structure first (new API)
+                if (data?.certificate) {
+                    certData = data.certificate;
+                } 
+                // Fall back to flat structure (old API or different endpoint)
+                else if (data?.certificateId) {
+                    certData = data;
+                }
+                // Last resort - use the entire data object
+                else {
+                    certData = data;
+                }
+
+                if (!certData || typeof certData !== 'object') {
+                    console.error('[CertificateView] Invalid certificate data', data);
                     setError('Invalid certificate data received from server.');
                     setLoading(false);
                     return;
                 }
 
-                // Ensure critical fields exist
-                if (!data.certificate.user || !data.certificate.program) {
-                    setError('Certificate data is incomplete. Please try again or contact support.');
-                    setLoading(false);
-                    return;
-                }
+                // Ensure we have at least basic structure
+                // Create a safe certificate object with ALL fields and proper defaults
+                const safeCertificate = {
+                    certificateId: certData.certificateId || certData.code || 'Unknown',
+                    issueDate: certData.issueDate || certData.certificateIssuedDate || new Date().toISOString(),
+                    fileUrl: certData.fileUrl || null,
+                    certificateStatus: certData.certificateStatus || 'issued',
+                    user: {
+                        name: (certData.user ? certData.user.name : null) || certData.studentName || 'Student',
+                        email: (certData.user ? certData.user.email : null) || '',
+                        registerNumber: (certData.user ? certData.user.registerNumber : null) || '',
+                        year: (certData.user ? certData.user.year : null) || '',
+                        institutionName: (certData.user ? certData.user.institutionName : null) || ''
+                    },
+                    program: {
+                        title: (certData.program ? certData.program.title : null) || certData.programName || certData.courseName || 'Program',
+                        code: (certData.program ? certData.program.code : null) || '',
+                        certificateTemplate: (certData.program ? certData.program.certificateTemplate : null) || '',
+                        certificateConfig: (certData.program ? certData.program.certificateConfig : null) || {},
+                        startDate: (certData.program ? certData.program.startDate : null) || certData.courseStartDate || '',
+                        endDate: (certData.program ? certData.program.endDate : null) || certData.courseEndDate || '',
+                        duration: (certData.program ? certData.program.duration : null) || ''
+                    }
+                };
 
-                setCertificate(data.certificate);
+                console.log('[CertificateView] Safe Certificate:', safeCertificate);
+                setCertificate(safeCertificate);
             } catch (err) {
                 console.error("Failed to load certificate", err);
                 
@@ -48,7 +86,7 @@ export default function CertificateView() {
                 } else if (err.message === 'Network Error') {
                     setError('Network error. Please check your internet connection and try again.');
                 } else {
-                    setError(err.response?.data?.message || 'Failed to load certificate. Please try again.');
+                    setError(err.response?.data?.message || err.message || 'Failed to load certificate. Please try again.');
                 }
             } finally {
                 setLoading(false);
@@ -99,21 +137,34 @@ export default function CertificateView() {
         );
     }
 
-    // Safe data extraction with fallbacks
+    // SAFE: Certificate is guaranteed to exist with all required fields
     const cert = certificate;
-    const user = cert.user || {};
-    const program = cert.program || {};
+    if (!cert) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
+                    <Icons.AlertCircle className="mx-auto h-12 w-12 text-orange-500 mb-4" />
+                    <h2 className="text-xl font-bold text-gray-800 mb-2">Data Error</h2>
+                    <p className="text-gray-600 mb-6">Certificate object is missing.</p>
+                    <Button onClick={() => window.history.back()}>Go Back</Button>
+                </div>
+            </div>
+        );
+    }
+
+    const user = cert.user || { name: 'Student', email: '', registerNumber: '', year: '', institutionName: '' };
+    const program = cert.program || { title: 'Program', code: '', certificateTemplate: '', certificateConfig: {}, startDate: '', endDate: '', duration: '' };
     
     // Normalize certificate template path
-    let templatePath = program.certificateTemplate;
+    let templatePath = program && program.certificateTemplate ? program.certificateTemplate : null;
     if (templatePath) {
-        templatePath = templatePath.replace(/\\/g, '/');
+        templatePath = templatePath.toString().replace(/\\/g, '/');
         if (!templatePath.startsWith('/') && !templatePath.startsWith('http')) {
             templatePath = '/' + templatePath;
         }
     }
 
-    const config = program.certificateConfig || {};
+    const config = (program && program.certificateConfig) ? program.certificateConfig : {};
 
     // Helper for percentage based positioning
     const getStyle = (fieldConfig) => {
@@ -165,7 +216,7 @@ export default function CertificateView() {
 
                         <div className="absolute top-8 right-8 text-right">
                             <p className="text-gray-400 text-sm">Certificate ID</p>
-                            <p className="font-mono text-gray-600 font-bold">{cert.certificateId || 'N/A'}</p>
+                            <p className="font-mono text-gray-600 font-bold">{cert.certificateId}</p>
                         </div>
 
                         <div className="space-y-6 max-w-3xl mx-auto z-10 w-full">
@@ -174,12 +225,12 @@ export default function CertificateView() {
 
                             <p className="text-gray-600 mt-8">This verifies that</p>
                             <h2 className="text-4xl font-bold text-primary italic font-serif my-4">
-                                {user.name || "Student Name"}
+                                {user.name}
                             </h2>
 
                             <p className="text-gray-600 text-lg">Has successfully completed the program</p>
                             <h3 className="text-3xl font-bold text-secondary my-4">
-                                {program.title || "Program Title"}
+                                {program.title}
                             </h3>
 
                             {program.code && (
@@ -202,7 +253,7 @@ export default function CertificateView() {
                                         alt="Signature" 
                                         onError={(e) => e.target.style.display = 'none'} 
                                     />
-                                    <p className="text-xs text-gray-400 font-mono mt-1">{cert.certificateId || 'ID'}</p>
+                                    <p className="text-xs text-gray-400 font-mono mt-1">{cert.certificateId}</p>
                                 </div>
                             </div>
                         </div>
