@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../lib/api';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Icons } from '../components/icons';
 
@@ -141,9 +141,7 @@ export default function Verify() {
         setResult(null);
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || '';
-            // Step 1: Resolve (Legacy -> ISS ID)
-            const resolveRes = await axios.post(`${apiUrl}/api/certificates/resolve`, { qrInput: legacyInput });
+            const resolveRes = await api.post('/certificates/resolve', { qrInput: legacyInput });
             const resolvedId = resolveRes.data.certificateId;
 
             // Step 2: Verify
@@ -180,9 +178,7 @@ export default function Verify() {
         setResult(null);
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || '';
-            const apiUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
-            const response = await axios.get(`${apiUrl}/certificates/new-certificates/verify/${cleanId}`);
+            const response = await api.get(`/certificates/new-certificates/verify/${cleanId}`);
 
             if (response.data.valid) {
                 setResult(response.data);
@@ -207,12 +203,7 @@ export default function Verify() {
         setDebugInfo(null);
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || '';
-            const apiUrl = baseUrl.endsWith('/api') ? baseUrl : `${baseUrl}/api`;
-            const requestUrl = `${apiUrl}/certificates/verify/${cleanCode}`;
-
-            // console.log("Calling API:", requestUrl);
-            const response = await axios.get(requestUrl);
+            const response = await api.get(`/certificates/verify/${cleanCode}`);
 
             // Fix: Check for 'status' (Legacy/Unified) OR 'valid' (New Arch compat)
             if (response.data.status === 'VALID' || response.data.valid) {

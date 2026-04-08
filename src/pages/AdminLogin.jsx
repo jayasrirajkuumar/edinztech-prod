@@ -6,6 +6,7 @@ import { Icons } from '../components/icons';
 import Button from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import Card from '../components/ui/Card';
+import api from '../lib/api';
 import logo from '../assets/logo.svg';
 
 const loginSchema = z.object({
@@ -25,25 +26,29 @@ export default function AdminLogin() {
         resolver: zodResolver(loginSchema),
     });
 
+    const extractAuthToken = (result) => {
+        return result?.token
+            || result?.accessToken
+            || result?.data?.token
+            || result?.data?.accessToken
+            || result?.data?.data?.token
+            || result?.data?.data?.accessToken;
+    };
+
     const onSubmit = async (data) => {
         try {
-            const response = await fetch('/api/auth/admin/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
+            const response = await api.post('/auth/admin/login', data);
+            const result = response.data;
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Login failed');
+            const token = extractAuthToken(result);
+            if (!token) {
+                throw new Error('Login succeeded but no token was returned.');
             }
 
-            console.log('Admin Login Success:', result);
-            localStorage.setItem('userInfo', JSON.stringify(result));
+            localStorage.setItem('token', token);
+            localStorage.setItem('userInfo', JSON.stringify({ ...result, token }));
 
+            console.log('Admin Login Success:', result);
             navigate('/admin');
         } catch (error) {
             console.error('Login Error:', error);

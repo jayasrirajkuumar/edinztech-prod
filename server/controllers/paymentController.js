@@ -111,7 +111,7 @@ const createOrder = asyncHandler(async (req, res) => {
                 password: isNewUser ? autoPassword : 'Not Available (Login with existing password)',
                 programType: programType || program.type,
                 programCode: programCode,
-                loginUrl: `${process.env.FRONTEND_URL}/login`,
+                loginUrl: `${(process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'')}/login`,
                 welcomeAddon
             });
 
@@ -399,7 +399,7 @@ const handleWebhook = asyncHandler(async (req, res) => {
                         password: isNewUser ? autoPassword : 'Not Available (Login with existing password)',
                         programType: programType,
                         programCode: programCode,
-                        loginUrl: `${process.env.FRONTEND_URL}/login`,
+                        loginUrl: `${(process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'')}/login`,
                         welcomeAddon
                     });
 
@@ -565,7 +565,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
                 password: isNewUser ? autoPassword : decryptedPassword,
                 programType: programType,
                 programCode: programCode,
-                loginUrl: `${process.env.FRONTEND_URL}/login`,
+                loginUrl: `${(process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'')}/login`,
                 welcomeAddon
             });
 

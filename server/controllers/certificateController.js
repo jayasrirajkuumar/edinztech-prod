@@ -36,7 +36,7 @@ const generateCertificateForEnrollment = async (enrollment, program, user, force
     }
 
     // B. Generate QR Data (Direct Verify Link)
-    const domain = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const domain = (process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,''); // Set FRONTEND_URL or VITE_FRONTEND_URL in .env for production
     const verifyUrl = `${domain}/verify?certificateId=${certificateId}`;
     const qrCodeImage = await QRCode.toDataURL(verifyUrl);
 
@@ -600,7 +600,7 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
         logDebug(`Certificate ID: ${certificateId}`);
 
         // Generate QR Data
-        const domain = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const domain = (process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,''); // Set FRONTEND_URL or VITE_FRONTEND_URL in .env for production
         const verifyUrl = `${domain}/verify?certificateId=${certificateId}`;
         const qrCodeImage = await QRCode.toDataURL(verifyUrl);
         logDebug(`QR Generated.`);

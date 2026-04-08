@@ -74,7 +74,8 @@ const inviteStudent = async (req, res) => {
         });
 
         // 4. Send Notification (Email)
-        const loginUrl = process.env.FRONTEND_URL || 'http://72.60.103.246/login';
+        const FRONTEND_URL = (process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'');
+        const loginUrl = `${FRONTEND_URL}/login`;
         const emailSubject = `You’ve been invited to join your program at EdinzTech LMS`;
         const emailBody = `
             <h3>Hello ${user.name},</h3>
@@ -356,7 +357,7 @@ const resendCredentials = async (req, res) => {
                    <p>Here are your login details as requested:</p>
                    <p><b>Username:</b> ${student.email}</p>
                    <p><b>Password:</b> ${decryptedPassword}</p>
-                   <p><a href="${process.env.FRONTEND_URL}/login">Login Here</a></p>`
+                   <p><a href="${(process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'')}/login">Login Here</a></p>`
         });
 
         if (emailSent) {
@@ -789,7 +790,7 @@ const resetStudentPassword = async (req, res) => {
                        <p>Hello ${student.name},</p>
                        <p>Your password has been reset by an administrator.</p>
                        <p><b>New Password:</b> ${newPassword}</p>
-                       <p><a href="${process.env.FRONTEND_URL}/login">Login Here</a></p>`
+                       <p><a href="${(process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'')}/login">Login Here</a></p>`
             });
         } catch (emailErr) {
             console.error("Failed to send password reset email:", emailErr);

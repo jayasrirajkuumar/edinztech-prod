@@ -1,29 +1,25 @@
 import axios from 'axios';
 
+const baseURL = import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || 'http://localhost:5000/api';
+
 // Create Axios Instance
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', // Default to local for dev safety
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
+const getStoredToken = () => {
+    return localStorage.getItem('token');
+};
+
 // Request Interceptor: Add Token
 api.interceptors.request.use(
     (config) => {
-        const userInfo = localStorage.getItem('userInfo');
-        if (userInfo) {
-            try {
-                const parsed = JSON.parse(userInfo);
-                // Handle different keys: token, accessToken, or nested in user object
-                const token = parsed?.token || parsed?.accessToken || parsed?.user?.token;
-
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
-                }
-            } catch (e) {
-                localStorage.removeItem('userInfo');
-            }
+        const token = getStoredToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },

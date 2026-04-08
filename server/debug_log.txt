@@ -8526,3 +8526,61 @@
 [AUTH 2026-04-08T05:55:14.267Z] Token found: eyJhbGciOi...
 [AUTH 2026-04-08T05:55:14.269Z] Token decoded ID: 693c1adcad454d06818ab935
 [AUTH 2026-04-08T05:55:14.275Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:09.430Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-04-08T09:35:09.432Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:09.440Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:09.452Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:09.515Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-04-08T09:35:09.517Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:09.519Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:09.528Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:12.730Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:12.733Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:12.737Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:12.750Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:12.803Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:12.805Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:12.807Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:12.819Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:26.003Z] Checking Auth for: POST /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:26.005Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:26.008Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:26.015Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:26.118Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:26.121Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:26.124Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:26.135Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:26.153Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:26.156Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:26.159Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:26.170Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:27.424Z] Checking Auth for: PUT /api/outsider-quiz/admin/69d6215e8b4c191945e71687
+[AUTH 2026-04-08T09:35:27.427Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:27.431Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:27.440Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:27.483Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:27.487Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:27.493Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:27.506Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:28.388Z] Checking Auth for: PUT /api/outsider-quiz/admin/69d6215e8b4c191945e71687
+[AUTH 2026-04-08T09:35:28.390Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:28.392Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:28.401Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:28.426Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:28.428Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:28.429Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:28.435Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:29.642Z] Checking Auth for: PUT /api/outsider-quiz/admin/69d6215e8b4c191945e71687
+[AUTH 2026-04-08T09:35:29.644Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:29.646Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:29.653Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T09:35:29.678Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T09:35:29.680Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T09:35:29.682Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T09:35:29.691Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T10:07:43.634Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T10:07:43.637Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T10:07:43.654Z] Auth Error: invalid signature
+[AUTH 2026-04-08T10:07:43.672Z] Checking Auth for: GET /api/outsider-quiz/admin
+[AUTH 2026-04-08T10:07:43.674Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T10:07:43.678Z] Auth Error: invalid signature

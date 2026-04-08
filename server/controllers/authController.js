@@ -126,7 +126,8 @@ const forgotPassword = asyncHandler(async (req, res) => {
         isReset = true;
     }
 
-    const loginUrl = process.env.FRONTEND_URL || 'http://72.60.103.246/login';
+    const FRONTEND_URL = (process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || 'http://localhost:5173').replace(/\/+$|$/,'');
+    const loginUrl = `${FRONTEND_URL}/login`;
     const emailSubject = isReset ? `Login Credentials Reset - EdinzTech` : `Login Credentials Recovery - EdinzTech`;
 
     let emailBody = `<h3>Hello ${user.name},</h3>`;
