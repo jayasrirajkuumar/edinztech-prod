@@ -36,6 +36,203 @@ const transporter = nodemailer.createTransport({
 // Serve static files
 app.use('/files', express.static(path.join(__dirname, 'temp')));
 
+// HTML Email Template Generator
+function generateCertificateEmailHtml({ isAcceptance, isOfferLetter, studentName, courseName, courseCode, certificateId, qrCode, certificateDate }) {
+    const headerColor = '#4f46e5';
+    const accentColor = '#6366f1';
+    const goldColor = '#f59e0b';
+
+    if (isAcceptance || isOfferLetter) {
+        return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${isAcceptance ? 'Project Acceptance' : 'Internship Offer'}</title>
+        </head>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); margin: 0; padding: 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
+                <tr>
+                    <td align="center">
+                        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+                            <!-- Header -->
+                            <tr>
+                                <td style="background: linear-gradient(135deg, ${headerColor} 0%, ${accentColor} 100%); padding: 40px 40px; text-align: center;">
+                                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 2px;">📋 EdinzTech</h1>
+                                    <p style="color: #e0e7ff; margin: 8px 0 0 0; font-size: 16px;">Internship & Projects Platform</p>
+                                </td>
+                            </tr>
+                            
+                            <!-- Content -->
+                            <tr>
+                                <td style="padding: 40px;">
+                                    <h2 style="color: #111827; text-align: center; font-size: 24px; margin: 0 0 24px 0;">
+                                        ${isAcceptance ? '✅ Project Acceptance' : '📬 Internship Offer'}
+                                    </h2>
+                                    
+                                    <p style="color: #374151; font-size: 16px; line-height: 1.6; text-align: center; margin-bottom: 24px;">
+                                        Dear <strong>${studentName}</strong>,
+                                    </p>
+
+                                    <p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+                                        ${isAcceptance 
+                                            ? `We are delighted to inform you that your project application has been <strong style="color: #10b981;">ACCEPTED</strong>. Please find your project acceptance letter attached to this email.` 
+                                            : `We are pleased to offer you a position in our <strong style="color: #3b82f6;">${courseName}</strong> internship program. Please find your offer letter attached to this email.`
+                                        }
+                                    </p>
+
+                                    <div style="background: linear-gradient(135deg, #f0f4ff 0%, #f9fbff 100%); border: 2px solid ${accentColor}; border-radius: 12px; padding: 24px; margin: 24px 0;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e0e7ff;">
+                                                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Program</p>
+                                                    <p style="color: #111827; font-size: 16px; margin: 0; font-weight: 600;">${courseName}</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px 0;">
+                                                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Program Code</p>
+                                                    <p style="color: ${headerColor}; font-size: 16px; margin: 0; font-weight: 700; font-family: 'Courier New', monospace;">${courseCode}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <p style="color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 24px;">
+                                        ${isAcceptance 
+                                            ? `Please review the attached acceptance letter carefully. If you have any questions or concerns, feel free to reach out to us.` 
+                                            : `Please review the attached offer letter which contains important details about the internship including duration, responsibilities, and other relevant information. If you have any questions, please don't hesitate to contact us.`
+                                        }
+                                    </p>
+
+                                    <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                                        <p style="color: #166534; margin: 0; font-size: 14px; line-height: 1.5;">
+                                            <strong>✓ Next Steps:</strong> Download the attached document and keep it safe for your records.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Footer -->
+                            <tr>
+                                <td style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                    <p style="color: #9ca3af; font-size: 12px; margin: 0;">&copy; ${new Date().getFullYear()} EdinzTech. All rights reserved.</p>
+                                    <p style="color: #d1d5db; font-size: 11px; margin: 8px 0 0 0;">This is an automated message, please do not reply to this email.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `;
+    } else {
+        // Certificate template
+        return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Certificate of Completion</title>
+        </head>
+        <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%); margin: 0; padding: 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 20px;">
+                <tr>
+                    <td align="center">
+                        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);">
+                            <!-- Header -->
+                            <tr>
+                                <td style="background: linear-gradient(135deg, ${headerColor} 0%, ${accentColor} 100%); padding: 40px 40px; text-align: center; position: relative; overflow: hidden;">
+                                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: 2px; position: relative; z-index: 2;">🎓 EdinzTech</h1>
+                                    <p style="color: #e0e7ff; margin: 8px 0 0 0; font-size: 16px; position: relative; z-index: 2;">Elevating Your Skills</p>
+                                    <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background-color: rgba(255,255,255,0.1); border-radius: 50%; z-index: 1;"></div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Main Content -->
+                            <tr>
+                                <td style="padding: 48px 40px;">
+                                    <!-- Certificate Icon -->
+                                    <div style="text-align: center; margin-bottom: 32px;">
+                                        <div style="font-size: 64px; margin-bottom: 16px;">📜</div>
+                                        <h2 style="color: #111827; margin: 0 0 8px 0; font-size: 28px; font-weight: 700;">Certificate of Completion</h2>
+                                        <p style="color: #6b7280; margin: 0; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">Your Achievement Unlocked</p>
+                                    </div>
+
+                                    <!-- Congratulations Message -->
+                                    <p style="color: #374151; font-size: 16px; line-height: 1.6; text-align: center; margin: 24px 0;">
+                                        Congratulations <strong>${studentName}</strong>! 🎉
+                                    </p>
+
+                                    <!-- Certificate Details Card -->
+                                    <div style="background: linear-gradient(135deg, #f0f4ff 0%, #f9fbff 100%); border: 2px solid ${accentColor}; border-radius: 12px; padding: 24px; margin: 32px 0;">
+                                        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+                                            <tr>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e0e7ff;">
+                                                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Course/Program</p>
+                                                    <p style="color: #111827; font-size: 16px; margin: 0; font-weight: 600;">${courseName}</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e0e7ff;">
+                                                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Course Code</p>
+                                                    <p style="color: ${headerColor}; font-size: 16px; margin: 0; font-weight: 700; font-family: 'Courier New', monospace;">${courseCode}</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px 0; border-bottom: 1px solid #e0e7ff;">
+                                                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Certificate ID</p>
+                                                    <p style="color: #375a7f; font-size: 14px; margin: 0; font-family: 'Courier New', monospace; word-break: break-all;">${certificateId}</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px 0;">
+                                                    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Date Awarded</p>
+                                                    <p style="color: #111827; font-size: 16px; margin: 0; font-weight: 600;">${certificateDate}</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <!-- Achievement Message -->
+                                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%); border-left: 4px solid ${goldColor}; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                                        <p style="color: #92400e; margin: 0; font-size: 14px; line-height: 1.5;">
+                                            <strong>🌟 Well Done!</strong> You have successfully completed this course. Your dedication and hard work have paid off. Keep learning and growing with EdinzTech!
+                                        </p>
+                                    </div>
+
+                                    <!-- QR Code (if available) -->
+                                    ${qrCode ? `
+                                    <div style="text-align: center; margin: 32px 0; padding: 24px; background-color: #f9fafb; border-radius: 12px;">
+                                        <p style="color: #6b7280; font-size: 12px; margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Verify Your Certificate</p>
+                                        <img src="${qrCode}" alt="Certificate QR Code" style="width: 120px; height: 120px; border-radius: 8px; border: 2px solid ${accentColor};">
+                                        <p style="color: #9ca3af; font-size: 11px; margin: 12px 0 0 0;">Scan the QR code to verify this certificate</p>
+                                    </div>
+                                    ` : ''}
+                                </td>
+                            </tr>
+                            
+                            <!-- Footer -->
+                            <tr>
+                                <td style="background-color: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                                    <p style="color: #6b7280; font-size: 13px; margin: 0 0 8px 0;">Share your achievement on social media and inspire others! 🚀</p>
+                                    <p style="color: #9ca3af; font-size: 12px; margin: 8px 0;">&copy; ${new Date().getFullYear()} EdinzTech. All rights reserved.</p>
+                                    <p style="color: #d1d5db; font-size: 11px; margin: 8px 0 0 0;">This is an automated message, please do not reply to this email.</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `;
+    }
+}
+
 app.post('/api/generate', async (req, res) => {
     console.log('[Certificate Service] Received request');
     const { studentData, courseData, certificateId, callbackUrl, templateId, templateUrl, type, qrCode, date } = req.body;
@@ -600,6 +797,16 @@ async function processCertificate({ studentData, courseData, certificateId, call
             subject: isAcceptance
                 ? `Project Acceptance: ${courseData.title}`
                 : isOfferLetter ? `Your Internship Offer Letter: ${courseData.title}` : `Your Certificate: ${courseData.title}`,
+            html: generateCertificateEmailHtml({
+                isAcceptance,
+                isOfferLetter,
+                studentName: studentData.name,
+                courseName: courseData.title,
+                courseCode: courseData.code || 'N/A',
+                certificateId,
+                qrCode,
+                certificateDate: date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            }),
             text: isAcceptance
                 ? `Dear ${studentData.name},\n\nWe are pleased to accept your project application. Please find your Acceptance Letter attached.\n\nBest Regards,\nEdinzTech Team`
                 : isOfferLetter

@@ -53,6 +53,7 @@ const generateCertificateForEnrollment = async (enrollment, program, user, force
         },
         courseData: {
             title: program.title,
+            code: program.code,
             id: program._id
         },
         certificateId: certificateId,
@@ -348,7 +349,7 @@ const verifyNewCertificate = asyncHandler(async (req, res) => {
     res.json(response);
 });
 
-// @desc    Verify Certificate (Unified: Enrollment First -> Legacy)
+// @desc    Verify Certificate (Unified: Enrollment First -> Legacy) - For View Page
 // @route   GET /api/certificates/verify?certificateId=X OR /:code
 // @access  Public
 const verifyCertificate = asyncHandler(async (req, res) => {
@@ -363,21 +364,49 @@ const verifyCertificate = asyncHandler(async (req, res) => {
     // 2. PRIMARY CHECK: Enrollment Table (The Source of Truth)
     const enrollment = await Enrollment.findOne({
         certificateId: certificateId
-    }).populate('user', 'name email').populate('program', 'title startDate endDate duration');
+    })
+    .populate('user', 'name email registerNumber year institutionName')
+    .populate('program', 'title code certificateTemplate certificateConfig startDate endDate duration fileUrl');
 
     if (enrollment) {
-        // Valid Mandatory Certificate
+        // Return structured data for CertificateView + flat fields for Verify page backward compatibility
+        const certificateData = {
+            certificateId: enrollment.certificateId,
+            issueDate: enrollment.certificateIssuedAt || enrollment.updatedAt,
+            user: {
+                name: enrollment.user?.name,
+                email: enrollment.user?.email,
+                registerNumber: enrollment.user?.registerNumber,
+                year: enrollment.user?.year,
+                institutionName: enrollment.user?.institutionName
+            },
+            program: {
+                title: enrollment.program?.title,
+                code: enrollment.program?.code,
+                certificateTemplate: enrollment.program?.certificateTemplate,
+                certificateConfig: enrollment.program?.certificateConfig,
+                startDate: enrollment.program?.startDate,
+                endDate: enrollment.program?.endDate,
+                duration: enrollment.program?.duration
+            },
+            fileUrl: enrollment.program?.fileUrl || null,
+            certificateStatus: enrollment.certificateStatus,
+            enrollmentDate: enrollment.enrolledAt
+        };
+
+        // Return both structured and flat fields for compatibility
         return res.json({
             status: 'VALID',
-            certificateId: enrollment.certificateId,
+            certificate: certificateData,
+            // Flat fields for Verify page backward compatibility
             studentName: enrollment.user?.name || enrollment.studentName,
             programName: enrollment.program?.title || enrollment.programName,
+            courseName: enrollment.program?.title,
             enrollmentDate: enrollment.enrolledAt,
             certificateIssuedDate: enrollment.certificateIssuedAt || enrollment.updatedAt,
-            duration: enrollment.program?.duration || 'N/A',
-            certificateStatus: enrollment.certificateStatus,
             courseStartDate: enrollment.program?.startDate,
-            courseEndDate: enrollment.program?.endDate
+            courseEndDate: enrollment.program?.endDate,
+            duration: enrollment.program?.duration || 'N/A'
         });
     }
 
@@ -387,16 +416,41 @@ const verifyCertificate = asyncHandler(async (req, res) => {
             { certificateId: certificateId },
             { 'verification.code': certificateId } // Legacy code field
         ]
-    }).populate('user', 'name').populate('program', 'title');
+    })
+    .populate('user', 'name email registerNumber')
+    .populate('program', 'title code certificateTemplate certificateConfig startDate endDate duration');
 
     if (legacyCert) {
+        const certificateData = {
+            certificateId: legacyCert.certificateId,
+            issueDate: legacyCert.createdAt,
+            user: {
+                name: legacyCert.user?.name,
+                email: legacyCert.user?.email
+            },
+            program: {
+                title: legacyCert.courseName || legacyCert.program?.title,
+                code: legacyCert.program?.code,
+                certificateTemplate: legacyCert.program?.certificateTemplate,
+                certificateConfig: legacyCert.program?.certificateConfig,
+                startDate: legacyCert.timeline?.startDate,
+                endDate: legacyCert.timeline?.endDate
+            },
+            fileUrl: legacyCert.metadata?.fileUrl || null,
+            info: "Legacy Certificate"
+        };
+
         return res.json({
             status: legacyCert.verification?.status === 'valid' ? 'VALID' : 'INVALID',
-            certificateId: legacyCert.certificateId,
+            certificate: certificateData,
+            // Flat fields for Verify page backward compatibility
             studentName: legacyCert.user?.name,
             programName: legacyCert.courseName || legacyCert.program?.title,
+            courseName: legacyCert.courseName,
             enrollmentDate: legacyCert.timeline?.startDate,
             certificateIssuedDate: legacyCert.createdAt,
+            courseStartDate: legacyCert.timeline?.startDate,
+            courseEndDate: legacyCert.timeline?.endDate,
             duration: legacyCert.timeline?.duration,
             info: "Legacy Certificate"
         });
@@ -622,6 +676,7 @@ const regenerateCertificate = asyncHandler(async (req, res) => {
             },
             courseData: {
                 title: program.title,
+                code: program.code,
                 id: program._id
             },
             certificateId: certificateId,

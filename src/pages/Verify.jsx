@@ -253,23 +253,26 @@ export default function Verify() {
                             <div className="bg-gray-50 rounded-lg border border-gray-200 divide-y divide-gray-200">
                                 <div className="p-4 flex justify-between items-center">
                                     <span className="text-gray-500 text-sm">Student Name</span>
-                                    <span className="font-semibold text-gray-900">{result.studentName}</span>
+                                    <span className="font-semibold text-gray-900">{result.studentName || 'N/A'}</span>
                                 </div>
                                 <div className="p-4 flex justify-between items-center">
                                     <span className="text-gray-500 text-sm">Course</span>
-                                    <span className="font-semibold text-gray-900 text-right max-w-[60%]">{result.programName || result.courseName}</span>
+                                    <span className="font-semibold text-gray-900 text-right max-w-[60%]">{result.programName || result.courseName || 'N/A'}</span>
                                 </div>
                                 <div className="p-4 flex justify-between items-center">
                                     <span className="text-gray-500 text-sm">Course Duration</span>
                                     <span className="font-medium text-gray-900">
                                         {result.courseStartDate && result.courseEndDate
                                             ? `${formatDate(result.courseStartDate, { day: '2-digit', month: 'short', year: 'numeric' })} - ${formatDate(result.courseEndDate, { day: '2-digit', month: 'short', year: 'numeric' })}`
-                                            : formatDate(result.issueDate)}
+                                            : result.certificateIssuedDate 
+                                                ? formatDate(result.certificateIssuedDate)
+                                                : 'N/A'
+                                        }
                                     </span>
                                 </div>
                                 <div className="p-4 flex justify-between items-center">
                                     <span className="text-gray-500 text-sm">Certificate ID</span>
-                                    <span className="font-mono text-sm bg-gray-200 px-2 py-1 rounded">{result.certificateId}</span>
+                                    <span className="font-mono text-sm bg-gray-200 px-2 py-1 rounded">{result.certificateId || 'N/A'}</span>
                                 </div>
                                 {result.status === 'revoked' && (
                                     <div className="p-4 bg-red-50 text-red-700 text-center font-bold">
