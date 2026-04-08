@@ -8502,3 +8502,27 @@
 [AUTH 2026-04-05T17:41:09.270Z] Token found: eyJhbGciOi...
 [AUTH 2026-04-05T17:41:09.271Z] Token decoded ID: 693c1adcad454d06818ab935
 [AUTH 2026-04-05T17:41:09.274Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-05T17:53:43.294Z] Checking Auth for: GET /api/quiz/all
+[AUTH 2026-04-05T17:53:43.296Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-05T17:53:43.306Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-05T17:53:43.315Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T05:54:59.110Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-04-08T05:54:59.115Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T05:54:59.125Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T05:54:59.135Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T05:54:59.240Z] Checking Auth for: GET /api/admin/dashboard
+[AUTH 2026-04-08T05:54:59.242Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T05:54:59.244Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T05:54:59.251Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T05:55:04.426Z] Checking Auth for: GET /api/admin/whatsapp/templates
+[AUTH 2026-04-08T05:55:04.429Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T05:55:04.432Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T05:55:04.439Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T05:55:04.458Z] Checking Auth for: GET /api/admin/whatsapp/templates
+[AUTH 2026-04-08T05:55:04.461Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T05:55:04.465Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T05:55:04.476Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
+[AUTH 2026-04-08T05:55:14.257Z] Checking Auth for: PUT /api/programs/69d2885cac95733fdedcae18
+[AUTH 2026-04-08T05:55:14.267Z] Token found: eyJhbGciOi...
+[AUTH 2026-04-08T05:55:14.269Z] Token decoded ID: 693c1adcad454d06818ab935
+[AUTH 2026-04-08T05:55:14.275Z] User Authenticated: admin@edinztech.com (693c1adcad454d06818ab935)
