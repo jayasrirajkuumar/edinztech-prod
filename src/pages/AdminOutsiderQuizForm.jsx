@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import { getImageUrl } from '../lib/utils';
 
 // ... imports ...
 
@@ -105,7 +106,7 @@ const SimpleFileUploader = ({ file, setFile, currentUrl }) => {
             setPreview(url);
             return () => URL.revokeObjectURL(url);
         } else if (currentUrl) {
-            const fullUrl = currentUrl.startsWith('http') ? currentUrl : `${import.meta.env.VITE_API_URL.replace('/api', '')}/${currentUrl}`;
+            const fullUrl = getImageUrl(currentUrl);
             setPreview(fullUrl);
         } else {
             setPreview(null);

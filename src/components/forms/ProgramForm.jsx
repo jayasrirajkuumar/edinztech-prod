@@ -11,9 +11,9 @@ import { createProgram, uploadProgramTemplate, getWhatsAppTemplates, registerWha
 import Modal from '../ui/Modal';
 import { useNavigate } from 'react-router-dom';
 import { useConfirm } from '../../context/ConfirmContext';
+import { getImageUrl } from '../../lib/utils';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const SERVER_URL = API_URL.replace('/api', '');
 
 // Helper Component for Template Upload
 const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
@@ -36,22 +36,8 @@ const TemplateUploader = ({ label, file, setFile, initialUrl, onRemove }) => {
             setIsImage(isImg);
             return () => URL.revokeObjectURL(objectUrl);
         } else if (initialUrl && typeof initialUrl === 'string' && !isDismissed) {
-            // Existing file from server
-            let url = initialUrl.replace(/\\/g, '/');
-
-            // Handle relative 'uploads/' path by prepending backend URL
-            // This bypasses potential Vite proxy issues
-            if (!url.startsWith('http')) {
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-                const SERVER_URL = API_URL.replace('/api', ''); // Get root 'http://localhost:5000'
-
-                if (url.startsWith('/')) {
-                    url = `${SERVER_URL}${url}`;
-                } else {
-                    url = `${SERVER_URL}/${url}`;
-                }
-            }
-
+            // Existing file from server - use centralized image URL helper
+            const url = getImageUrl(initialUrl);
             setPreview(url);
             const lowerUrl = url.toLowerCase();
             setIsImage(lowerUrl.endsWith('.jpg') || lowerUrl.endsWith('.jpeg') || lowerUrl.endsWith('.png') || lowerUrl.endsWith('.webp'));
@@ -202,9 +188,7 @@ export default function ProgramForm({ defaultValues: initialValues, onSubmit: pa
             return URL.createObjectURL(certificateFile);
         }
         if (initialValues?.certificateTemplate) {
-            const url = initialValues.certificateTemplate.replace(/\\/g, '/');
-            if (url.startsWith('http')) return url;
-            return url.startsWith('/') ? `${SERVER_URL}${url}` : `${SERVER_URL}/${url}`;
+            return getImageUrl(initialValues.certificateTemplate);
         }
         return '';
     }, [certificateFile, initialValues?.certificateTemplate]);

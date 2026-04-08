@@ -16,6 +16,24 @@ const getApiBaseUrl = () => {
     return 'http://localhost:5000/api';
 };
 
+const getBackendUrl = () => {
+    // Use dedicated backend URL for images if set, otherwise derive from API URL
+    const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, '');
+
+    if (backendUrl) {
+        return backendUrl;
+    }
+
+    // Fallback: derive from API URL by removing /api
+    let baseUrl = getApiBaseUrl();
+
+    if (baseUrl.endsWith('/api')) {
+        baseUrl = baseUrl.slice(0, -4);
+    }
+
+    return baseUrl.replace(/\/+$/, '');
+};
+
 const getServerRoot = () => {
     let baseUrl = getApiBaseUrl();
 
@@ -37,7 +55,7 @@ export const getImageUrl = (path) => {
     const cleanPath = uploadsIndex >= 0 ? path.slice(uploadsIndex) : path;
 
     const normalizedPath = cleanPath.startsWith('/') ? cleanPath.slice(1) : cleanPath;
-    const serverRoot = getServerRoot();
+    const backendUrl = getBackendUrl();
 
-    return `${serverRoot}/${normalizedPath}`;
+    return `${backendUrl}/${normalizedPath}`;
 };
